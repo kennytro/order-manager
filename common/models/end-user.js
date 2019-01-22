@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = function(EndUser) {
-  //send verification email after registration
+  // send verification email after registration
   // DISABLED FOR NOW UNTIL EMAIL IS SET UP.
   // EndUser.afterRemote('create', function(context, userInstance, next) {
   //   console.log('> user.afterRemote triggered');
@@ -33,7 +33,7 @@ module.exports = function(EndUser) {
 
   EndUser.createNewUser = async function(email, password, clientId) {
       // NEED CODE HERE
-      // check for existing user 
+      // check for existing user
       // create user
   };
 
@@ -42,7 +42,7 @@ module.exports = function(EndUser) {
     accepts: [
       { arg: 'email', type: 'string', required: true },
       { arg: 'password', type: 'string', required: true },
-      { arg: 'clientId', type: 'string', required: true },
+      { arg: 'clientId', type: 'string', required: true }
     ],
     returns: { type: 'string', root: true }
   });

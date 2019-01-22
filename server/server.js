@@ -27,7 +27,7 @@ app.all('/*', function(req, res, next) {
   if (ENV !== 'production' &&
     app.get('loopback-component-explorer') &&
     req.path.startsWith(app.get('loopback-component-explorer').mountPath)) {
-      next();   // enable explorer in non-production env.
+    next();   // enable explorer in non-production env.
   } else {
     res.sendFile(path.resolve(__dirname, '../dist/index.html'));
   }
