@@ -1,9 +1,13 @@
 'use strict';
 
-var loopback = require('loopback');
-var boot = require('loopback-boot');
+const loopback = require('loopback');
+const boot = require('loopback-boot');
 const path = require('path');
-var app = module.exports = loopback();
+
+require('dotenv').config();
+
+const app = module.exports = loopback();
+const ENV = process.env.NODE_ENV || 'production';
 
 app.start = function() {
   // start the web server
@@ -18,8 +22,15 @@ app.start = function() {
   });
 };
 
+app.use(loopback.static(path.resolve(__dirname, '../dist')));
 app.all('/*', function(req, res, next) {
-  res.sendFile(path.resolve(__dirname, '../dist/index.html'));
+  if (ENV !== 'production' &&
+    app.get('loopback-component-explorer') &&
+    req.path.startsWith(app.get('loopback-component-explorer').mountPath)) {
+      next();   // enable explorer in non-production env.
+  } else {
+    res.sendFile(path.resolve(__dirname, '../dist/index.html'));
+  }
 });
 // Bootstrap the application, configure models, datasources and middleware.
 // Sub-apps like REST API are mounted via boot scripts.
