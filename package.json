@@ -7,12 +7,12 @@
   },
   "scripts": {
     "build:sdk": "./node_modules/.bin/lb-sdk server/server client/src/app/shared/sdk -l angular2 -d ng2web -i disabled",
+    "build:ng": "cd client && \"../node_modules/.bin/ng\" build",
     "lint": "ng lint",
-    "prestart": "pushd client && \"../node_modules/.bin/ng\" build && popd",
     "start": "node .",
+    "postinstall": "cd client && \"../node_modules/.bin/ng\" build --aot",
     "posttest": "npm run lint",
     "ng": "ng",
-    "build": "ng build",
     "test": "ng test",
     "e2e": "ng e2e"
   },
