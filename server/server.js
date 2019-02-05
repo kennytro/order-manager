@@ -5,6 +5,7 @@ const boot = require('loopback-boot');
 const path = require('path');
 
 require('dotenv').config();
+const tenantSettings = require('./tenant');
 
 const app = module.exports = loopback();
 const ENV = process.env.NODE_ENV || 'production';
@@ -21,6 +22,11 @@ app.start = function() {
     }
   });
 };
+
+// Get the local tenant settings from environment variables.
+app.get('/tenant', function(req, res, next) {
+  res.send(tenantSettings);
+});
 
 app.use(loopback.static(path.resolve(__dirname, '../dist')));
 app.all('/*', function(req, res, next) {

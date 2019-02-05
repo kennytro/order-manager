@@ -1,0 +1,47 @@
+.login-container {
+    height: 100vh;
+    width: 100%;
+}
+
+.login-container::before {
+    content: "";
+    display: block;
+    min-height: 30px;
+    flex-grow: 1;    
+}
+
+.login-container::after {
+    content: "";
+    display: block;
+    min-height: 64px;
+    flex-grow: 1;    
+}
+
+/* Disable the auth0 fade-out background */
+::ng-deep.auth0-lock.auth0-lock.auth0-lock-opened .auth0-lock-overlay {
+    opacity: 0 !important;
+}
+/* Set the background color to match logos with a white background */
+::ng-deep.auth0-lock-header {
+    .auth0-lock-header-bg, .auth0-lock-header-bg-blur {
+        background: #fff!important;
+    }
+}
+
+/* auto-set the height so that logos fill the login panel */ 
+@media (min-width: 480px) {
+    ::ng-deep.auth0-lock.auth0-lock {
+        .auth0-lock-header {
+            height: auto !important;
+        }
+        .auth0-lock-header-logo {
+            max-width: 100% !important;
+            height: auto !important;
+        }
+    }
+}
+
+.login-p {
+    margin-top: 10px;
+    text-align: center;
+}

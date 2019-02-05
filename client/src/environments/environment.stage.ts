@@ -1,4 +1,4 @@
 export const environment = {
-  production: true,
+  production: false,
   auth0Namespace: 'https://om.com/'
 };

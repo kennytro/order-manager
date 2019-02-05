@@ -4,8 +4,20 @@ module.exports = {
     "ecmaVersion": "2017"
   },
   "rules": {
-    "object-curly-spacing": ["error", "always"],
+    "camelcase": [
+      "error",
+      {
+        "properties": "never"
+      }
+    ],
     "comma-dangle": ["error", "never"],
+    "indent": [
+        "error",
+        2,
+        {
+          "SwitchCase": 1
+        }
+    ],
     "max-len": [
       "error",
       {
@@ -14,12 +26,6 @@ module.exports = {
         "ignoreTemplateLiterals": true
       }
     ],
-    "indent": [
-        "error",
-        2,
-        {
-          "SwitchCase": 1
-        }
-    ]
+    "object-curly-spacing": ["error", "always"]
   }
 };

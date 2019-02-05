@@ -1,0 +1,18 @@
+.page-container {
+  position: relative;
+  padding: 20px 20px;
+  padding-bottom: 40px;
+}
+
+@media (min-width: 769px) {
+  .page-content {
+    display: table-row;
+  }
+}
+.content-wrapper {
+  width: 100%;
+}
+
+#login-content-wrapper {
+	width: 100%;
+}

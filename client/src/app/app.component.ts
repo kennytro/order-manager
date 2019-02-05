@@ -11,7 +11,7 @@ import { LoopBackConfig } from './shared/sdk/index';
 export class AppComponent {
   title = 'Order Manager';
   constructor() {
-  	LoopBackConfig.setBaseURL(BASE_URL);
-  	LoopBackConfig.setApiVersion(API_VERSION);
+    LoopBackConfig.setBaseURL(BASE_URL);
+    LoopBackConfig.setApiVersion(API_VERSION);
   }
 }
