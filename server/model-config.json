@@ -18,7 +18,7 @@
     "public": false,
     "options": {
       "emailVerificationRequired": true
-    }    
+    }
   },
   "AccessToken": {
     "dataSource": "db",
@@ -40,6 +40,10 @@
     "public": false
   },
   "EndUser": {
+    "dataSource": "OrderManager",
+    "public": false
+  },
+  "PublicPageElement": {
     "dataSource": "OrderManager",
     "public": false
   }

@@ -34,7 +34,18 @@
   },
   "session": {},
   "auth": {},
-  "parse": {},
+  "parse": {
+    "body-parser#json": {
+      "params": {
+        "limit": "1mb"
+      }
+    },
+    "body-parser#urlencoded": {
+      "params": {
+        "extended": true
+      }
+    }
+  },
   "routes": {
     "loopback#rest": {
       "paths": [
@@ -47,6 +58,7 @@
     "loopback#urlNotFound": {}
   },
   "final:after": {
+    "./middleware/error-logger": {},
     "strong-error-handler": {}
   }
 }

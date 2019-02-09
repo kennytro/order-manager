@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
+import { AWS_S3_PUBLIC_URL } from '../shared/base.url';
 import Auth0Lock from 'auth0-lock';
 import get from 'lodash/get';
 
@@ -14,17 +14,13 @@ import { environment } from '../../environments/environment';
 export class AuthService {
   private lock: any;
   private jwtHelper: JwtHelperService = new JwtHelperService();
-  constructor(private http: HttpClient,	private dataShare: RootScopeShareService, private router: Router) {}
+  constructor(private dataShare: RootScopeShareService, private router: Router) {}
 
   async login() {
     // for some reason, saved lock doesn't show again after navigating away to other page.
     // if (!this.lock) {
       // retrieve tenant Auth0 parameters.
       let tenant = this.dataShare.getData('tenant');
-      if (!tenant) {
-        tenant = await this.http.get('/tenant').toPromise();
-        this.dataShare.setData('tenant', tenant);
-      }
       this.lock = new Auth0Lock(tenant.clientId, tenant.domainId, {
         container: 'login-content-wrapper',
         allowSignUp: false,
@@ -43,7 +39,7 @@ export class AuthService {
           title: ''
         },
         theme: {
-          logo: './favicon.ico',
+          logo: AWS_S3_PUBLIC_URL + tenant.id + '/favicon.png',
           primaryColor: '#0B941E'
         }
       });
