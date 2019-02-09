@@ -10,6 +10,6 @@ VALUES
   ('product', 1, '<div><p>Product list name goes here<p></dev>'),
   ('process', 0, '<div><h1>Process Title</h1></dev>'),
   ('process', 1, '<div><p>Process description goes here<p></dev>'),
-  ('contact us', 0, '<div><h1>Contact us Title</h1></dev>'),
+  ('contact us', 0, '<div><h1>Contact Us Title</h1></dev>'),
   ('contact us', 1, '<div><p>Contact us content goes here<p></dev>')
 ;
