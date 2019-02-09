@@ -1,5 +1,6 @@
 {
   "final:after": {
+    "./middleware/error-logger": {},
     "strong-error-handler": {
       "params": {
         "debug": true,

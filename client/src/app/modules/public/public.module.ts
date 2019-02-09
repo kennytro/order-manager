@@ -11,6 +11,14 @@ import { ProductComponent } from './components/product/product.component';
 import { ProcessComponent } from './components/process/process.component';
 import { ContactUsComponent } from './components/contact-us/contact-us.component';
 
+import { LocalScopeShareService } from './services/local-scope-share.service';
+import { ContentService } from './services/content.service';
+import { PublicHomeResolver } from './services/public-home.resolver';
+import { ClientResolver } from './services/client.resolver';
+import { ProductResolver } from './services/product.resolver';
+import { ProcessResolver } from './services/process.resolver';
+import { ContactUsResolver } from './services/contact-us.resolver';
+
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faMobile, faSignInAlt, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 
@@ -29,6 +37,15 @@ import { faMobile, faSignInAlt, faInfoCircle } from '@fortawesome/free-solid-svg
     CommonModule,
     FontAwesomeModule,
     PublicRoutingModule
+  ],
+  providers: [
+    LocalScopeShareService,
+    ContentService,
+    PublicHomeResolver,
+    ClientResolver,
+    ProductResolver,
+    ProcessResolver,
+    ContactUsResolver
   ]
 })
 export class PublicModule {

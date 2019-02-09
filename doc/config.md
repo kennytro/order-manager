@@ -25,6 +25,97 @@ function (user, context, callback) {
 }
 ```
 ***
+# AWS Configuration
+## S3
+Create two buckets, _om-public_ and _om-private_. Make _om-public_ publicly available because we save image files for static web pages. Turn on all "Public access settings" of _om-private_ to block any ACL and policy that allows public access.
+
+## IAM
+Create a group for application servers. You should create a user for each tenant(e.g. dev-app, stage-app, prod-app, etc.) in the group. The IAM user name and credential must be assigned to environment variables in each environment:
+
+|IAM Property|Environment Variable|Note|
+|---|---|---|
+|User name|TENANT_ID|Specifies folder name in each S3 bucket|
+|Access Key ID|AWS_ACCESS_KEY_ID|Allows AWS SDK to access S3 buckets|
+|Secret Key|AWS_SECRET_ACCESS_KEY|Allows AWS SDK to access S3 buckets|
+
+In order to restrict an IAM user to access other IAM user's private folder, assign the following policy to the user group:
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AllowGroupToSeeBucketListInTheConsole",
+            "Action": [
+                "s3:ListAllMyBuckets",
+                "s3:GetBucketLocation"
+            ],
+            "Effect": "Allow",
+            "Resource": [
+                "arn:aws:s3:::*"
+            ]
+        },
+        {
+            "Sid": "AllowRootListingOfPrivateBucket",
+            "Action": [
+                "s3:ListBucket"
+            ],
+            "Effect": "Allow",
+            "Resource": [
+                "arn:aws:s3:::om-private"
+            ],
+            "Condition": {
+                "StringEquals": {
+                    "s3:prefix": [
+                        ""
+                    ],
+                    "s3:delimiter": [
+                        "/"
+                    ]
+                }
+            }
+        },
+        {
+            "Sid": "AllowListingOfUserFolder",
+            "Action": [
+                "s3:ListBucket"
+            ],
+            "Effect": "Allow",
+            "Resource": [
+                "arn:aws:s3:::om-private"
+            ],
+            "Condition": {
+                "StringLike": {
+                    "s3:prefix": [
+                        "${aws:username}/*",
+                        "${aws:username}"
+                    ]
+                }
+            }
+        },
+        {
+            "Sid": "AllowAllS3ActionsInUserFolder",
+            "Action": [
+                "s3:*"
+            ],
+            "Effect": "Allow",
+            "Resource": [
+                "arn:aws:s3:::om-private/${aws:username}/*"
+            ]
+        },
+        {
+            "Sid": "AllowAllS3ActionsInPublicFolder",
+            "Action": [
+                "s3:*"
+            ],
+            "Effect": "Allow",
+            "Resource": [
+                "arn:aws:s3:::om-public/*"
+            ]
+        }
+    ]
+}
+``` 
+***
 
 # Server Configuration
 ## Auth0 settings

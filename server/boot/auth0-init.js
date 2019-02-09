@@ -34,6 +34,6 @@ module.exports = async function(app) {
       console.log('Successfully created admin user.');
     }
   } catch (err) {
-    console.log('error:' + err);
+    console.log('error: ' + err);
   }
 };

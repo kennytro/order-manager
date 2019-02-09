@@ -6,9 +6,16 @@ const path = require('path');
 
 require('dotenv').config();
 const tenantSettings = require('./tenant');
+const getPublicContent = require('./middleware/public-content');
 
 const app = module.exports = loopback();
 const ENV = process.env.NODE_ENV || 'production';
+
+if (ENV === 'production') {
+  process.on('unhandledRejection', (reason, p) => {
+    console.error('Unhandled Rejection at: Promise', p, 'reason:', reason);
+  });
+}
 
 app.start = function() {
   // start the web server
@@ -26,6 +33,11 @@ app.start = function() {
 // Get the local tenant settings from environment variables.
 app.get('/tenant', function(req, res, next) {
   res.send(tenantSettings);
+});
+
+// Getting public page content bypasses authentication.
+app.get('/public/:name', function(req, res, next) {
+  getPublicContent(app, req, res, next);
 });
 
 app.use(loopback.static(path.resolve(__dirname, '../dist')));

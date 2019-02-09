@@ -1,6 +1,7 @@
 'use strict';
 
 module.exports = {
+  id: process.env.TENANT_ID || 'om-app-dev',
   connection: process.env.AUTH0_CONNECTION,
   clientId: process.env.AUTH0_CLIENT_ID,
   domainId: process.env.AUTH0_DOMAIN_ID,

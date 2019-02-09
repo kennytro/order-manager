@@ -1,0 +1,44 @@
+{
+  "name": "PublicPageElement",
+  "base": "PersistedModel",
+  "idInjection": false,
+  "options": {
+    "validateUpsert": true,
+    "postgresql": {
+      "schema": "public",
+      "table": "public_page_element"
+    }
+  },
+  "properties": {
+    "id": {
+      "type": "string",
+      "required": true,
+      "defaultFn": "uuid",
+      "postgresql": {
+        "dataType": "uuid",
+        "nullable": "NO"
+      }
+    },
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "sequenceNumber": {
+      "type": "number",
+      "required": true,
+      "default": 0,
+      "postgresql": {
+        "columnName": "sequence_number"
+      }
+    },
+    "value": {
+      "type": "string",
+      "required": true,
+      "default": "\"<div></div>\""
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}
