@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Router, Route, CanActivate, CanActivateChild, CanLoad } from '@angular/router';
+import { CookieService } from 'ngx-cookie-service';
 
 import { AuthService } from '../../../services/auth.service';
 import { RootScopeShareService } from '../../../services/root-scope-share.service';
@@ -13,11 +14,12 @@ export class RoleGuardService implements CanActivate, CanActivateChild, CanLoad 
 
   constructor(private _auth: AuthService,
     private _router: Router,
-    private _dataShare: RootScopeShareService) { }
+    private _dataShare: RootScopeShareService,
+    private _cookieService: CookieService) { }
  
   canActivate(): boolean {
     if (this._auth.isAuthenticated()) {
-      const roles = this._dataShare.getData('roles');
+      const roles = this._cookieService.check('roles') ? JSON.parse(this._cookieService.get('roles')) : [];
       const allowedRoles = ['customer', 'manager', 'admin'];
       if (intersection(roles, allowedRoles).length > 0) {
         return true;
@@ -33,7 +35,7 @@ export class RoleGuardService implements CanActivate, CanActivateChild, CanLoad 
 
   canLoad(route: Route) {
     if (this.canActivate()) {
-      const roles = this._dataShare.getData('roles') || [];
+      const roles = this._cookieService.check('roles') ? JSON.parse(this._cookieService.get('roles')) : [];
       if (route.path === 'customer' &&
         intersection(['customer'], roles).length > 0) {
         return true;

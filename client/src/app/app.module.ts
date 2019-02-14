@@ -8,6 +8,7 @@ import { PublicModule } from './modules/public/public.module';
 import { AppComponent } from './app.component';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 
+import { CookieService } from 'ngx-cookie-service';
 import { AppInitService } from './services/app-init.service';
 import { AuthService } from './services/auth.service';
 import { AuthGuardService } from './services/auth-guard.service';
@@ -31,6 +32,7 @@ export function initializeApp(appInitService: AppInitService) {
     AppRoutingModule
   ],
   providers: [
+    CookieService,
     AppInitService,
     AuthService,
     AuthGuardService,
