@@ -17,7 +17,6 @@ export function initializeApp(appInitService: AppInitService) {
   return (): Promise<any> => { 
     return appInitService.init();
   }
-  // return await appInitService.init();
 }
 
 @NgModule({

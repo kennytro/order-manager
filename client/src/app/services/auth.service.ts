@@ -61,7 +61,7 @@ export class AuthService {
     console.log(`Saved Auth0 token for user ${authResult.idTokenPayload.email}`);
 
     const appMetadata = get(authResult, ['idTokenPayload', environment.auth0Namespace + 'appMetadata'], {});
-    this.dataShare.setData('role', appMetadata.roles);
+    this.dataShare.setData('roles', appMetadata.roles);
 
     // TODO: parse customer's store id
     // this.dataShare.setData('storeId', appMetadata.storeId);
@@ -73,7 +73,7 @@ export class AuthService {
     // this.dataShare.removeData('idToken');    
     this.dataShare.removeData('roles');
     // this.dataShare.removeData('storeId')
-    this.router.navigate(['/public/login']);
+    this.router.navigate(['/login']);
   }
 
   isAuthenticated() {

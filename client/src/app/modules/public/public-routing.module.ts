@@ -14,10 +14,9 @@ import { ContactUsComponent } from './components/contact-us/contact-us.component
 import { ContactUsResolver } from './services/contact-us.resolver';
 import { LoginComponent } from './components/login/login.component';
 
-
 const routes: Routes = [
   {
-    path: 'public',
+    path: '',
     component: PublicLayoutComponent,
     children: [
       { path: '', redirectTo: 'home', pathMatch: 'full' },

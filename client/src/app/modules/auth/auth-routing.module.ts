@@ -1,12 +1,27 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { AuthHomeComponent } from './components/auth-home/auth-home.component';
+import { AuthLayoutComponent } from './components/auth-layout/auth-layout.component';
+
+import { RoleGuardService } from './services/role-guard.service';
 
 const routes: Routes = [
   {
     path: '',
-    component: AuthHomeComponent
+    component: AuthLayoutComponent,
+    canActivateChild: [RoleGuardService],
+    children: [
+      {
+        path: 'customer',
+        loadChildren: './modules/customer/customer.module#CustomerModule',
+        canLoad: [RoleGuardService]
+      },
+      {
+        path: 'employee',
+        loadChildren: './modules/employee/employee.module#EmployeeModule',
+        canLoad: [RoleGuardService]
+      }
+    ]
   }
 ];
 
@@ -14,4 +29,5 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class AuthRoutingModule { }
+export class AuthRoutingModule { };
+

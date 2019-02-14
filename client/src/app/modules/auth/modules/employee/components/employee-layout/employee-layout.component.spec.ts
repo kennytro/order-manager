@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AuthHomeComponent } from './auth-home.component';
+import { EmployeeLayoutComponent } from './employee-layout.component';
 
-describe('AuthHomeComponent', () => {
-  let component: AuthHomeComponent;
-  let fixture: ComponentFixture<AuthHomeComponent>;
+describe('EmployeeLayoutComponent', () => {
+  let component: EmployeeLayoutComponent;
+  let fixture: ComponentFixture<EmployeeLayoutComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ AuthHomeComponent ]
+      declarations: [ EmployeeLayoutComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(AuthHomeComponent);
+    fixture = TestBed.createComponent(EmployeeLayoutComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
