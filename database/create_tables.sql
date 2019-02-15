@@ -19,3 +19,16 @@ CREATE TABLE IF NOT EXISTS public_page_element
   value text NULL,
   CONSTRAINT public_page_element_unique UNIQUE (name, sequence_number)
 );
+
+CREATE TABLE IF NOT EXISTS client
+(
+  id int PRIMARY KEY,
+  name text NOT NULL,
+  address_street text,
+  address_city text,
+  address_state text,
+  address_zip text
+);
+CREATE SEQUENCE IF NOT EXISTS client_sequencer
+  MINIVALUE 1000
+  OWNED BY client.id;

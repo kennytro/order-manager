@@ -1,0 +1,50 @@
+{
+  "name": "Client",
+  "plural": "Clients",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true,
+    "postgresql": {
+      "schema": "public",
+      "table": "client"
+    }
+  },
+  "properties": {
+    "id": {
+      "type": "number"
+    },
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "addressStreet": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "address_street"
+      }
+    },
+    "addressCity": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "address_city"
+      }
+    },
+    "addressState": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "address_state"
+      }
+    },
+    "addressZip": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "address_zip"
+      }
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

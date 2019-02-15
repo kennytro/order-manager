@@ -40,6 +40,8 @@ app.get('/public/:name', function(req, res, next) {
   getPublicContent(app, req, res, next);
 });
 
+app.use('/api', loopback.rest());
+
 app.use(loopback.static(path.resolve(__dirname, '../dist')));
 app.all('/*', function(req, res, next) {
   if (ENV !== 'production' &&
