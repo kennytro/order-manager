@@ -65,11 +65,19 @@ export class AuthService {
     console.log(`Saved Auth0 token for user ${authResult.idTokenPayload.email}`);
 
     const appMetadata = get(authResult, ['idTokenPayload', environment.auth0Namespace + 'appMetadata'], {});
-    this._cookieService.set('roles', JSON.stringify(appMetadata.roles), null, '/');
+    const roles = get(appMetadata, 'roles', []);
+    this._cookieService.set('roles', JSON.stringify(roles), null, '/');
 
     // TODO: parse customer's store id
     // this.dataShare.setData('storeId', appMetadata.storeId);
-    this.router.navigate(['/auth']);    
+    // navigate based on user roles.
+    if (roles.includes('customer')) {
+      this.router.navigate(['auth/customer']);
+    }
+    if (roles.includes('manager') || roles.includes('admin')) {
+      this.router.navigate(['auth/employee']);
+    }
+    // TODO: handle unauthorized user role.
   }
 
   logout() {

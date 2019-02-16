@@ -1,14 +1,11 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { AuthLayoutComponent } from './components/auth-layout/auth-layout.component';
-
 import { RoleGuardService } from './services/role-guard.service';
 
 const routes: Routes = [
   {
     path: '',
-    component: AuthLayoutComponent,
     canActivateChild: [RoleGuardService],
     children: [
       {
