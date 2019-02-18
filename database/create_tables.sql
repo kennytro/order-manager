@@ -27,7 +27,8 @@ CREATE TABLE IF NOT EXISTS client
   address_street text,
   address_city text,
   address_state text,
-  address_zip text
+  address_zip text,
+  created_date timestamptz DEFAULT now();
 );
 CREATE SEQUENCE IF NOT EXISTS client_sequencer
   MINIVALUE 1000

@@ -41,6 +41,13 @@
       "postgresql": {
         "columnName": "address_zip"
       }
+    },
+    "createdDate": {
+      "type": "date",
+      "postgresql": {
+        "dateType": "timestamptz",
+        "columnName": "created_date"
+      }
     }
   },
   "validations": [],

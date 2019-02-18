@@ -27,8 +27,13 @@
   color: #333;
 }
 
-.sidebar .nav-link.active {
-  color: #007bff;
+
+.sidebar .active a{
+  color: #1e90ff;
+}
+
+.sidebar .nav-link:hover{
+  color: gray;
 }
 
 /*

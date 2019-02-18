@@ -6,7 +6,7 @@
     "node": ">=4"
   },
   "scripts": {
-    "build:sdk": "./node_modules/.bin/lb-sdk server/server client/src/app/shared/sdk -l angular2 -d ng2web -i disabled",
+    "build:sdk": "set ONE_OFF=true&& \"./node_modules/.bin/lb-sdk\" server/server client/src/app/shared/sdk -l angular2 -d ng2web -i disabled",
     "build:ng": "cd client && \"../node_modules/.bin/ng\" build",
     "heroku-postbuild": "cd client && \"../node_modules/.bin/ng\" build --aot -c=$NODE_ENV",
     "lint": "ng lint",
@@ -58,11 +58,11 @@
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.12.0",
     "@angular/cli": "~7.2.1",
-    "@angular/compiler-cli": "~7.2.0",
+    "@angular/compiler-cli": "^7.2.5",
     "@angular/language-service": "~7.2.0",
-    "@types/node": "~8.9.4",
     "@types/jasmine": "~2.8.8",
     "@types/jasminewd2": "~2.0.3",
+    "@types/node": "~8.9.4",
     "codelyzer": "~4.5.0",
     "eslint": "^3.17.1",
     "eslint-config-loopback": "^8.0.0",

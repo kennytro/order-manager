@@ -8,6 +8,7 @@ export interface ClientInterface {
   "addressCity"?: string;
   "addressState"?: string;
   "addressZip"?: string;
+  "createdDate"?: Date;
 }
 
 export class Client implements ClientInterface {
@@ -17,6 +18,7 @@ export class Client implements ClientInterface {
   "addressCity": string;
   "addressState": string;
   "addressZip": string;
+  "createdDate": Date;
   constructor(data?: ClientInterface) {
     Object.assign(this, data);
   }
@@ -73,6 +75,10 @@ export class Client implements ClientInterface {
         "addressZip": {
           name: 'addressZip',
           type: 'string'
+        },
+        "createdDate": {
+          name: 'createdDate',
+          type: 'Date'
         },
       },
       relations: {

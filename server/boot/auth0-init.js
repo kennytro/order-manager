@@ -4,6 +4,10 @@ const auth0ManagementClient = require('auth0').ManagementClient;
 const tenantSettings = require('../tenant');
 
 module.exports = async function(app) {
+  if (process.env.ONE_OFF) {
+    return;  // skip initialization for one off process.
+  }
+
   const clientId = process.env.AUTH0_API_CLIENT_ID;
   const clientSecret = process.env.AUTH0_API_CLIENT_SECRET;
   const adminEmail = process.env.ADMIN_EMAIL;
