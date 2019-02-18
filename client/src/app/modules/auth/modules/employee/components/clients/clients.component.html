@@ -8,30 +8,26 @@
   </div>
 </div>
 <div class="table-responsive">
-  <table class="table table-striped table-sm">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>NAME</th>
-        <th>STREET</th>
-        <th>CITY</th>
-        <th>STATE</th>
-        <th>ZIP</th>
-        <th>CREATED</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let client of getClients()">
-        <td><a [routerLink]="[client.id]">{{client.id}}</a></td>
-        <td>{{client.name}}</td>
-        <td>{{client.addressStreet}}</td>
-        <td>{{client.addressCity}}</td>
-        <td>{{client.addressState}}</td>
-        <td>{{client.addressZip}}</td>
-        <td>{{client.createdDate | date:'shortDate'}}</td>
-      </tr>
-    </tbody>
-  </table>
+  <mat-form-field>
+    <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Search">
+  </mat-form-field>
+  <div class="mat-elevation-z8">
+    <table mat-table [dataSource]="getClients()" matSort>
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
+        <td mat-cell *matCellDef="let row"><a [routerLink]="[row.id]">{{row.id}}</a></td>
+      </ng-container>
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> NAME </th>
+        <td mat-cell *matCellDef="let row"> {{row.name}} </td>
+      </ng-container>
+      <ng-container matColumnDef="createdDate">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> CREATED </th>
+        <td mat-cell *matCellDef="let row"> {{row.createdDate | date:'shortDate'}} </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+    <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+  </div>
 </div>
-<!-- 
-<a routerLink="100">Client 100</a> -->

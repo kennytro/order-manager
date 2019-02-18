@@ -1,4 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
+
+/* TO DO: replace pre-built in theme with custom theme.*/
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
 main {
 	margin-left: 50px;
 	margin-right: 50px;

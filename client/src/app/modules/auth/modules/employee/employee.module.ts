@@ -2,6 +2,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { CustomMaterialModule } from '../../../../shared/custom-material.module';
 import { EmployeeRoutingModule } from './employee-routing.module';
 
 // Components
@@ -23,6 +24,7 @@ import { faSignOutAlt, faCog, faChartLine, faShoppingCart, faFileInvoiceDollar, 
   imports: [
     CommonModule,
     FontAwesomeModule,
+    CustomMaterialModule,
     EmployeeRoutingModule
   ],
   providers: [

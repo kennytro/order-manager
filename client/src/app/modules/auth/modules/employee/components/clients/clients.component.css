@@ -1,3 +1,25 @@
+table {
+  width: 100%;
+}
+
+.mat-form-field {
+  font-size: 14px;
+  width: 100%;
+}
+
+.mat-form-filed.input {
+  background-color: rgba(192, 192, 192, .2);
+  border-color: rgba(255, 255, 255, .1);  
+}
+
+td, th {
+  width: 25%;
+}
+
+th {
+  font-weight: 900;
+}
+
 .btn-toolbar .btn {
   color: white;
   background-color: #2eb82e

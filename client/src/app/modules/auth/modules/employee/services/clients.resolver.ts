@@ -14,7 +14,10 @@ export class ClientsResolver implements Resolve<Client[]> {
 
   async resolve() {
     try {
-      return await this._clientApi.find<Client>().toPromise();
+      let filter = {
+        fields: { id: true, name: true, createdDate: true }
+      }
+      return await this._clientApi.find<Client>(filter).toPromise();
     } catch (err) {
       console.log('error: ' + err.message);
     }
