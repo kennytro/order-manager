@@ -1,12 +1,22 @@
 import { NgModule } from '@angular/core';
 import { MatTableModule, MatSortModule, MatPaginatorModule,
-         MatFormFieldModule } from '@angular/material';
+         MatFormFieldModule, MatDialogModule, MatDividerModule,
+         MatButtonModule } from '@angular/material';
 import { MatInputModule } from '@angular/material/input';
 
+const modules = [
+  MatButtonModule,
+  MatDialogModule,
+  MatDividerModule,
+  MatFormFieldModule,
+  MatInputModule,
+  MatPaginatorModule,
+  MatSortModule,
+  MatTableModule
+];
+
 @NgModule({
-  imports: [MatTableModule, MatSortModule, MatPaginatorModule,
-    MatFormFieldModule, MatInputModule],
-  exports: [MatTableModule, MatSortModule, MatPaginatorModule,
-    MatFormFieldModule, MatInputModule]
+  imports: modules,
+  exports: modules
 })
 export class CustomMaterialModule { }

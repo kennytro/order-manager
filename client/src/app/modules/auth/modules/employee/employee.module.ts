@@ -10,7 +10,7 @@ import { EmployeeLayoutComponent } from './components/employee-layout/employee-l
 import { ClientsComponent } from './components/clients/clients.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { ClientDetailComponent } from '../../shared/components/client-detail/client-detail.component';
-
+import { ConfirmLogoutComponent } from '../../shared/components/confirm-logout/confirm-logout.component';
 // Services
 import { ClientsResolver } from './services/clients.resolver';
 
@@ -20,7 +20,8 @@ import { faSignOutAlt, faCog, faChartLine, faShoppingCart, faFileInvoiceDollar, 
          faUsers, faPlus } from '@fortawesome/free-solid-svg-icons';
 
 @NgModule({
-  declarations: [EmployeeLayoutComponent, ClientsComponent, DashboardComponent, ClientDetailComponent],
+  declarations: [EmployeeLayoutComponent, ClientsComponent, DashboardComponent,
+    ClientDetailComponent, ConfirmLogoutComponent],
   imports: [
     CommonModule,
     FontAwesomeModule,
@@ -29,6 +30,9 @@ import { faSignOutAlt, faCog, faChartLine, faShoppingCart, faFileInvoiceDollar, 
   ],
   providers: [
     ClientsResolver
+  ],
+  entryComponents: [
+    ConfirmLogoutComponent
   ]
 })
 export class EmployeeModule {

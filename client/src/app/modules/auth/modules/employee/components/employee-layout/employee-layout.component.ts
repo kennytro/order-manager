@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material';
 // import { Router } from '@angular/router';
 // import { CookieService } from 'ngx-cookie-service';
+import { ConfirmLogoutComponent } from '../../../../shared/components/confirm-logout/confirm-logout.component';
 
 import { AWS_S3_PUBLIC_URL } from '../../../../../../shared/base.url';
 import { AuthService } from '../../../../../../services/auth.service';
@@ -15,7 +17,9 @@ export class EmployeeLayoutComponent implements OnInit {
   private _companyLogo: string;
   private _companyName: string;
   constructor(public auth: AuthService,
-    private _dataShare: RootScopeShareService/*,
+    private _dataShare: RootScopeShareService,
+    private _logoutDialog: MatDialog
+    /*,
     private _router: Router,
     private _cookieService: CookieService*/) { }
 
@@ -33,8 +37,12 @@ export class EmployeeLayoutComponent implements OnInit {
   }
 
   logout() {
-    // TODO: confirm with user before logout.
-    this.auth.logout();
+    const dialogRef = this._logoutDialog.open(ConfirmLogoutComponent);
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.auth.logout();
+      }
+    })
   }
 
   getCompanyLogo() {
