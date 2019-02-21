@@ -3,7 +3,6 @@ import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { SDKBrowserModule } from './shared/sdk/index';
-import { CustomMaterialModule } from './shared/custom-material.module';
 import { PublicModule } from './modules/public/public.module';
 
 import { AppComponent } from './app.component';
@@ -28,7 +27,6 @@ export function initializeApp(appInitService: AppInitService) {
   ],
   imports: [
     BrowserModule,
-    CustomMaterialModule,
     BrowserAnimationsModule,
     PublicModule,
     SDKBrowserModule.forRoot(),

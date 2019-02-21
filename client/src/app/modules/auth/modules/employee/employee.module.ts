@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { CustomMaterialModule } from '../../../../shared/custom-material.module';
+import { SharedModule } from '../../../../shared/shared.module';
 import { EmployeeRoutingModule } from './employee-routing.module';
 
 // Components
@@ -36,6 +37,7 @@ import { faSignOutAlt, faCog, faChartLine, faShoppingCart, faFileInvoiceDollar, 
     FormsModule,
     FontAwesomeModule,
     CustomMaterialModule,
+    SharedModule,
     EmployeeRoutingModule
   ],
   providers: [

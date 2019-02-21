@@ -44,7 +44,7 @@
       <div fxFlex="1 0 300px">
         <mat-form-field appearance="outline">
           <mat-label>Phone</mat-label>
-          <input matInput placeholder="Business phone #" [(ngModel)]="client.phone">
+          <input matInput placeholder="Business phone #" [(ngModel)]="client.phone" [textMask]="{mask: phoneMask}">
         </mat-form-field>
       </div>
       <div fxFlex="1 0 300px">
@@ -73,7 +73,7 @@
         <div>
           <mat-form-field appearance="outline">
             <mat-label>Phone</mat-label>
-            <input matInput placeholder="Phone" [(ngModel)]="client.contactPersonPhone">
+            <input matInput placeholder="Phone" [(ngModel)]="client.contactPersonPhone" [textMask]="{mask: phoneMask}">
           </mat-form-field>  
         </div>
         <div>
@@ -97,7 +97,7 @@
         <div>
           <mat-form-field appearance="outline">
             <mat-label>Phone</mat-label>
-            <input matInput placeholder="Phone" [(ngModel)]="client.contactPersonAltPhone">
+            <input matInput placeholder="Phone" [(ngModel)]="client.contactPersonAltPhone" [textMask]="{mask: phoneMask}">
           </mat-form-field>  
         </div>
         <div>
@@ -136,7 +136,7 @@
         <div fxFlex="1 0 150px">
           <mat-form-field appearance="outline">
             <mat-label>Fee Value</mat-label>
-            <input matInput class="right" placeholder="Fee value" [(ngModel)]="client.feeValue">
+            <input matInput type="number" class="right" placeholder="Fee value" [(ngModel)]="client.feeValue">
             <span matPrefix *ngIf="client.feeType==='Fixed'">$&nbsp;</span>
             <span matSuffix *ngIf="client.feeType==='Rate'">%&nbsp;</span>
           </mat-form-field>

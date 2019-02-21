@@ -27,7 +27,7 @@ export class ClientDetailComponent implements OnInit {
   businessEmailFC = new FormControl('', [Validators.email]);
   personEmailFC = new FormControl('', [Validators.email]);
   personAltEmailFC = new FormControl('', [Validators.email]);
-
+  phoneMask: any[] = ['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/];
 
   constructor(
     private _route: ActivatedRoute,
@@ -51,6 +51,7 @@ export class ClientDetailComponent implements OnInit {
   async save() {
     console.log('clicked save client');
     try {
+      // preprocess values
       this.client.email = this.businessEmailFC.value;
       this.client.contactPersonEmail = this.personEmailFC.value;
       this.client.contactPersonAltEmail = this.personAltEmailFC.value;
