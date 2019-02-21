@@ -20,6 +20,21 @@ CREATE TABLE IF NOT EXISTS public_page_element
   CONSTRAINT public_page_element_unique UNIQUE (name, sequence_number)
 );
 
+CREATE TABLE IF NOT EXISTS delivery_route
+(
+  id text PRIMARY KEY,
+  description text,
+  driver_name text,
+  driver_phone text
+);
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'fee_type') THEN
+      CREATE TYPE fee_type AS  ENUM ('Fixed', 'Rate');
+  END IF;
+END$$;
+
 CREATE TABLE IF NOT EXISTS client
 (
   id int PRIMARY KEY,
@@ -28,6 +43,18 @@ CREATE TABLE IF NOT EXISTS client
   address_city text,
   address_state text,
   address_zip text,
+  phone text,
+  email text,
+  contact_person_name text,
+  contact_person_phone text,
+  contact_person_email text,
+  contact_person_alt_name text,
+  contact_person_alt_phone text,
+  contact_person_alt_email text,
+  fee_type fee_type DEFAULT 'Rate',
+  fee_value numeric DEFAULT 0,
+  show_public bool DEFAULT false,
+  delivery_route_id text REFERENCES delivery_route,
   created_date timestamptz DEFAULT now();
 );
 CREATE SEQUENCE IF NOT EXISTS client_sequencer

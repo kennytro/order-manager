@@ -5,10 +5,8 @@ import { AuthRoutingModule } from './auth-routing.module';
 
 import { RoleGuardService } from './services/role-guard.service';
 
-// import { ClientDetailComponent } from './shared/components/client-detail/client-detail.component';
-
 @NgModule({
-  declarations: [/* ClientDetailComponent */],
+  declarations: [],
   imports: [
     CommonModule,
     AuthRoutingModule

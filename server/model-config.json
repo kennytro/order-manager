@@ -50,5 +50,9 @@
   "Client": {
     "dataSource": "OrderManager",
     "public": true
+  },
+  "DeliveryRoute": {
+    "dataSource": "OrderManager",
+    "public": true
   }
 }

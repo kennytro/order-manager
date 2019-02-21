@@ -7,7 +7,8 @@ import { ClientsComponent } from './components/clients/clients.component';
 import { ClientDetailComponent } from '../../shared/components/client-detail/client-detail.component';
 
 import { ClientsResolver } from './services/clients.resolver';
-
+import { ClientDetailResolver } from '../../shared/services/client-detail.resolver';
+import { DeliveryRoutesResolver } from './services/delivery-routes.resolver';
 const routes: Routes = [
   {
     path: '',
@@ -20,7 +21,11 @@ const routes: Routes = [
         children: [
           {
             path: ':id',
-            component: ClientDetailComponent
+            component: ClientDetailComponent,
+            resolve: {
+              client: ClientDetailResolver,
+              deliveryRoutes: DeliveryRoutesResolver
+            }
           },
           {
             path: '',

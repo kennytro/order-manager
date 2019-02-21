@@ -9,7 +9,7 @@ import { Client } from '../../../../../../shared/sdk/models';
   styleUrls: ['./clients.component.css']
 })
 export class ClientsComponent implements OnInit {
-  displayedColumns: string[] = ['id', 'name', 'createdDate'];
+  displayedColumns: string[] = ['id', 'name', 'phone', 'deliveryRouteId', 'createdDate'];
   private _clients: MatTableDataSource<Client>;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;

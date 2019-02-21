@@ -1,0 +1,45 @@
+{
+  "name": "DeliveryRoute",
+  "plural": "DeliveryRoutes",
+  "base": "PersistedModel",
+  "idInjection": false,
+  "options": {
+    "validateUpsert": true,
+    "postgresql": {
+      "schema": "public",
+      "table": "delivery_route"
+    }
+  },
+  "properties": {
+    "id": {
+      "type": "string",
+      "id": true,
+      "required": true
+    },
+    "description": {
+      "type": "string"
+    },
+    "driverName": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "driver_name"
+      }
+    },
+    "driverPhone": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "driver_phone"
+      }
+    }
+  },
+  "validations": [],
+  "relations": {
+    "clients": {
+      "type": "hasMany",
+      "model": "Client",
+      "foreignKey": "deliveryRouteId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

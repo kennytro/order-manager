@@ -13,3 +13,8 @@ VALUES
   ('contact us', 0, '<div><h1>Contact Us Title</h1></dev>'),
   ('contact us', 1, '<div><p>Contact us content goes here<p></dev>')
 ;
+
+TRUNCATE TABLE delivery_route;
+INSERT INTO delivery_route (id, description)
+VALUES ('Pick Up', 'Customer picks up orders.')
+;

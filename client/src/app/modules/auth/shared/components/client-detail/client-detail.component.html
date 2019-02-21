@@ -1,3 +1,151 @@
-<p>
-  client-detail works!
-</p>
+<a routerLink="../"><fa-icon icon="long-arrow-alt-left"></fa-icon> Clients</a>
+ <mat-card>
+  <mat-card-header>
+    <div mat-card-avatar><fa-icon icon="store-alt" size="3x"></fa-icon></div>
+    <mat-card-title>Client Datails - ID: {{client.id}}</mat-card-title>
+    <mat-card-subtitle>Created on {{client.createdDate | date:'medium' }}</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content class="form-container">
+    <div>
+      <mat-divider></mat-divider>
+      <h5 mat-subheader>Business Information</h5>
+    </div>
+    <mat-form-field appearance="outline">
+      <mat-label>Name</mat-label>
+      <input matInput placeholder="Client name" [(ngModel)]="client.name" required>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Street</mat-label>
+      <input matInput placeholder="Street number, name, etc." [(ngModel)]="client.addressStreet">
+    </mat-form-field>
+    <div fxLayout="row wrap" fxLayoutGap="20px" fxLayoutAlign="center space-between">
+      <div fxFlex="3 0 300px">
+        <mat-form-field appearance="outline">
+          <mat-label>City</mat-label>
+          <input matInput placeholder="City" [(ngModel)]="client.addressCity">
+        </mat-form-field>
+      </div>
+      <div fxFlex="1 0 150px">
+        <mat-form-field appearance="outline">    
+          <mat-label>State</mat-label>
+          <mat-select placeholder="State" [(ngModel)]="client.addressState">
+            <mat-option *ngFor="let state of stateList" [value]="state">{{ state }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div fxFlex="1 0 200px">
+        <mat-form-field appearance="outline">
+          <mat-label>Zip Code</mat-label>
+          <input matInput placeholder="Zip code" [(ngModel)]="client.addressZip">
+        </mat-form-field>
+      </div>
+    </div>
+    <div fxLayout="row wrap" fxLayoutGap="20px" fxLayoutAlign="center space-between">
+      <div fxFlex="1 0 300px">
+        <mat-form-field appearance="outline">
+          <mat-label>Phone</mat-label>
+          <input matInput placeholder="Business phone #" [(ngModel)]="client.phone">
+        </mat-form-field>
+      </div>
+      <div fxFlex="1 0 300px">
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <input matInput placeholder="Business email address" [formControl]="businessEmailFC">
+          <mat-error *ngIf="businessEmailFC.hasError('email')">
+            Please, enter a valid email address
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+    <div>
+      <mat-divider></mat-divider>
+      <h5 mat-subheader>Contact Information</h5>
+    </div>
+    <div fxLayout="row wrap" fxLayoutGap="20px" fxLayoutAlign="space-between stretch">
+      <div fxLayout="column" fxFlex="45">
+        Contact Person
+        <div>
+          <mat-form-field appearance="outline">
+            <mat-label>Name</mat-label>
+            <input matInput placeholder="Name" [(ngModel)]="client.contactPersonName">
+          </mat-form-field>  
+        </div>
+        <div>
+          <mat-form-field appearance="outline">
+            <mat-label>Phone</mat-label>
+            <input matInput placeholder="Phone" [(ngModel)]="client.contactPersonPhone">
+          </mat-form-field>  
+        </div>
+        <div>
+          <mat-form-field appearance="outline">
+            <mat-label>Email</mat-label>
+            <input matInput placeholder="Email" [formControl]="personEmailFC">
+            <mat-error *ngIf="personEmailFC.hasError('email')">
+              Please, enter a valid email address
+            </mat-error>
+          </mat-form-field>  
+        </div>
+      </div>
+      <div fxLayout="column" fxFlex="45">
+        Alternative Contact Person
+        <div>
+          <mat-form-field appearance="outline">
+            <mat-label>Name</mat-label>
+            <input matInput placeholder="Name" [(ngModel)]="client.contactPersonAltName">
+          </mat-form-field>  
+        </div>
+        <div>
+          <mat-form-field appearance="outline">
+            <mat-label>Phone</mat-label>
+            <input matInput placeholder="Phone" [(ngModel)]="client.contactPersonAltPhone">
+          </mat-form-field>  
+        </div>
+        <div>
+          <mat-form-field appearance="outline">
+            <mat-label>Email</mat-label>
+            <input matInput placeholder="Email" [formControl]="personAltEmailFC">
+            <mat-error *ngIf="personAltEmailFC.hasError('email')">
+              Please, enter a valid email address
+            </mat-error>
+          </mat-form-field>  
+        </div>
+      </div>
+    </div>
+    <div>
+      <mat-divider></mat-divider>
+      <h5 mat-subheader>Order Information</h5>
+    </div>
+    <div fxLayout="row wrap" fxLayoutGap="20px" fxLayoutAlign="space-between stretch">
+      <div fxFlex="2 0 300px">
+        <mat-form-field appearance="outline">
+          <mat-label>Delivery Route</mat-label>
+          <mat-select placeholder="Select route" [(ngModel)]="client.deliveryRouteId">
+            <mat-option *ngFor="let route of routeList" [value]="route">{{ route }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div fxLayout="row wrap" fxLayoutGap="10px" fxLayoutAlign="space-between stretch">
+        <div fxFlex="1 0 150px">
+          <mat-form-field appearance="outline">
+            <mat-label>Fee Type</mat-label>
+            <mat-select placeholder="Select fee type" [(ngModel)]="client.feeType">
+              <mat-option *ngFor="let feeType of feeTypeList" [value]="feeType">{{ feeType }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div fxFlex="1 0 150px">
+          <mat-form-field appearance="outline">
+            <mat-label>Fee Value</mat-label>
+            <input matInput class="right" placeholder="Fee value" [(ngModel)]="client.feeValue">
+            <span matPrefix *ngIf="client.feeType==='Fixed'">$&nbsp;</span>
+            <span matSuffix *ngIf="client.feeType==='Rate'">%&nbsp;</span>
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+  </mat-card-content>
+  <mat-card-actions align="end">
+    <button mat-flat-button routerLink="../">Close</button>
+    <button mat-flat-button color="green" (click)="save()">Save</button>
+  </mat-card-actions>
+ </mat-card>
