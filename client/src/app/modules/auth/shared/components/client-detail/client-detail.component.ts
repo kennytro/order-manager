@@ -3,8 +3,11 @@ import { ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material';
 import { FormControl, Validators } from '@angular/forms';
 
+import { BASE_URL, API_VERSION } from '../../../../../shared/base.url'
+import { LoopBackConfig } from '../../../../../shared/sdk/index';
 import { Client } from '../../../../../shared/sdk/models';
-import { ClientService } from '../../services/client.service';
+import { ClientApi } from '../../../../../shared/sdk/services';
+//import { ClientService } from '../../services/client.service';
 
 import map from 'lodash/map';
 
@@ -31,8 +34,11 @@ export class ClientDetailComponent implements OnInit {
 
   constructor(
     private _route: ActivatedRoute,
-    private _clientService: ClientService,
-    private _snackBar: MatSnackBar) { }
+    private _clientApi: ClientApi,
+    private _snackBar: MatSnackBar) {
+    LoopBackConfig.setBaseURL(BASE_URL);
+    LoopBackConfig.setApiVersion(API_VERSION);
+  }
 
   ngOnInit() {
     this._route.data.subscribe(routeData => {
@@ -55,7 +61,7 @@ export class ClientDetailComponent implements OnInit {
       this.client.email = this.businessEmailFC.value;
       this.client.contactPersonEmail = this.personEmailFC.value;
       this.client.contactPersonAltEmail = this.personAltEmailFC.value;
-      await this._clientService.save(this.client);
+      await this._clientApi.upsert(this.client).toPromise();
       const snackBarRef = this._snackBar.open(`Client(id: ${this.client.id}) successfully saved`, 'Close');
       snackBarRef.onAction().subscribe(() => {
         snackBarRef.dismiss();

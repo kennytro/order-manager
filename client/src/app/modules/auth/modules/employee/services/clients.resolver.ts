@@ -1,26 +1,15 @@
 import { Injectable } from '@angular/core';
 import { Resolve } from "@angular/router";
-import { BASE_URL, API_VERSION } from '../../../../../shared/base.url';
-import { LoopBackConfig } from '../../../../../shared/sdk/index';
 import { Client } from '../../../../../shared/sdk/models';
-import { ClientApi } from '../../../../../shared/sdk/services';
+import { ClientService } from '../../../shared/services/client.service'
+
 
 @Injectable()
 export class ClientsResolver implements Resolve<Client[]> {
-  constructor(private _clientApi: ClientApi) {
-    LoopBackConfig.setBaseURL(BASE_URL);
-    LoopBackConfig.setApiVersion(API_VERSION);    
+  constructor(private _clientSvc: ClientService) {
   }
 
   async resolve() {
-    try {
-      let filter = {
-        fields: { id: true, name: true, phone: true, deliveryRouteId: true, createdDate: true }
-      }
-      return await this._clientApi.find<Client>(filter).toPromise();
-    } catch (err) {
-      console.log('error: ' + err.message);
-      return [];
-    }
+    return await this._clientSvc.getClientList();
   }
 }

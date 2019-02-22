@@ -1,7 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material';
-// import { Router } from '@angular/router';
-// import { CookieService } from 'ngx-cookie-service';
 import { ConfirmLogoutComponent } from '../../../../shared/components/confirm-logout/confirm-logout.component';
 
 import { AWS_S3_PUBLIC_URL } from '../../../../../../shared/base.url';
@@ -27,13 +25,6 @@ export class EmployeeLayoutComponent implements OnInit {
     const tenant = this._dataShare.getData('tenant');
     this._companyLogo = AWS_S3_PUBLIC_URL + tenant.id + '/favicon.png';   
     this._companyName = tenant.companyName;
-    // const roles = this._cookieService.check('roles') ? JSON.parse(this._cookieService.get('roles')) : [];
-    // if (roles.includes('customer')) {
-    //   this._router.navigate(['auth/customer']);
-    // }
-    // if (roles.includes('manager') || roles.includes('admin')) {
-    //   this._router.navigate(['auth/employee']);
-    // }
   }
 
   logout() {

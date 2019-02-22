@@ -1,7 +1,11 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material';
+import { NewClientComponent } from '../new-client/new-client.component';
 import { ActivatedRoute } from '@angular/router';
 import { MatPaginator, MatSort, MatTableDataSource} from '@angular/material';
+import { ClientService } from '../../../../shared/services/client.service';
 import { Client } from '../../../../../../shared/sdk/models';
+
 
 @Component({
   selector: 'app-clients',
@@ -9,20 +13,21 @@ import { Client } from '../../../../../../shared/sdk/models';
   styleUrls: ['./clients.component.css']
 })
 export class ClientsComponent implements OnInit {
+  // TO DO: get column names from service.
   displayedColumns: string[] = ['id', 'name', 'phone', 'deliveryRouteId', 'createdDate'];
   private _clients: MatTableDataSource<Client>;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
 
-  constructor(private _route: ActivatedRoute) { }
+  constructor(private _route: ActivatedRoute,
+    private _newClientDialog: MatDialog,
+    private _clientSvc: ClientService) { }
 
   ngOnInit() {
     this._route.data.subscribe(routeData => {
       if (routeData['clients']) {
-        this._clients = new MatTableDataSource(routeData['clients']);
-        this._clients.paginator = this.paginator;
-        this._clients.sort = this.sort;
+        this._setTableDataSource(routeData['clients']);
       }
     });
   }
@@ -44,6 +49,19 @@ export class ClientsComponent implements OnInit {
   }
 
   addClient() {
-    console.log('clicked new client');
+    const dialogRef = this._newClientDialog.open(NewClientComponent);
+    dialogRef.afterClosed().subscribe(async result => {
+      if (result) {
+        // refresh list to include the new client
+        let clientArray = await this._clientSvc.getClientList();
+        this._setTableDataSource(clientArray);
+      }
+    })    
+  }
+
+  private _setTableDataSource(clients: Client[]) {
+    this._clients = new MatTableDataSource(clients);
+    this._clients.paginator = this.paginator;
+    this._clients.sort = this.sort;   
   }
 }

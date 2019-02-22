@@ -5,6 +5,7 @@ import {
 } from '@angular/material';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatStepperModule } from '@angular/material/stepper';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { ReactiveFormsModule } from '@angular/forms';
 
@@ -19,6 +20,7 @@ const modules = [
   MatSelectModule,
   MatSnackBarModule,
   MatSortModule,
+  MatStepperModule,
   MatTableModule,
   FlexLayoutModule,
   ReactiveFormsModule

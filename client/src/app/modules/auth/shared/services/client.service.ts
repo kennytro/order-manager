@@ -10,16 +10,17 @@ export class ClientService {
 
   constructor(private _clientApi: ClientApi) {
     LoopBackConfig.setBaseURL(BASE_URL);
-    LoopBackConfig.setApiVersion(API_VERSION);    
+    LoopBackConfig.setApiVersion(API_VERSION);
   }
 
-  async save(client: Client) {
-    console.log(`Saving clinet(name: ${client.name}...`);
+  async getClientList(filterOverride?: object) {
     try {
-      return await this._clientApi.upsert(client).toPromise();
+      let filter = filterOverride ? filterOverride : {
+        fields: { id: true, name: true, phone: true, deliveryRouteId: true, createdDate: true }
+      }
+      return await this._clientApi.find<Client>(filter).toPromise();
     } catch (err) {
-      console.log(`error: failed to save client(name: ${client.name}) - ${err.message}`);
-      throw err;
+      return [];
     }
   }
 }

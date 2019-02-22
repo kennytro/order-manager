@@ -11,8 +11,10 @@ import { EmployeeRoutingModule } from './employee-routing.module';
 import { EmployeeLayoutComponent } from './components/employee-layout/employee-layout.component';
 import { ClientsComponent } from './components/clients/clients.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { NewClientComponent } from './components/new-client/new-client.component';
 import { ClientDetailComponent } from '../../shared/components/client-detail/client-detail.component';
 import { ConfirmLogoutComponent } from '../../shared/components/confirm-logout/confirm-logout.component';
+
 // Services
 import { ClientsResolver } from './services/clients.resolver';
 import { ClientDetailResolver } from '../../shared/services/client-detail.resolver';
@@ -25,12 +27,12 @@ import { PhoneNumberPipe } from '../../shared/pipes/phone-number.pipe';
 // Misc.
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faSignOutAlt, faCog, faChartLine, faShoppingCart, faFileInvoiceDollar, faStoreAlt,
-         faUsers, faPlus, faLongArrowAltLeft } from '@fortawesome/free-solid-svg-icons';
+         faUsers, faPlus, faLongArrowAltLeft, faLongArrowAltRight } from '@fortawesome/free-solid-svg-icons';
 
 @NgModule({
   declarations: [
     EmployeeLayoutComponent, ClientsComponent, DashboardComponent,
-    ClientDetailComponent, ConfirmLogoutComponent, PhoneNumberPipe
+    ClientDetailComponent, ConfirmLogoutComponent, PhoneNumberPipe, NewClientComponent
   ],
   imports: [
     CommonModule,
@@ -47,12 +49,14 @@ import { faSignOutAlt, faCog, faChartLine, faShoppingCart, faFileInvoiceDollar, 
     ClientService
   ],
   entryComponents: [
-    ConfirmLogoutComponent
+    ConfirmLogoutComponent,
+    NewClientComponent
   ]
 })
 export class EmployeeModule {
   constructor() {
     library.add(faSignOutAlt, faCog, faChartLine, faShoppingCart,
-      faFileInvoiceDollar, faStoreAlt, faUsers, faPlus, faLongArrowAltLeft);
+      faFileInvoiceDollar, faStoreAlt, faUsers, faPlus, faLongArrowAltLeft,
+      faLongArrowAltRight);
   }
 }

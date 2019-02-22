@@ -119,7 +119,7 @@
       <div fxFlex="2 0 300px">
         <mat-form-field appearance="outline">
           <mat-label>Delivery Route</mat-label>
-          <mat-select placeholder="Select route" [(ngModel)]="client.deliveryRouteId">
+          <mat-select placeholder="Select route" [(ngModel)]="client.deliveryRouteId" required>
             <mat-option *ngFor="let route of routeList" [value]="route">{{ route }}</mat-option>
           </mat-select>
         </mat-form-field>

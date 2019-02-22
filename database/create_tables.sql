@@ -35,9 +35,11 @@ BEGIN
   END IF;
 END$$;
 
+CREATE SEQUENCE IF NOT EXISTS client_id_seq MINVALUE 1000;
+
 CREATE TABLE IF NOT EXISTS client
 (
-  id int PRIMARY KEY,
+  id integer PRIMARY KEY DEFAULT nextval('client_id_seq'),
   name text NOT NULL,
   address_street text,
   address_city text,
@@ -57,6 +59,4 @@ CREATE TABLE IF NOT EXISTS client
   delivery_route_id text REFERENCES delivery_route,
   created_date timestamptz DEFAULT now();
 );
-CREATE SEQUENCE IF NOT EXISTS client_sequencer
-  MINIVALUE 1000
-  OWNED BY client.id;
+ALTER SEQUENCE client_id_seq OWNED BY client.id;
