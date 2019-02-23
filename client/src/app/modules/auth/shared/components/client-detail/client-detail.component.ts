@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material';
 import { FormControl, Validators } from '@angular/forms';
+
+import { AlertService } from '../../services/alert.service';
 
 import { BASE_URL, API_VERSION } from '../../../../../shared/base.url'
 import { LoopBackConfig } from '../../../../../shared/sdk/index';
@@ -33,9 +35,11 @@ export class ClientDetailComponent implements OnInit {
   phoneMask: any[] = ['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/];
 
   constructor(
+    private _router: Router,
     private _route: ActivatedRoute,
     private _clientApi: ClientApi,
-    private _snackBar: MatSnackBar) {
+    private _snackBar: MatSnackBar,
+    private _alertSvc: AlertService) {
     LoopBackConfig.setBaseURL(BASE_URL);
     LoopBackConfig.setApiVersion(API_VERSION);
   }
@@ -55,7 +59,6 @@ export class ClientDetailComponent implements OnInit {
   }
 
   async save() {
-    console.log('clicked save client');
     try {
       // preprocess values
       this.client.email = this.businessEmailFC.value;
@@ -72,5 +75,14 @@ export class ClientDetailComponent implements OnInit {
         snackBarRef.dismiss();
       });
     }
+  }
+
+  async delete() {
+    this._alertSvc.confirm('Are you sure?', 'Deleting this client cannot be undone', async () => {
+      await this._clientApi.deleteById(this.client.id).toPromise();
+      this._alertSvc.alertSuccess('Success', `Successfully deleted client(id: ${this.client.id})`, () => {
+        this._router.navigate(['../'], { relativeTo: this._route });
+      });
+    });
   }
 }

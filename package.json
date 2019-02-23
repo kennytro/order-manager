@@ -57,6 +57,7 @@
     "rxjs": "~6.3.3",
     "serve-favicon": "^2.0.1",
     "strong-error-handler": "^3.0.0",
+    "sweetalert2": "^8.2.3",
     "tslib": "^1.9.0",
     "zone.js": "~0.8.26"
   },

@@ -20,6 +20,7 @@ import { ClientsResolver } from './services/clients.resolver';
 import { ClientDetailResolver } from '../../shared/services/client-detail.resolver';
 import { DeliveryRoutesResolver } from './services/delivery-routes.resolver';
 import { ClientService } from '../../shared/services/client.service';
+import { AlertService } from '../../shared/services/alert.service';
 
 // Pipes
 import { PhoneNumberPipe } from '../../shared/pipes/phone-number.pipe';
@@ -46,7 +47,8 @@ import { faSignOutAlt, faCog, faChartLine, faShoppingCart, faFileInvoiceDollar, 
     ClientsResolver,
     ClientDetailResolver,
     DeliveryRoutesResolver,
-    ClientService
+    ClientService,
+    AlertService
   ],
   entryComponents: [
     ConfirmLogoutComponent,
