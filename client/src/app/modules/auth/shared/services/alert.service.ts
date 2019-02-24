@@ -28,6 +28,7 @@ export class AlertService {
       type: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#DD6B55',
+      reverseButtons: true
       // customClass: 'sweet-warning2'
     }).then((result: any) => {
       if (result.value) {

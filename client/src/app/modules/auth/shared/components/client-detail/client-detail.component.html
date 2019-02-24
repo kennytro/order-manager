@@ -6,10 +6,7 @@
     <mat-card-subtitle>Created on {{client.createdDate | date:'medium' }}</mat-card-subtitle>
   </mat-card-header>
   <mat-card-content class="form-container">
-    <div>
-      <mat-divider></mat-divider>
-      <h5 mat-subheader>Business Information</h5>
-    </div>
+    <h5 mat-subheader>Business Information</h5>
     <mat-form-field appearance="outline">
       <mat-label>Name</mat-label>
       <input matInput placeholder="Client name" [(ngModel)]="client.name" required>
@@ -57,10 +54,7 @@
         </mat-form-field>
       </div>
     </div>
-    <div>
-      <mat-divider></mat-divider>
-      <h5 mat-subheader>Contact Information</h5>
-    </div>
+    <h5 mat-subheader>Contact Information</h5>
     <div fxLayout="row wrap" fxLayoutGap="20px" fxLayoutAlign="space-between stretch">
       <div fxLayout="column" fxFlex="45">
         Contact Person
@@ -111,10 +105,7 @@
         </div>
       </div>
     </div>
-    <div>
-      <mat-divider></mat-divider>
-      <h5 mat-subheader>Order Information</h5>
-    </div>
+    <h5 mat-subheader>Order Information</h5>
     <div fxLayout="row wrap" fxLayoutGap="20px" fxLayoutAlign="space-between stretch">
       <div fxFlex="2 0 300px">
         <mat-form-field appearance="outline">
@@ -145,8 +136,8 @@
     </div>
   </mat-card-content>
   <mat-card-actions align="end">
-    <button mat-flat-button routerLink="../">Close</button>
-    <button mat-flat-button color="green" (click)="save()">Save</button>
-    <button mat-flat-button color="warn" (click)="delete()">Delete</button>
+    <button mat-raised-button routerLink="../">Close</button>
+    <button mat-raised-button color="green" (click)="save()">Save</button>
+    <button mat-raised-button color="warn" (click)="delete()">Delete</button>
   </mat-card-actions>
  </mat-card>

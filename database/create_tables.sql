@@ -1,15 +1,3 @@
--- CREATE TABLE IF NOT EXISTS end_user
---   (
---     id int PRIMARY KEY,
---     username text NULL,
---     password text NULL,
---     email text NOT NULL,
---     email_verified bool NULL,
---     verification_token text NULL,
---     realm text NULL,
---     settings jsonb
---   );
-
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE IF NOT EXISTS public_page_element
 (
@@ -36,7 +24,6 @@ BEGIN
 END$$;
 
 CREATE SEQUENCE IF NOT EXISTS client_id_seq MINVALUE 1000;
-
 CREATE TABLE IF NOT EXISTS client
 (
   id integer PRIMARY KEY DEFAULT nextval('client_id_seq'),
@@ -60,3 +47,15 @@ CREATE TABLE IF NOT EXISTS client
   created_date timestamptz DEFAULT now();
 );
 ALTER SEQUENCE client_id_seq OWNED BY client.id;
+
+CREATE SEQUENCE IF NOT EXISTS end_user_id_seq MINVALUE 1000;
+CREATE TABLE IF NOT EXISTS end_user
+(
+  id integer PRIMARY KEY DEFAULT nextval('end_user_id_seq'),
+  auth_id text NOT NULL,
+  email text NOT NULL,
+  email_verified bool NULL,
+  client_id integer REFERENCES client,
+  settings jsonb
+);
+ALTER SEQUENCE end_user_id_seq OWNED BY end_user.id;

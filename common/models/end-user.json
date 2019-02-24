@@ -1,16 +1,62 @@
 {
   "name": "EndUser",
   "base": "User",
-  "idInjection": true,
+  "idInjection": false,
   "options": {
     "validateUpsert": true,
     "postgresql": {
       "table": "end_user"
     }
   },
-  "properties": {},
+  "properties": {
+    "id": {
+      "type": "string",
+      "id": true,
+      "required": true
+    },
+    "authId": {
+      "type": "string",
+      "required": false,
+      "index": true,
+      "postgresql": {
+          "columnName": "auth_id"
+      }
+    },
+    "email": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "email"
+      }
+    },
+    "emailVerified": {
+      "type": "boolean",
+      "postgresql": {
+        "columnName": "email_verified"
+      }
+    },
+    "client_id": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "client_id"
+      }
+    },
+    "userSettings": {
+      "type": "object",
+      "postgresql":
+      {
+        "columnName": "settings",
+        "dataType": "json"
+      }
+    }
+  },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "client": {
+      "type": "belongsTo",
+      "model": "Client",
+      "foreignKey": ""
+    }
+  },
   "acls": [],
   "methods": {}
 }
