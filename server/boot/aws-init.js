@@ -18,6 +18,9 @@ const tenantSetting = require('../tenant');
 * During boot up time, we create a tenant folder in each bucket if not exist already.
 */
 module.exports = async function(app) {
+  if (process.env.ONE_OFF) {
+    return;  // skip initialization for one off process.
+  }
   const accessKey = process.env.AWS_ACCESS_KEY_ID;
   const secretKey = process.env.AWS_SECRET_ACCESS_KEY;
   const publicBucket = 'om-public';

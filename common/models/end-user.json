@@ -1,16 +1,67 @@
 {
   "name": "EndUser",
-  "base": "User",
+  "base": "PersistedModel",
   "idInjection": true,
   "options": {
     "validateUpsert": true,
     "postgresql": {
+      "schema": "public",
       "table": "end_user"
     }
   },
-  "properties": {},
+  "properties": {
+    "id": {
+      "type": "number"
+    },
+    "authId": {
+      "type": "string",
+      "required": false,
+      "index": true,
+      "postgresql": {
+        "columnName": "auth_id"
+      }
+    },
+    "email": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "email"
+      }
+    },
+    "emailVerified": {
+      "type": "boolean",
+      "postgresql": {
+        "columnName": "email_verified"
+      }
+    },
+    "clientId": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "client_id"
+      }
+    },
+    "userSettings": {
+      "type": "object",
+      "postgresql": {
+        "columnName": "settings",
+        "dataType": "json"
+      }
+    },
+    "createdDate": {
+      "type": "date",
+      "postgresql": {
+        "dateType": "timestamptz",
+        "columnName": "created_date"
+      }
+    }
+  },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "client": {
+      "type": "belongsTo",
+      "model": "Client",
+      "foreignKey": ""
+    }
+  },
   "acls": [],
   "methods": {}
 }

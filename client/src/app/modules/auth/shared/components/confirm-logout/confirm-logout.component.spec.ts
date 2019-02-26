@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AuthHomeComponent } from './auth-home.component';
+import { ConfirmLogoutComponent } from './confirm-logout.component';
 
-describe('AuthHomeComponent', () => {
-  let component: AuthHomeComponent;
-  let fixture: ComponentFixture<AuthHomeComponent>;
+describe('ConfirmLogoutComponent', () => {
+  let component: ConfirmLogoutComponent;
+  let fixture: ComponentFixture<ConfirmLogoutComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ AuthHomeComponent ]
+      declarations: [ ConfirmLogoutComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(AuthHomeComponent);
+    fixture = TestBed.createComponent(ConfirmLogoutComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

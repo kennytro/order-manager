@@ -1,0 +1,23 @@
+<h3 mat-dialog-title>New User</h3>
+<div mat-dialog-content>
+  <form [formGroup]="userFG" class="form-container">
+    <mat-form-field appearance="outline">
+      <mat-label>Client</mat-label>
+      <mat-select placeholder="Select client" formControlName="clientId" required>
+        <mat-option *ngFor="let client of clientList" [value]="client">{{ client }}</mat-option>
+      </mat-select>
+      <mat-error>This field is required</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Email</mat-label>
+      <input matInput placeholder="Business email address" formControlName="email">
+      <mat-error> Please, enter a valid email address </mat-error>
+    </mat-form-field>
+  </form>
+</div>
+<mat-divider></mat-divider>
+<div mat-dialog-actions fxLayout="row" fxLayoutAlign="end">
+  <button mat-raised-button [mat-dialog-close]="false">Cancel</button>
+  <button mat-raised-button [disabled]="userFG.invalid" (click)="create()" color="green">Create</button>
+
+</div>

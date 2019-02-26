@@ -1,0 +1,129 @@
+{
+  "name": "Client",
+  "plural": "Clients",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true,
+    "postgresql": {
+      "schema": "public",
+      "table": "client"
+    }
+  },
+  "properties": {
+    "id": {
+      "type": "number"
+    },
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "addressStreet": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "address_street"
+      }
+    },
+    "addressCity": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "address_city"
+      }
+    },
+    "addressState": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "address_state"
+      }
+    },
+    "addressZip": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "address_zip"
+      }
+    },
+    "phone": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "contactPersonName": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "contact_person_name"
+      }
+    },
+    "contactPersonPhone": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "contact_person_phone"
+      }
+    },
+    "contactPersonEmail": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "contact_person_email"
+      }
+    },
+    "contactPersonAltName": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "contact_person_alt_name"
+      }
+    },
+    "contactPersonAltPhone": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "contact_person_alt_phone"
+      }
+    },
+    "contactPersonAltEmail": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "contact_person_alt_email"
+      }
+    },
+    "feeType": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "fee_type"
+      }
+    },
+    "feeValue": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "fee_value"
+      }
+    },
+    "showPublic": {
+      "type": "boolean",
+      "postgresql": {
+        "columnName": "show_public"
+      }
+    },
+    "deliveryRouteId": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "delivery_route_id"
+      }
+    },
+    "createdDate": {
+      "type": "date",
+      "postgresql": {
+        "dateType": "timestamptz",
+        "columnName": "created_date"
+      }
+    }
+  },
+  "validations": [],
+  "relations": {
+    "deliveryRoute": {
+      "type": "belongsTo",
+      "model": "DeliveryRoute",
+      "foreignKey": ""
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

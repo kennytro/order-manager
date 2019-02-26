@@ -5,6 +5,7 @@ import { AWS_S3_PUBLIC_URL } from '../shared/base.url';
 import Auth0Lock from 'auth0-lock';
 import get from 'lodash/get';
 
+import { CookieService } from 'ngx-cookie-service';
 import { RootScopeShareService } from './root-scope-share.service';
 import { environment } from '../../environments/environment';
 
@@ -12,16 +13,20 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class AuthService {
-  private lock: any;
-  private jwtHelper: JwtHelperService = new JwtHelperService();
-  constructor(private dataShare: RootScopeShareService, private router: Router) {}
+  private 
+  private _lock: any;
+  private _jwtHelper: JwtHelperService = new JwtHelperService();
+
+  constructor(private dataShare: RootScopeShareService,
+    private router: Router,
+    private _cookieService: CookieService) {}
 
   async login() {
     // for some reason, saved lock doesn't show again after navigating away to other page.
-    // if (!this.lock) {
+    // if (!this._lock) {
       // retrieve tenant Auth0 parameters.
       let tenant = this.dataShare.getData('tenant');
-      this.lock = new Auth0Lock(tenant.clientId, tenant.domainId, {
+      this._lock = new Auth0Lock(tenant.clientId, tenant.domainId, {
         container: 'login-content-wrapper',
         allowSignUp: false,
         closable: false,
@@ -44,51 +49,63 @@ export class AuthService {
         }
       });
 
-      this.lock.on('authenticated', this.onAuthenticated.bind(this));
-      this.lock.on('authorization_error', error => {
+      this._lock.on('authenticated', this.onAuthenticated.bind(this));
+      this._lock.on('authorization_error', error => {
         console.log('something went wrong', error);
       });
     // }
-    this.lock.show();
+    this._lock.show();
   }
 
   onAuthenticated(authResult: any) {
-    this.lock.hide();
-    this.dataShare.setData('accessToken', authResult.accessToken);
-    // this.dataShare.setData('idToken', authResult.idToken);
-    
+    this._lock.hide();
+    this._cookieService.set('accessToken', authResult.accessToken, null, '/');
+    this._cookieService.set('idToken', authResult.idToken, null, '/');
     // parse user role
     console.log(`Saved Auth0 token for user ${authResult.idTokenPayload.email}`);
 
     const appMetadata = get(authResult, ['idTokenPayload', environment.auth0Namespace + 'appMetadata'], {});
-    this.dataShare.setData('role', appMetadata.roles);
+    const roles = get(appMetadata, 'roles', []);
+    this._cookieService.set('roles', JSON.stringify(roles), null, '/');
 
     // TODO: parse customer's store id
     // this.dataShare.setData('storeId', appMetadata.storeId);
-    this.router.navigate(['/auth']);    
+    // navigate based on user roles.
+    if (roles.includes('customer')) {
+      this.router.navigate(['auth/customer']);
+    }
+    if (roles.includes('manager') || roles.includes('admin')) {
+      this.router.navigate(['auth/employee']);
+    }
+    // TODO: handle unauthorized user role.
   }
 
   logout() {
-    this.dataShare.removeData('accessToken');
-    // this.dataShare.removeData('idToken');    
-    this.dataShare.removeData('roles');
     // this.dataShare.removeData('storeId')
-    this.router.navigate(['/public/login']);
+    this._cookieService.delete('accessToken', '/');
+    this._cookieService.delete('idTokne', '/');
+    this._cookieService.delete('roles', '/');
+
+    this.router.navigate(['/login']);
   }
 
   isAuthenticated() {
-    const accessToken = this.dataShare.getData('accessToken');
-    return accessToken && !this.jwtHelper.isTokenExpired(accessToken);
+    if (this._cookieService.check('accessToken')) {
+      const accessToken = this._cookieService.get('accessToken');
+      return accessToken && !this._jwtHelper.isTokenExpired(accessToken);      
+    }
+    return false;
   }
 
+
   async getProfile(): Promise<void> {
-    const accessToken = this.dataShare.getData('accessToken');
+    const accessToken = this._cookieService.check('accessToken') ? this._cookieService.get('accessToken') : undefined;
     if (!accessToken) {
       throw new Error('Access Token must exist to fetch profile');
     }
     const self = this;
     await new Promise((resolve, reject) => {
-      self.lock.getUserInfo(accessToken, function(error, profile) {
+      self._lock.getUserInfo(accessToken, function(error, profile) {
         if (error) {
           reject(error);
         } else {

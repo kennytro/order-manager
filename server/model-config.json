@@ -46,5 +46,17 @@
   "PublicPageElement": {
     "dataSource": "OrderManager",
     "public": false
+  },
+  "Client": {
+    "dataSource": "OrderManager",
+    "public": false
+  },
+  "DeliveryRoute": {
+    "dataSource": "OrderManager",
+    "public": false
+  },
+  "EmployeeData": {
+    "dataSource": "db",
+    "public": true
   }
 }

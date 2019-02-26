@@ -1,5 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule, APP_INITIALIZER } from '@angular/core';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 import { SDKBrowserModule } from './shared/sdk/index';
@@ -8,16 +10,18 @@ import { PublicModule } from './modules/public/public.module';
 import { AppComponent } from './app.component';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 
+import { CookieService } from 'ngx-cookie-service';
 import { AppInitService } from './services/app-init.service';
 import { AuthService } from './services/auth.service';
 import { AuthGuardService } from './services/auth-guard.service';
 import { RootScopeShareService } from './services/root-scope-share.service';
 
+import { HttpErrorInterceptor } from './services/http-error.interceptor';
+
 export function initializeApp(appInitService: AppInitService) {
   return (): Promise<any> => { 
     return appInitService.init();
   }
-  // return await appInitService.init();
 }
 
 @NgModule({
@@ -27,11 +31,13 @@ export function initializeApp(appInitService: AppInitService) {
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     PublicModule,
     SDKBrowserModule.forRoot(),
     AppRoutingModule
   ],
   providers: [
+    CookieService,
     AppInitService,
     AuthService,
     AuthGuardService,
@@ -41,7 +47,12 @@ export function initializeApp(appInitService: AppInitService) {
       useFactory: initializeApp,
       deps: [AppInitService],
       multi: true
-    }
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: HttpErrorInterceptor,
+      multi: true
+     }
   ],
   bootstrap: [AppComponent]
 })

@@ -1,0 +1,42 @@
+<div class="auth-body">
+  <nav class="navbar navbar-expand-lg navbar-light sticky-top flex-md-nowrap p-0">
+    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="auth/employee"><img border="0" alt="Company Logo" src={{getCompanyLogo()}} width="40" height="40">{{getStoreName()}}</a>
+    <input class="form-control form-control-light w-50" type="text" placeholder="Search" aria-label="Search">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto px-3">
+        <li class="nav-item" routerLinkActive="active"><a class="nav-link" routerLink="settings"><fa-icon icon="cog"></fa-icon></a></li>
+      </ul>
+       <button type="button" class="btn btn-outline-dark" (click)="logout()"><fa-icon icon="sign-out-alt"></fa-icon> Logout</button>
+    </div>
+  </nav>
+  <div class="container-fluid">
+    <div class="row">
+      <!-- sidebar menu -->
+      <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+        <div class="sidebar-sticky">
+          <ul class="nav flex-column">
+            <li class="nav-item" routerLinkActive="active">
+              <a class="nav-link" routerLink="dashboard"><fa-icon icon="chart-line"></fa-icon> Dashboard</a>
+            </li>
+            <li class="nav-item" routerLinkActive="active">
+              <a class="nav-link" routerLink="orders"><fa-icon icon="shopping-cart"></fa-icon> Orders</a>
+            </li>
+            <li class="nav-item" routerLinkActive="active">
+              <a class="nav-link" routerLink="statements"><fa-icon icon="file-invoice-dollar"></fa-icon> Statements</a>
+            </li>
+            <li class="nav-item" routerLinkActive="active">
+              <a class="nav-link" routerLink="clients"><fa-icon icon="users"></fa-icon> Users</a>
+            </li>            
+          </ul>
+        </div>
+      </nav>
+      <!-- page content -->
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+        <router-outlet></router-outlet>
+      </main>
+    </div>
+  </div>
+</div>

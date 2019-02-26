@@ -1,5 +1,6 @@
 /* tslint:disable */
 import { Injectable } from '@angular/core';
+import { EmployeeData } from '../../models/EmployeeData';
 
 export interface Models { [name: string]: any }
 
@@ -7,6 +8,7 @@ export interface Models { [name: string]: any }
 export class SDKModels {
 
   private models: Models = {
+    EmployeeData: EmployeeData,
     
   };
 

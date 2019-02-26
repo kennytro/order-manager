@@ -1,0 +1,11 @@
+{
+  "name": "EmployeeData",
+  "base": "Model",
+  "plural": "EmployeeData",
+  "options": {},
+  "properties": {},
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}
