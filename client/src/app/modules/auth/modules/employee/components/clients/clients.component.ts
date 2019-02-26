@@ -1,11 +1,10 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material';
-import { NewClientComponent } from '../new-client/new-client.component';
 import { ActivatedRoute } from '@angular/router';
 import { MatPaginator, MatSort, MatTableDataSource} from '@angular/material';
-import { ClientService } from '../../../../shared/services/client.service';
-import { Client } from '../../../../../../shared/sdk/models';
 
+import { NewClientComponent } from '../new-client/new-client.component';
+import { DataApiService } from '../../services/data-api.service';
 
 @Component({
   selector: 'app-clients',
@@ -15,14 +14,14 @@ import { Client } from '../../../../../../shared/sdk/models';
 export class ClientsComponent implements OnInit {
   // TO DO: get column names from service.
   displayedColumns: string[] = ['id', 'name', 'phone', 'deliveryRouteId', 'createdDate'];
-  private _clients: MatTableDataSource<Client>;
+  private _clients: MatTableDataSource<any>;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
 
   constructor(private _route: ActivatedRoute,
     private _newClientDialog: MatDialog,
-    private _clientSvc: ClientService) { }
+    private _dataApi: DataApiService) { }
 
   ngOnInit() {
     this._route.data.subscribe(routeData => {
@@ -53,13 +52,15 @@ export class ClientsComponent implements OnInit {
     dialogRef.afterClosed().subscribe(async result => {
       if (result) {
         // refresh list to include the new client
-        let clientArray = await this._clientSvc.getClientList();
+        let clientArray = await this._dataApi.find('Client', {
+          fields: { id: true, name: true, phone: true, deliveryRouteId: true, createdDate: true }
+        }).toPromise();
         this._setTableDataSource(clientArray);
       }
     })    
   }
 
-  private _setTableDataSource(clients: Client[]) {
+  private _setTableDataSource(clients: Array<any>) {
     this._clients = new MatTableDataSource(clients);
     this._clients.paginator = this.paginator;
     this._clients.sort = this.sort;   

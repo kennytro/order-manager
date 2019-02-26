@@ -1,11 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialogRef, MatStepper, MatSnackBar } from '@angular/material';
 import { AbstractControl, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
-
-import { BASE_URL, API_VERSION } from '../../../../../../shared/base.url';
-import { LoopBackConfig } from '../../../../../../shared/sdk/index';
-import { DeliveryRoute } from '../../../../../../shared/sdk/models';
-import { ClientApi, DeliveryRouteApi } from '../../../../../../shared/sdk/services';
+import { DataApiService } from '../../services/data-api.service';
 
 import reduce from 'lodash/reduce';
 import assign from 'lodash/assign';
@@ -31,22 +27,15 @@ export class NewClientComponent implements OnInit {
 
   constructor(private _dialogRef: MatDialogRef<NewClientComponent>,
     private _formBuilder: FormBuilder,
-    private _clientApi: ClientApi,
-    private _deliveryRouteApi: DeliveryRouteApi,
-    private _snackBar: MatSnackBar) { 
-    LoopBackConfig.setBaseURL(BASE_URL);
-    LoopBackConfig.setApiVersion(API_VERSION);
-  }
+    private _snackBar: MatSnackBar,
+    private _dataApi: DataApiService
+    ) { }
 
   ngOnInit() {
-    // let routeArray = await this._deliveryRouteApi.find<DeliveryRoute>({
-    //   fields: { id: true }
-    // }).toPromise();
-    // this.routeList = map(routeArray, 'id');
-    this._deliveryRouteApi.find<DeliveryRoute>({ fields: { id: true }})
-    .subscribe(result => {
-      this.routeList = map(result, 'id');
-    });
+    this._dataApi.find('DeliveryRoute', { fields: { id: true } })
+      .subscribe(result => {
+        this.routeList = map(result, 'id');
+      });
     this.clientFG = this._formBuilder.group({
       formArray: this._formBuilder.array([
         this._formBuilder.group({      // business detail
@@ -91,11 +80,9 @@ export class NewClientComponent implements OnInit {
   }
 
   async create() {
-    console.log('clicked save.');
-    console.log(this.clientFG.get('formArray').value);
     let newClient = reduce(this.clientFG.get('formArray').value, assign);
     try {
-      let client = await this._clientApi.create(newClient).toPromise();
+      let client = await this._dataApi.upsert('Client', newClient).toPromise();
       const snackBarRef = this._snackBar.open(`Client(id: ${client.id}) successfully created`,
         'Close', { duration: 3000 });
       snackBarRef.onAction().subscribe(() => {

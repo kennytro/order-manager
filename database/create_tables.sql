@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS client
   fee_value numeric DEFAULT 0,
   show_public bool DEFAULT false,
   delivery_route_id text REFERENCES delivery_route,
-  created_date timestamptz DEFAULT now();
+  created_date timestamptz DEFAULT now()
 );
 ALTER SEQUENCE client_id_seq OWNED BY client.id;
 
@@ -56,6 +56,7 @@ CREATE TABLE IF NOT EXISTS end_user
   email text NOT NULL,
   email_verified bool NULL,
   client_id integer REFERENCES client,
-  settings jsonb
+  settings jsonb,
+  created_date timestamptz DEFAULT now()
 );
 ALTER SEQUENCE end_user_id_seq OWNED BY end_user.id;

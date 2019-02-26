@@ -122,11 +122,6 @@
       "type": "belongsTo",
       "model": "DeliveryRoute",
       "foreignKey": ""
-    },
-    "endUsers": {
-      "type": "hasMany",
-      "model": "EndUser",
-      "foreignKey": "clientId"
     }
   },
   "acls": [],

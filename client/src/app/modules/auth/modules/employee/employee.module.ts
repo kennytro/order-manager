@@ -12,28 +12,31 @@ import { EmployeeLayoutComponent } from './components/employee-layout/employee-l
 import { ClientsComponent } from './components/clients/clients.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { NewClientComponent } from './components/new-client/new-client.component';
-import { ClientDetailComponent } from '../../shared/components/client-detail/client-detail.component';
+import { ClientDetailComponent } from './components/client-detail/client-detail.component';
 import { ConfirmLogoutComponent } from '../../shared/components/confirm-logout/confirm-logout.component';
+import { UsersComponent } from './components/users/users.component';
+import { UserDetailComponent } from './components/user-detail/user-detail.component';
+import { NewUserComponent } from './components/new-user/new-user.component';
 
 // Services
-import { ClientsResolver } from './services/clients.resolver';
-import { ClientDetailResolver } from '../../shared/services/client-detail.resolver';
-import { DeliveryRoutesResolver } from './services/delivery-routes.resolver';
-import { ClientService } from '../../shared/services/client.service';
+import { DataResolver } from './services/data.resolver';
+import { DataArrayResolver } from './services/data-array.resolver';
 import { AlertService } from '../../shared/services/alert.service';
+import { DataApiService } from './services/data-api.service';
 
 // Pipes
 import { PhoneNumberPipe } from '../../shared/pipes/phone-number.pipe';
 
 // Misc.
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faSignOutAlt, faCog, faChartLine, faShoppingCart, faFileInvoiceDollar, faStoreAlt,
-         faUsers, faPlus, faLongArrowAltLeft, faLongArrowAltRight } from '@fortawesome/free-solid-svg-icons';
+import { faChartLine, faCog, faFileInvoiceDollar,
+        faLongArrowAltLeft, faLongArrowAltRight, faPlus, faShoppingCart,
+        faSignOutAlt, faStoreAlt, faUser, faUserPlus, faUsers } from '@fortawesome/free-solid-svg-icons';
 
 @NgModule({
   declarations: [
-    EmployeeLayoutComponent, ClientsComponent, DashboardComponent,
-    ClientDetailComponent, ConfirmLogoutComponent, PhoneNumberPipe, NewClientComponent
+    EmployeeLayoutComponent, ClientsComponent, DashboardComponent, ClientDetailComponent,
+    ConfirmLogoutComponent, PhoneNumberPipe, NewClientComponent, UsersComponent, UserDetailComponent, NewUserComponent
   ],
   imports: [
     CommonModule,
@@ -44,21 +47,21 @@ import { faSignOutAlt, faCog, faChartLine, faShoppingCart, faFileInvoiceDollar, 
     EmployeeRoutingModule
   ],
   providers: [
-    ClientsResolver,
-    ClientDetailResolver,
-    DeliveryRoutesResolver,
-    ClientService,
-    AlertService
+    DataResolver,
+    DataArrayResolver,
+    AlertService,
+    DataApiService
   ],
   entryComponents: [
     ConfirmLogoutComponent,
-    NewClientComponent
+    NewClientComponent,
+    NewUserComponent
   ]
 })
 export class EmployeeModule {
   constructor() {
-    library.add(faSignOutAlt, faCog, faChartLine, faShoppingCart,
-      faFileInvoiceDollar, faStoreAlt, faUsers, faPlus, faLongArrowAltLeft,
-      faLongArrowAltRight);
+    library.add(faChartLine, faCog, faFileInvoiceDollar,
+      faLongArrowAltLeft, faLongArrowAltRight, faPlus, faShoppingCart,
+      faSignOutAlt, faStoreAlt, faUser, faUserPlus, faUsers);
   }
 }

@@ -44,8 +44,7 @@ import { CommonModule } from '@angular/common';
 import { NgModule, ModuleWithProviders } from '@angular/core';
 import { CookieBrowser } from './storage/cookie.browser';
 import { StorageBrowser } from './storage/storage.browser';
-import { ClientApi } from './services/custom/Client';
-import { DeliveryRouteApi } from './services/custom/DeliveryRoute';
+import { EmployeeDataApi } from './services/custom/EmployeeData';
 /**
 * @module SDKBrowserModule
 * @description
@@ -74,8 +73,7 @@ export class SDKBrowserModule {
         LoopBackAuth,
         LoggerService,
         SDKModels,
-        ClientApi,
-        DeliveryRouteApi,
+        EmployeeDataApi,
         internalStorageProvider,
         { provide: SDKStorage, useClass: StorageBrowser }
       ]

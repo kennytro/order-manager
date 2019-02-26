@@ -1,0 +1,30 @@
+<a routerLink="../"><fa-icon icon="long-arrow-alt-left"></fa-icon> Users</a>
+<mat-card>
+  <mat-card-header>
+    <div mat-card-avatar><fa-icon icon="user" size="3x"></fa-icon></div>
+    <mat-card-title>User Datails - ID: {{user.id}}</mat-card-title>
+    <mat-card-subtitle>Created on {{user.createdDate | date:'medium' }}</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <h5 mat-subheader>User Information</h5>
+    <form [formGroup]="userFG" class="form-container">
+      <mat-form-field appearance="outline">
+        <mat-label>Email</mat-label>
+        <input matInput placeholder="Business email address" formControlName="email">
+        <mat-error> Please, enter a valid email address </mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Client ID</mat-label>
+        <mat-select placeholder="Select client" formControlName="clientId" required>
+          <mat-option *ngFor="let client of clientList" [value]="client">{{ client }}</mat-option>
+        </mat-select>
+        <mat-error>This field is required</mat-error>
+      </mat-form-field>
+    </form>
+  </mat-card-content>
+  <mat-card-actions align="end">
+    <button mat-raised-button routerLink="../">Close</button>
+    <button mat-raised-button color="green" (click)="save()">Save</button>
+    <button mat-raised-button color="warn" (click)="delete()">Delete</button>
+  </mat-card-actions>
+</mat-card>

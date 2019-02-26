@@ -3,13 +3,8 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material';
 import { FormControl, Validators } from '@angular/forms';
 
-import { AlertService } from '../../services/alert.service';
-
-import { BASE_URL, API_VERSION } from '../../../../../shared/base.url'
-import { LoopBackConfig } from '../../../../../shared/sdk/index';
-import { Client } from '../../../../../shared/sdk/models';
-import { ClientApi } from '../../../../../shared/sdk/services';
-//import { ClientService } from '../../services/client.service';
+import { AlertService } from '../../../../shared/services/alert.service';
+import { DataApiService } from '../../services/data-api.service';
 
 import map from 'lodash/map';
 
@@ -28,7 +23,7 @@ export class ClientDetailComponent implements OnInit {
   ];
   routeList = [];
   feeTypeList = ['Fixed', 'Rate'];      // TO DO: replace with real data
-  client: Client;
+  client: any;
   businessEmailFC = new FormControl('', [Validators.email]);
   personEmailFC = new FormControl('', [Validators.email]);
   personAltEmailFC = new FormControl('', [Validators.email]);
@@ -37,11 +32,9 @@ export class ClientDetailComponent implements OnInit {
   constructor(
     private _router: Router,
     private _route: ActivatedRoute,
-    private _clientApi: ClientApi,
+    private _dataApi: DataApiService,
     private _snackBar: MatSnackBar,
     private _alertSvc: AlertService) {
-    LoopBackConfig.setBaseURL(BASE_URL);
-    LoopBackConfig.setApiVersion(API_VERSION);
   }
 
   ngOnInit() {
@@ -64,7 +57,7 @@ export class ClientDetailComponent implements OnInit {
       this.client.email = this.businessEmailFC.value;
       this.client.contactPersonEmail = this.personEmailFC.value;
       this.client.contactPersonAltEmail = this.personAltEmailFC.value;
-      await this._clientApi.upsert(this.client).toPromise();
+      await this._dataApi.upsert('Client', this.client).toPromise();
       const snackBarRef = this._snackBar.open(`Client(id: ${this.client.id}) successfully saved`, 'Close');
       snackBarRef.onAction().subscribe(() => {
         snackBarRef.dismiss();
@@ -79,7 +72,7 @@ export class ClientDetailComponent implements OnInit {
 
   async delete() {
     this._alertSvc.confirm('Are you sure?', 'Deleting this client cannot be undone', async () => {
-      await this._clientApi.deleteById(this.client.id).toPromise();
+      await this._dataApi.destroyById('Client', this.client.id.toString()).toPromise();
       this._alertSvc.alertSuccess('Success', `Successfully deleted client(id: ${this.client.id})`, () => {
         this._router.navigate(['../'], { relativeTo: this._route });
       });
