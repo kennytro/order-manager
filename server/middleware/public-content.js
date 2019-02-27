@@ -14,10 +14,4 @@ module.exports = async function(app, req, res, next) {
   }
 
   res.send(_(elements).map('value').join(''));
-  // console.log(`getting ${name} public content`);
-  // if (name) {
-  //   res.send(`<h3>${name} TEST</h3>`);
-  // } else {
-  //   res.send('');
-  // }
 };

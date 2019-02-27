@@ -1,20 +1,22 @@
 'use strict';
+const appRoot = require('app-root-path');
 const Promise = require('bluebird');
 const _ = require('lodash');
-const app = require('../../server/server');
+const app = require(appRoot + '/server/server');
+const logger = require(appRoot + '/config/winston');
 
 module.exports = function(EmployeeData) {
   EmployeeData.genericFind = async function(idToken, modelName, filter) {
     if (!idToken) {
       // TO DO: parse idToken and check user role is either manager or admin
       // if modelName is 'EndUser', only 'admin' is allowed to call.
-      console.log('EmployeeData.genericFind() needs to parse idToken');
+      logger.info('EmployeeData.genericFind() needs to parse idToken');
       // throwAuthError();
     }
     try {
       return await app.models[modelName].find(filter || {});
     } catch (error) {
-      console.error(`Cannot find ${modelName} - ${error.message}`);
+      logger.error(`Cannot find ${modelName} - ${error.message}`);
       throw error;
     }
   };
@@ -23,13 +25,13 @@ module.exports = function(EmployeeData) {
     if (!idToken) {
       // TO DO: parse idToken and check user role is either manager or admin
       // if modelName is 'EndUser', only 'admin' is allowed to call.
-      console.log('EmployeeData.genericFindById() needs to parse idToken');
+      logger.info('EmployeeData.genericFindById() needs to parse idToken');
       // throwAuthError();
     }
     try {
       return await app.models[modelName].findById(id);
     } catch (error) {
-      console.error(`Cannot find by id (model: ${modelName}, id: ${id}) - ${error.message}`);
+      logger.error(`Cannot find by id (model: ${modelName}, id: ${id}) - ${error.message}`);
       throw error;
     }
   };
@@ -38,7 +40,7 @@ module.exports = function(EmployeeData) {
     if (!idToken) {
       // TO DO: parse idToken and check user role is either manager or admin
       // if modelName is 'EndUser', only 'admin' is allowed to call.
-      console.log('EmployeeData.genericUpsert() needs to parse idToken');
+      logger.info('EmployeeData.genericUpsert() needs to parse idToken');
       // throwAuthError();
     }
     try {
@@ -47,7 +49,7 @@ module.exports = function(EmployeeData) {
       }
       return await app.models[modelName].upsert(modelObj);
     } catch (error) {
-      console.error(`Cannot upsert ${modelName} - ${error.message}`);
+      logger.error(`Cannot upsert ${modelName} - ${error.message}`);
       throw error;
     }
   };
@@ -56,7 +58,7 @@ module.exports = function(EmployeeData) {
     if (!idToken) {
       // TO DO: parse idToken and check user role is either manager or admin
       // if modelName is 'EndUser', only 'admin' is allowed to call.
-      console.log('EmployeeData.genericDestroyById() needs to parse idToken');
+      logger.info('EmployeeData.genericDestroyById() needs to parse idToken');
       // throwAuthError();
     }
     try {
@@ -65,7 +67,7 @@ module.exports = function(EmployeeData) {
       }
       return await app.models[modelName].destroyById(id);
     } catch (error) {
-      console.error(`Cannot destroy by id (model: ${modelName}, id: ${id}) - ${error.message}`);
+      logger.error(`Cannot destroy by id (model: ${modelName}, id: ${id}) - ${error.message}`);
       throw error;
     }
   };
