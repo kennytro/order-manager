@@ -1,4 +1,12 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE TABLE IF NOT EXISTS app_error
+(
+  level text NOT NULL,
+  message text,
+  metadata jsonb,
+  created_date timestamptz DEFAULT now()
+);
+
 CREATE TABLE IF NOT EXISTS public_page_element
 (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),

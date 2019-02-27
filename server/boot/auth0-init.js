@@ -1,7 +1,9 @@
 'use strict';
+const appRoot = require('app-root-path');
 const _ = require('lodash');
 const auth0ManagementClient = require('auth0').ManagementClient;
-const tenantSettings = require('../tenant');
+const tenantSettings = require(appRoot + '/config/tenant');
+const logger = require(appRoot + '/config/winston');
 
 /* During boot-up, check and create both Auth0 and EndUser for admin.
 */
@@ -14,7 +16,7 @@ module.exports = async function(app) {
   const CLIENT_SECRET = process.env.AUTH0_API_CLIENT_SECRET;
   const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
   if (!CLIENT_ID || !CLIENT_SECRET || !ADMIN_EMAIL) {
-    console.log('Auth0 client id/secret/admin email are not set - skipping auth0 initialization.');
+    logger.info('Auth0 client id/secret/admin email are not set - skipping auth0 initialization.');
     return;
   }
   const management = new auth0ManagementClient({
@@ -27,7 +29,7 @@ module.exports = async function(app) {
   try {
     adminUsers = await management.getUsersByEmail(ADMIN_EMAIL);
     if (_.isEmpty(adminUsers)) {
-      console.debug(`Creating admin(email: ${ADMIN_EMAIL}) user ...`);
+      logger.debug(`Creating admin(email: ${ADMIN_EMAIL}) user ...`);
       adminUsers[0] = await management.createUser({
         connection: tenantSettings.connection,
         email: ADMIN_EMAIL,
@@ -38,10 +40,10 @@ module.exports = async function(app) {
           roles: ['admin']
         }
       });
-      console.log('Successfully created admin user.');
+      logger.info('Successfully created admin user.');
     }
   } catch (err) {
-    console.log('error while checking admin user in Auth0 - ' + err);
+    logger.info('error while checking admin user in Auth0 - ' + err);
   }
 
   let user = await app.models.EndUser.findOne({ where: { email: ADMIN_EMAIL } });
