@@ -57,7 +57,7 @@ export class ClientsComponent implements OnInit {
         }).toPromise();
         this._setTableDataSource(clientArray);
       }
-    })    
+    })
   }
 
   private _setTableDataSource(clients: Array<any>) {

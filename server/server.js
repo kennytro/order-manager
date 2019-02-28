@@ -42,6 +42,14 @@ app.get('/public/:name', function(req, res, next) {
 
 app.use('/api', loopback.rest());
 
+app.use(function(err, req, res, next) {
+  logger.error(`${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+  if (err.name === 'UnauthorizedError') {
+    res.status(401).send('Invalid token. You must be logged in to access this API.');
+  }
+  next(err);
+});
+
 app.use(loopback.static(path.resolve(__dirname, '../dist')));
 app.all('/*', function(req, res, next) {
   if (ENV !== 'production' &&

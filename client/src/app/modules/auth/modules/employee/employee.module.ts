@@ -17,6 +17,9 @@ import { ConfirmLogoutComponent } from '../../shared/components/confirm-logout/c
 import { UsersComponent } from './components/users/users.component';
 import { UserDetailComponent } from './components/user-detail/user-detail.component';
 import { NewUserComponent } from './components/new-user/new-user.component';
+import { DeliveryRoutesComponent } from './components/delivery-routes/delivery-routes.component';
+import { DeliveryRouteDetailComponent } from './components/delivery-route-detail/delivery-route-detail.component';
+import { NewDeliveryRouteComponent } from './components/new-delivery-route/new-delivery-route.component';
 
 // Services
 import { DataResolver } from './services/data.resolver';
@@ -31,12 +34,15 @@ import { PhoneNumberPipe } from '../../shared/pipes/phone-number.pipe';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faChartLine, faCog, faFileInvoiceDollar,
         faLongArrowAltLeft, faLongArrowAltRight, faPlus, faShoppingCart,
-        faSignOutAlt, faStoreAlt, faUser, faUserPlus, faUsers } from '@fortawesome/free-solid-svg-icons';
+        faSignOutAlt, faStoreAlt, faTruck, faUser, faUserPlus, faUsers } from '@fortawesome/free-solid-svg-icons';
 
 @NgModule({
   declarations: [
-    EmployeeLayoutComponent, ClientsComponent, DashboardComponent, ClientDetailComponent,
-    ConfirmLogoutComponent, PhoneNumberPipe, NewClientComponent, UsersComponent, UserDetailComponent, NewUserComponent
+    EmployeeLayoutComponent, DashboardComponent, ConfirmLogoutComponent,
+    ClientsComponent, ClientDetailComponent, NewClientComponent,
+    PhoneNumberPipe,
+    UsersComponent, UserDetailComponent, NewUserComponent,
+    DeliveryRoutesComponent, DeliveryRouteDetailComponent, NewDeliveryRouteComponent
   ],
   imports: [
     CommonModule,
@@ -55,13 +61,14 @@ import { faChartLine, faCog, faFileInvoiceDollar,
   entryComponents: [
     ConfirmLogoutComponent,
     NewClientComponent,
-    NewUserComponent
+    NewUserComponent,
+    NewDeliveryRouteComponent
   ]
 })
 export class EmployeeModule {
   constructor() {
     library.add(faChartLine, faCog, faFileInvoiceDollar,
       faLongArrowAltLeft, faLongArrowAltRight, faPlus, faShoppingCart,
-      faSignOutAlt, faStoreAlt, faUser, faUserPlus, faUsers);
+      faSignOutAlt, faStoreAlt, faTruck, faUser, faUserPlus, faUsers);
   }
 }
