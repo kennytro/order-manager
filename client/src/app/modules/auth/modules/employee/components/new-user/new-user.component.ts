@@ -15,10 +15,12 @@ export class NewUserComponent implements OnInit {
   userFG: FormGroup;
   phoneMask: any[] = ['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/];
 
-  constructor(private _dialogRef: MatDialogRef<NewUserComponent>,
+  constructor(
+    private _dialogRef: MatDialogRef<NewUserComponent>,
     private _formBuilder: FormBuilder,
     private _snackBar: MatSnackBar,
-    private _dataApi: DataApiService) { }
+    private _dataApi: DataApiService
+  ) { }
 
   ngOnInit() {
     this._dataApi.find('Client', { fields: { id: true } })

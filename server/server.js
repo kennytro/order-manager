@@ -51,9 +51,8 @@ app.use(function(err, req, res, next) {
   logger.error(`${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
   if (err.name === 'UnauthorizedError') {
     res.status(401).send('Invalid token. You must be logged in to access this API.');
-  } else {
-    res.status(err.status || 500).send(err.message);
   }
+  next(err);
 });
 
 app.use(loopback.static(path.resolve(__dirname, '../dist')));

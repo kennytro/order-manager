@@ -7,6 +7,8 @@ import { ClientsComponent } from './components/clients/clients.component';
 import { ClientDetailComponent } from './components/client-detail/client-detail.component'; 
 import { UsersComponent } from './components/users/users.component';
 import { UserDetailComponent } from './components/user-detail/user-detail.component';
+import { DeliveryRoutesComponent } from './components/delivery-routes/delivery-routes.component';
+import { DeliveryRouteDetailComponent } from './components/delivery-route-detail/delivery-route-detail.component';
 
 import { DataResolver } from './services/data.resolver';
 import { DataArrayResolver } from './services/data-array.resolver';
@@ -60,6 +62,23 @@ const routes: Routes = [
             component: UsersComponent,
             resolve: { users: DataArrayResolver },
             data: { arrayModelName: 'EndUser' }
+          }
+        ]
+      },
+      {
+        path: 'delivery-routes',
+        children: [
+          {
+            path: ':id',
+            component: DeliveryRouteDetailComponent,
+            resolve: { route: DataResolver },
+            data: { modelName: 'DeliveryRoute'}
+          },
+          {
+            path: '',
+            component: DeliveryRoutesComponent,
+            resolve: { routes: DataArrayResolver },
+            data: { arrayModelName: 'DeliveryRoute' }
           }
         ]
       }
