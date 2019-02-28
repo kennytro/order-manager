@@ -1,7 +1,9 @@
 'use strict';
+const appRoot = require('app-root-path');
 const _ = require('lodash');
 const AWS = require('aws-sdk');
-const tenantSetting = require('../tenant');
+const tenantSetting = require(appRoot + '/config/tenant');
+const logger = require(appRoot + '/config/winston');
 
 /* AWS S3 is used as file repository. There are two buckets pre-created:
 *  1. om-public - stores public files such as images in public web page.
@@ -84,41 +86,29 @@ module.exports = async function(app) {
       ACL: acl
     };
     try {
-      console.log(`Creating folder '${bucket}/${key}' in AWS S3...`);
+      logger.info(`Creating folder '${bucket}/${key}' in AWS S3...`);
       await s3.putObject(params).promise();
-      console.log(`  Successfully created folder '${bucket}/${key}'`);
+      logger.info(`  Successfully created folder '${bucket}/${key}'`);
     } catch (error) {
-      console.error(`  Failed to create folder '${bucket}/${key}' - ${error.message}`);
+      logger.error(`  Failed to create folder '${bucket}/${key}' - ${error.message}`);
       throw error;
     }
   };
 
   if (!accessKey || !secretKey) {
-    console.log('AWS keys are not set - skipping AWS initialization.');
+    logger.info('AWS keys are not set - skipping AWS initialization.');
     return;
   }
 
   const s3 = new AWS.S3({ apiVersion: '2006-03-01' });
-  // if (await checkBucket(s3, publicBucket)) {
-  //   console.log(`Bucket[${publicBucket}] already exists.`);
-  // } else {
-  //   await createBucket(s3, publicBucket, 'public-read');
-  // }
-
   if (await checkFolder(s3, publicBucket, tenantFolder)) {
-    console.log(`Folder[${publicBucket}/${tenantFolder}] already exists.`);
+    logger.info(`Folder[${publicBucket}/${tenantFolder}] already exists.`);
   } else {
     await createFolder(s3, publicBucket, tenantFolder, 'public-read');
   }
 
-  // if (await checkBucket(s3, privateBucket)) {
-  //   console.log(`Bucket[${privateBucket}] already exists.`);
-  // } else {
-  //   await createBucket(s3, privateBucket, 'private');
-  // }
-
   if (await checkFolder(s3, privateBucket, tenantFolder)) {
-    console.log(`Folder[${privateBucket}/${tenantFolder}] already exists.`);
+    logger.info(`Folder[${privateBucket}/${tenantFolder}] already exists.`);
   } else {
     await createFolder(s3, privateBucket, tenantFolder, 'private');
   }

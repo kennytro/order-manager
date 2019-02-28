@@ -1,11 +1,14 @@
 'use strict';
-
+const appRoot = require('app-root-path');
 const loopback = require('loopback');
 const boot = require('loopback-boot');
 const path = require('path');
+const morgan = require('morgan');
 
+// read .env before requiring other app files.
 require('dotenv').config();
-const tenantSettings = require('./tenant');
+const logger = require(appRoot + '/config/winston.js');
+const tenantSettings = require(appRoot + '/config/tenant');
 const getPublicContent = require('./middleware/public-content');
 
 const app = module.exports = loopback();
@@ -13,7 +16,7 @@ const ENV = process.env.NODE_ENV || 'production';
 
 if (ENV === 'production') {
   process.on('unhandledRejection', (reason, p) => {
-    console.error('Unhandled Rejection at: Promise', p, 'reason:', reason);
+    logger.error(`Unhandled Rejection at: Promise ${p} reason: ${reason}`);
   });
 }
 
@@ -22,13 +25,15 @@ app.start = function() {
   return app.listen(function() {
     app.emit('started');
     var baseUrl = app.get('url').replace(/\/$/, '');
-    console.log('Web server listening at: %s', baseUrl);
+    logger.info(`Web server listening at: ${baseUrl}`);
     if (app.get('loopback-component-explorer')) {
       var explorerPath = app.get('loopback-component-explorer').mountPath;
-      console.log('Browse your REST API at %s%s', baseUrl, explorerPath);
+      logger.info(`Browse your REST API at ${baseUrl + explorerPath}`);
     }
   });
 };
+
+app.use(morgan('combined', { stream: logger.stream }));
 
 // Get the local tenant settings from environment variables.
 app.get('/tenant', function(req, res, next) {

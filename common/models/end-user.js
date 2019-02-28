@@ -1,8 +1,10 @@
 'use strict';
+const appRoot = require('app-root-path');
 const request = require('request');
 const _ = require('lodash');
 const auth0ManagementClient = require('auth0').ManagementClient;
-const tenantSettings = require('../../server/tenant');
+const tenantSettings = require(appRoot + '/config/tenant');
+const logger = require(appRoot + '/config/winston');
 
 module.exports = function(EndUser) {
   const CLIENT_ID = process.env.AUTH0_API_CLIENT_ID;
@@ -37,7 +39,7 @@ module.exports = function(EndUser) {
       });
     } catch (error) {
       if (error.statusCode !== 409) {
-        console.error(`error while creating Auth0 user(email: ${userObject.email}, clientId: ${userObject.clientId}) - ${error.message}`);
+        logger.error(`error while creating Auth0 user(email: ${userObject.email}, clientId: ${userObject.clientId}) - ${error.message}`);
         throw error;
       }
       let users = await management.getUsersByEmail(userObject.email);
@@ -52,7 +54,7 @@ module.exports = function(EndUser) {
       _.set(userObject, ['userSettings', 'roles'], ['customer']);
       return await EndUser.upsertWithWhere({ email: userObject.email }, userObject);
     } catch (error) {
-      console.error(`error while creating user(email: ${userObject.email}, clientId: ${userObject.clientId}) - ${error.message}`);
+      logger.error(`error while creating user(email: ${userObject.email}, clientId: ${userObject.clientId}) - ${error.message}`);
       throw error;
     }
   };
@@ -64,7 +66,7 @@ module.exports = function(EndUser) {
   EndUser.deleteUser = async function(id) {
     let user = await EndUser.findById(id);
     if (!user) {
-      console.log(`EndUser(id: ${id}) does not exist.`);
+      logger.info(`EndUser(id: ${id}) does not exist.`);
       return;
     }
     const management = new auth0ManagementClient({
@@ -75,11 +77,11 @@ module.exports = function(EndUser) {
     try {
       if (user.authId) {
         await management.deleteUser({ id: user.authId });
-        console.log(`successfully deleted user(id: ${id}, auth0Id: ${user.authId}`);
+        logger.info(`successfully deleted user(id: ${id}, auth0Id: ${user.authId}`);
       }
       await EndUser.destroyById(id);
     } catch (error) {
-      console.error(`error while deleting user(id: ${id}) - ${error.message}`);
+      logger.error(`error while deleting user(id: ${id}) - ${error.message}`);
       throw error;
     }
   };
@@ -101,7 +103,7 @@ module.exports = function(EndUser) {
     };
     request(options, function(error, response, body) {
       if (error) throw new Error(error);
-      console.log(body);
+      logger.info(body);
     });
   };
 };
