@@ -25,11 +25,12 @@ export class NewClientComponent implements OnInit {
   clientFG: FormGroup;
   phoneMask: any[] = ['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/];
 
-  constructor(private _dialogRef: MatDialogRef<NewClientComponent>,
+  constructor(
+    private _dialogRef: MatDialogRef<NewClientComponent>,
     private _formBuilder: FormBuilder,
     private _snackBar: MatSnackBar,
     private _dataApi: DataApiService
-    ) { }
+   ) { }
 
   ngOnInit() {
     this._dataApi.find('DeliveryRoute', { fields: { id: true } })
@@ -40,6 +41,7 @@ export class NewClientComponent implements OnInit {
       formArray: this._formBuilder.array([
         this._formBuilder.group({      // business detail
           name: ['', Validators.required],
+          showPublic: false,
           addressStreet: [''],
           addressCity: [''],
           addressState: [''],

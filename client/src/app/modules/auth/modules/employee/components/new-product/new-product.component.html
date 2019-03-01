@@ -1,0 +1,56 @@
+<h3 mat-dialog-title><fa-icon icon="tag" size="3x"></fa-icon> New Product</h3>
+<div mat-dialog-content>
+  <form [formGroup]="productFG" class="form-container">
+    <div fxLayout="row wrap" fxLayoutGap="20px" fxLayoutAlign="center space-between">
+      <div fxFlex="1 0 300px">
+        <mat-form-field appearance="outline">
+          <mat-label>Product Name</mat-label>
+          <input matInput placeholder="Enter product name" formControlName="name" required>
+          <mat-error>This field is required</mat-error>
+        </mat-form-field>
+      </div>
+      <div fxFlex="1 0 300px">
+        <mat-form-field appearance="outline">
+          <mat-label>Product Category</mat-label>
+          <input matInput placeholder="Enter product category " formControlName="category">
+        </mat-form-field>
+      </div>
+    </div>
+    <mat-form-field appearance="outline">
+      <mat-label>Product Description</mat-label>
+      <input matInput placeholder="Enter product description" formControlName="description" required>
+      <mat-error>This field is required</mat-error>
+    </mat-form-field>
+    <div fxLayout="row wrap" fxLayoutGap="20px" fxLayoutAlign="center space-between">
+      <div fxFlex="1 0 75px">
+        <mat-form-field appearance="outline">
+          <mat-label>Unit Price</mat-label>
+          <input matInput type="number" class="right" placeholder="Enter product unit price" formControlName="unitPrice">
+          <span matPrefix>$&nbsp;</span>
+        </mat-form-field>
+      </div>
+      <div fxFlex="1 0 20px">
+        <mat-form-field appearance="outline">
+          <mat-label>Unit</mat-label>
+          <mat-select formControlName="unit">
+            <mat-option *ngFor="let unit of unitList" [value]="unit">{{unit}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>      
+      <div fxFlex="1 0 75px">
+        <mat-form-field appearance="outline">
+          <mat-label>Inventory Count</mat-label>
+          <input matInput type="number" class="right" placeholder="Enter inventory count" formControlName="inventoryCount">
+        </mat-form-field>
+      </div>
+      <div fxFlex="1 0 100px">
+        <mat-slide-toggle formControlName="showPublic" color="primary" matTooltip="Make this product available to public" matTooltipPosition="below">Show Public?</mat-slide-toggle>
+      </div>
+    </div>
+  </form>
+</div>
+<mat-divider></mat-divider>
+<div mat-dialog-actions fxLayout="row" fxLayoutAlign="end">
+  <button mat-raised-button [mat-dialog-close]="false">Cancel</button>
+  <button mat-raised-button [disabled]="productFG.invalid" (click)="create()" color="green">Create</button>
+</div>

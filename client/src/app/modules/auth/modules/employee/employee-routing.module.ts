@@ -9,6 +9,8 @@ import { UsersComponent } from './components/users/users.component';
 import { UserDetailComponent } from './components/user-detail/user-detail.component';
 import { DeliveryRoutesComponent } from './components/delivery-routes/delivery-routes.component';
 import { DeliveryRouteDetailComponent } from './components/delivery-route-detail/delivery-route-detail.component';
+import { ProductsComponent } from './components/products/products.component';
+import { ProductDetailComponent } from './components/product-detail/product-detail.component';
 
 import { DataResolver } from './services/data.resolver';
 import { DataArrayResolver } from './services/data-array.resolver';
@@ -19,6 +21,23 @@ const routes: Routes = [
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent },
+      {
+        path: 'products',
+        children: [
+          {
+            path: ':id',
+            component: ProductDetailComponent,
+            resolve: { product: DataResolver },
+            data: { modelName: 'Product'}
+          },
+          {
+            path: '',
+            component: ProductsComponent,
+            resolve: { products: DataArrayResolver },
+            data: { arrayModelName: 'Product'}
+          }
+        ]
+      },
       {
         path: 'clients',
         children: [

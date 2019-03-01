@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { 
   MatButtonModule, MatCardModule, MatDialogModule, MatDividerModule, MatFormFieldModule,
-  MatPaginatorModule, MatSelectModule, MatSortModule, MatTableModule
+  MatInputModule,
+  MatPaginatorModule,
+  MatSelectModule, MatSlideToggleModule, MatSnackBarModule, MatSortModule, MatStepperModule,
+  MatTableModule, MatTooltipModule
 } from '@angular/material';
-import { MatInputModule } from '@angular/material/input';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatStepperModule } from '@angular/material/stepper';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { ReactiveFormsModule } from '@angular/forms';
 
@@ -18,10 +18,12 @@ const modules = [
   MatInputModule,
   MatPaginatorModule,
   MatSelectModule,
+  MatSlideToggleModule,
   MatSnackBarModule,
   MatSortModule,
   MatStepperModule,
   MatTableModule,
+  MatTooltipModule,
   FlexLayoutModule,
   ReactiveFormsModule
 ];

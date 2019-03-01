@@ -1,0 +1,68 @@
+{
+  "name": "Product",
+  "plural": "Products",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true,
+    "postgresql": {
+      "schema": "public",
+      "table": "product"
+    }
+  },
+  "properties": {
+    "id": {
+      "type": "number"
+    },
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "string",
+      "required": true
+    },
+    "category": {
+      "type": "string"
+    },
+    "unitPrice": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "unit_price"
+      }
+    },
+    "unit": {
+      "type": "string"
+    },
+    "inventoryCount": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "inventory_count"
+      }
+    },
+    "showPublic": {
+      "type": "boolean",
+      "default": false,
+      "postgresql": {
+        "columnName": "show_public"
+      }
+    },
+    "settings": {
+      "type": "object",
+      "postgresql": {
+        "dateType": "json"
+      }
+    },
+    "createdDate": {
+      "type": "date",
+      "postgresql": {
+        "dateType": "timestamptz",
+        "columnName": "created_date"
+      }
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}
