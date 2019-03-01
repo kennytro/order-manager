@@ -55,6 +55,10 @@
     "dataSource": "OrderManager",
     "public": false
   },
+  "Product": {
+    "dataSource": "OrderManager",
+    "public": false
+  },
   "EmployeeData": {
     "dataSource": "db",
     "public": true

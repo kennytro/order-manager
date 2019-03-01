@@ -24,7 +24,73 @@ main {
 	width: 100%;
 }
 
+/****** Mat Card ******/
+.mat-card-content {
+  margin-top: 20px;
+}
+
+.mat-card-avatar {
+  margin-right: 10px;
+}
+
+/* Give first button right margin */
+.mat-card-actions .mat-button:first-child,
+.mat-card-actions .mat-raised-button:first-child {
+  margin-right: 8px !important;
+}
+/****** Table ******/
+table {
+  width: 100%;
+}
+
+td, th {
+  width: 25%;
+}
+
+th {
+  font-weight: 900;
+}
+
+
+/****** Button ******/
+button {
+  margin-right: 10px;
+  margin-left: 10px;
+  min-width: 100px !important;
+}
+
+.btn-toolbar .btn {
+  color: white;
+  background-color: #2eb82e
+}
+
 .mat-green {
 	color: white;
   background-color: #2eb82e
+}
+
+/****** Text ******/
+.right {
+  text-align: right;
+}
+
+/****** Form ******/
+.form-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-container > * {
+  width: 100%;
+}
+
+.mat-form-field {
+  font-size: 14px;
+  width: 100%;
+  /*min-width: 300px;*/
+}
+
+.mat-form-filed.input {
+  background-color: rgba(192, 192, 192, .2);
+  border-color: rgba(255, 255, 255, .1);  
 }

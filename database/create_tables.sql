@@ -68,3 +68,20 @@ CREATE TABLE IF NOT EXISTS end_user
   created_date timestamptz DEFAULT now()
 );
 ALTER SEQUENCE end_user_id_seq OWNED BY end_user.id;
+
+CREATE SEQUENCE IF NOT EXISTS product_id_seq MINVALUE 1000;
+CREATE TABLE IF NOT EXISTS product
+(
+  id integer PRIMARY KEY DEFAULT nextval('product_id_seq'),
+  name text NOT NULL UNIQUE,
+  description text NOT NULL,
+  category text,
+  unit_price numeric DEFAULT 0,
+  unit text,
+  inventory_count integer,
+  show_public bool DEFAULT false,
+  settings jsonb,
+  created_date timestamptz DEFAULT now()
+);
+ALTER SEQUENCE product_id_seq OWNED BY product.id;
+

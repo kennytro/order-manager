@@ -34,7 +34,11 @@ import { PhoneNumberPipe } from '../../shared/pipes/phone-number.pipe';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faChartLine, faCog, faFileInvoiceDollar,
         faLongArrowAltLeft, faLongArrowAltRight, faPlus, faShoppingCart,
-        faSignOutAlt, faStoreAlt, faTruck, faUser, faUserPlus, faUsers } from '@fortawesome/free-solid-svg-icons';
+        faSignOutAlt, faStoreAlt, faTag, faTags, faTruck,
+        faUser, faUserPlus, faUsers } from '@fortawesome/free-solid-svg-icons';
+import { ProductsComponent } from './components/products/products.component';
+import { ProductDetailComponent } from './components/product-detail/product-detail.component';
+import { NewProductComponent } from './components/new-product/new-product.component';
 
 @NgModule({
   declarations: [
@@ -42,7 +46,7 @@ import { faChartLine, faCog, faFileInvoiceDollar,
     ClientsComponent, ClientDetailComponent, NewClientComponent,
     PhoneNumberPipe,
     UsersComponent, UserDetailComponent, NewUserComponent,
-    DeliveryRoutesComponent, DeliveryRouteDetailComponent, NewDeliveryRouteComponent
+    DeliveryRoutesComponent, DeliveryRouteDetailComponent, NewDeliveryRouteComponent, ProductsComponent, ProductDetailComponent, NewProductComponent
   ],
   imports: [
     CommonModule,
@@ -62,13 +66,15 @@ import { faChartLine, faCog, faFileInvoiceDollar,
     ConfirmLogoutComponent,
     NewClientComponent,
     NewUserComponent,
-    NewDeliveryRouteComponent
+    NewDeliveryRouteComponent,
+    NewProductComponent
   ]
 })
 export class EmployeeModule {
   constructor() {
     library.add(faChartLine, faCog, faFileInvoiceDollar,
       faLongArrowAltLeft, faLongArrowAltRight, faPlus, faShoppingCart,
-      faSignOutAlt, faStoreAlt, faTruck, faUser, faUserPlus, faUsers);
+      faSignOutAlt, faStoreAlt, faTruck, faTag, faTags,
+      faUser, faUserPlus, faUsers);
   }
 }

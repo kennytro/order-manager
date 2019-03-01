@@ -1,0 +1,63 @@
+<a routerLink="../"><fa-icon icon="long-arrow-alt-left"></fa-icon> Products</a>
+<mat-card>
+  <mat-card-header>
+    <div mat-card-avatar><fa-icon icon="tag" size="3x"></fa-icon></div>
+    <mat-card-title>Product Datails - ID: {{product.id}}</mat-card-title>
+    <mat-card-subtitle>Created on {{product.createdDate | date:'medium' }}</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="productFG" class="form-container">
+      <div fxLayout="row wrap" fxLayoutGap="20px" fxLayoutAlign="center space-between">
+        <div fxFlex="1 0 300px">
+          <mat-form-field appearance="outline">
+            <mat-label>Product Name</mat-label>
+            <input matInput placeholder="Enter product name" formControlName="name" required>
+            <mat-error>This field is required</mat-error>
+          </mat-form-field>
+        </div>
+        <div fxFlex="1 0 300px">
+          <mat-form-field appearance="outline">
+            <mat-label>Product Category</mat-label>
+            <input matInput placeholder="Enter product category " formControlName="category">
+          </mat-form-field>
+        </div>
+      </div>
+      <mat-form-field appearance="outline">
+        <mat-label>Product Description</mat-label>
+        <input matInput placeholder="Enter product description" formControlName="description" required>
+        <mat-error>This field is required</mat-error>
+      </mat-form-field>
+      <div fxLayout="row wrap" fxLayoutGap="20px" fxLayoutAlign="center space-between">
+        <div fxFlex="1 0 75px">
+          <mat-form-field appearance="outline">
+            <mat-label>Unit Price</mat-label>
+            <input matInput type="number" class="right" placeholder="Enter product unit price" formControlName="unitPrice">
+            <span matPrefix>$&nbsp;</span>
+          </mat-form-field>
+        </div>
+        <div fxFlex="1 0 20px">
+          <mat-form-field appearance="outline">
+            <mat-label>Unit</mat-label>
+            <mat-select formControlName="unit">
+              <mat-option *ngFor="let unit of unitList" [value]="unit">{{unit}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>      
+        <div fxFlex="1 0 75px">
+          <mat-form-field appearance="outline">
+            <mat-label>Inventory Count</mat-label>
+            <input matInput type="number" class="right" placeholder="Enter inventory count" formControlName="inventoryCount">
+          </mat-form-field>
+        </div>
+        <div fxFlex="1 0 100px">
+          <mat-slide-toggle formControlName="showPublic" color="primary" matTooltip="Make this product available to public" matTooltipPosition="below">Show Public?</mat-slide-toggle>
+        </div>
+      </div>
+    </form>
+  </mat-card-content>
+  <mat-card-actions align="end">
+    <button mat-raised-button routerLink="../">Close</button>
+    <button mat-raised-button color="green" (click)="save()">Save</button>
+    <button mat-raised-button color="warn" (click)="delete()">Delete</button>
+  </mat-card-actions>
+</mat-card>
