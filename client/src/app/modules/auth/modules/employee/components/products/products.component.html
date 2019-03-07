@@ -19,7 +19,15 @@
       </ng-container>
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> NAME </th>
-        <td mat-cell *matCellDef="let row"> {{row.name}} </td>
+        <td mat-cell *matCellDef="let row">
+          <span *ngIf="row.settings.imageUrl; else noImage">
+            <img src={{row.settings.imageUrl}} height="50" width="50">
+          </span>
+          <ng-template #noImage>
+            <img src='/assets/img/no-picture.png' height="50" width="50">
+          </ng-template>
+           {{row.name}}
+         </td>
       </ng-container>
       <ng-container matColumnDef="description">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> DESCRIPTION </th>

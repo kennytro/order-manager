@@ -2,7 +2,7 @@
   "name": "Product",
   "plural": "Products",
   "base": "PersistedModel",
-  "idInjection": true,
+  "idInjection": false,
   "options": {
     "validateUpsert": true,
     "postgresql": {
@@ -12,7 +12,8 @@
   },
   "properties": {
     "id": {
-      "type": "number"
+      "type": "number",
+      "id": true
     },
     "name": {
       "type": "string",
@@ -46,6 +47,13 @@
       "postgresql": {
         "columnName": "show_public"
       }
+    },
+    "isAvailable": {
+      "type": "boolean",
+      "default": true,
+      "postgresql": {
+        "columnName": "is_available"
+      }      
     },
     "settings": {
       "type": "object",

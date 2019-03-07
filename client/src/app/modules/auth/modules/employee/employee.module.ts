@@ -3,6 +3,8 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { ImageCropperModule } from 'ngx-image-cropper';
+
 import { CustomMaterialModule } from '../../../../shared/custom-material.module';
 import { SharedModule } from '../../../../shared/shared.module';
 import { EmployeeRoutingModule } from './employee-routing.module';
@@ -20,25 +22,26 @@ import { NewUserComponent } from './components/new-user/new-user.component';
 import { DeliveryRoutesComponent } from './components/delivery-routes/delivery-routes.component';
 import { DeliveryRouteDetailComponent } from './components/delivery-route-detail/delivery-route-detail.component';
 import { NewDeliveryRouteComponent } from './components/new-delivery-route/new-delivery-route.component';
+import { ProductsComponent } from './components/products/products.component';
+import { ProductDetailComponent } from './components/product-detail/product-detail.component';
+import { NewProductComponent } from './components/new-product/new-product.component';
 
 // Services
 import { DataResolver } from './services/data.resolver';
 import { DataArrayResolver } from './services/data-array.resolver';
 import { AlertService } from '../../shared/services/alert.service';
 import { DataApiService } from './services/data-api.service';
+import { ProductService } from './services/product.service';
 
 // Pipes
 import { PhoneNumberPipe } from '../../shared/pipes/phone-number.pipe';
 
 // Misc.
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faChartLine, faCog, faFileInvoiceDollar,
+import { faArrowsAltV, faChartLine, faCog, faFileInvoiceDollar, faFolderOpen,
         faLongArrowAltLeft, faLongArrowAltRight, faPlus, faShoppingCart,
         faSignOutAlt, faStoreAlt, faTag, faTags, faTruck,
-        faUser, faUserPlus, faUsers } from '@fortawesome/free-solid-svg-icons';
-import { ProductsComponent } from './components/products/products.component';
-import { ProductDetailComponent } from './components/product-detail/product-detail.component';
-import { NewProductComponent } from './components/new-product/new-product.component';
+        faUndoAlt, faUser, faUserPlus, faUsers } from '@fortawesome/free-solid-svg-icons';
 
 @NgModule({
   declarations: [
@@ -53,6 +56,7 @@ import { NewProductComponent } from './components/new-product/new-product.compon
     FormsModule,
     FontAwesomeModule,
     CustomMaterialModule,
+    ImageCropperModule,
     SharedModule,
     EmployeeRoutingModule
   ],
@@ -60,7 +64,8 @@ import { NewProductComponent } from './components/new-product/new-product.compon
     DataResolver,
     DataArrayResolver,
     AlertService,
-    DataApiService
+    DataApiService,
+    ProductService
   ],
   entryComponents: [
     ConfirmLogoutComponent,
@@ -72,9 +77,9 @@ import { NewProductComponent } from './components/new-product/new-product.compon
 })
 export class EmployeeModule {
   constructor() {
-    library.add(faChartLine, faCog, faFileInvoiceDollar,
+    library.add(faArrowsAltV, faChartLine, faCog, faFileInvoiceDollar, faFolderOpen,
       faLongArrowAltLeft, faLongArrowAltRight, faPlus, faShoppingCart,
       faSignOutAlt, faStoreAlt, faTruck, faTag, faTags,
-      faUser, faUserPlus, faUsers);
+      faUndoAlt, faUser, faUserPlus, faUsers);
   }
 }

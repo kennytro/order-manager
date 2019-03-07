@@ -80,6 +80,7 @@ CREATE TABLE IF NOT EXISTS product
   unit text,
   inventory_count integer,
   show_public bool DEFAULT false,
+  is_available bool DEFAULT true,
   settings jsonb,
   created_date timestamptz DEFAULT now()
 );
