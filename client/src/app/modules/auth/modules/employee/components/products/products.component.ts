@@ -51,10 +51,10 @@ export class ProductsComponent implements OnInit {
     const dialogRef = this._newProductDialog.open(NewProductComponent);
     dialogRef.afterClosed().subscribe(async result => {
       if (result) {
-        // refresh list to include the new item
+        // refresh list to include the new item.
+        // [IMPORTANT] - append 'settings' property to include image
         let productArray = await this._dataApi.find('Product', {
-          // fields: { id: true, name: true, phone: true, deliveryRouteId: true, createdDate: true }
-          fields: this.displayedColumns
+          fields: this.displayedColumns.concat('settings')
         }).toPromise();
         this._setTableDataSource(productArray);
       }

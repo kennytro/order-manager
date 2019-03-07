@@ -1,3 +1,13 @@
 .form-container {
   min-width: 600px;
 }
+
+/* double border around image */
+image-cropper {
+  padding: 1px;
+  border: 1px solid #021a40;
+}
+
+button {
+  min-width: 10px !important;
+}

@@ -2,18 +2,53 @@
 <div mat-dialog-content>
   <form [formGroup]="productFG" class="form-container">
     <div fxLayout="row wrap" fxLayoutGap="20px" fxLayoutAlign="center space-between">
-      <div fxFlex="1 0 300px">
-        <mat-form-field appearance="outline">
-          <mat-label>Product Name</mat-label>
-          <input matInput placeholder="Enter product name" formControlName="name" required>
-          <mat-error>This field is required</mat-error>
-        </mat-form-field>
+      <div fxFlex="1 0 400px" fxLayout="column" fxLayoutGap="20px">
+        <div>
+          <mat-form-field appearance="outline">
+            <mat-label>Product Name</mat-label>
+            <input matInput placeholder="Enter product name" formControlName="name" required>
+            <mat-error>This field is required</mat-error>
+          </mat-form-field>
+        </div>
+        <div fxLayout="row wrap" fxLayoutGap="20px" fxLayoutAlign="center space-between">
+          <div fxFlex="1 0 200px">
+            <mat-form-field appearance="outline">
+              <mat-label>Product Category</mat-label>
+              <input matInput placeholder="Enter product category " formControlName="category">
+            </mat-form-field>
+          </div>
+          <div fxFlex="1 0 150px" fxLayout="column" fxLayoutGap="20px">
+            <div>
+              <mat-slide-toggle formControlName="showPublic" color="primary" matTooltip="Make this product available to public">Show Public?</mat-slide-toggle>
+            </div>
+            <div>
+              <mat-slide-toggle formControlName="isAvailable" color="primary" matTooltip="Is this product available">Is Available?</mat-slide-toggle>
+            </div>
+          </div>
+        </div>
       </div>
-      <div fxFlex="1 0 300px">
-        <mat-form-field appearance="outline">
-          <mat-label>Product Category</mat-label>
-          <input matInput placeholder="Enter product category " formControlName="category">
-        </mat-form-field>
+      <div fxFlex="1 0 200px" fxLayout="column">
+        <div>
+          <image-cropper
+            [imageBase64]="imageBase64"
+            [maintainAspectRatio]="true"
+            [cropperMinWidth]="100"
+            [resizeToWidth]="100"
+            format="png"
+            outputType="base64"
+            (imageCropped)="imageCropped($event)"
+            (imageLoaded)="imageLoaded()"
+            (cropperReady)="cropperReady()"
+            (loadImageFailed)="loadImageFailed()"
+            [style.display]="showCropper ? null : 'none'"
+          ></image-cropper>
+        </div>
+        <div fxLayout="row" fxLayoutGap="10px" fxLayoutAlign="center space-between">
+          <input #_file type="file" accept="image/*" (change)="fileChangeEvent($event)" hidden> 
+          <button mat-icon-button matTooltip="Click to change image file" (click)="_file.click()"><fa-icon icon="folder-open"></fa-icon></button>
+          <button mat-icon-button matTooltip="Vertically flip image" (click)="flipVertical()"><fa-icon icon="arrows-alt-v"></fa-icon></button>
+          <button mat-icon-button matTooltip="Rotate image" (click)="rotateLeft()"><fa-icon icon="undo-alt"></fa-icon></button>
+        </div>
       </div>
     </div>
     <mat-form-field appearance="outline">
@@ -42,9 +77,6 @@
           <mat-label>Inventory Count</mat-label>
           <input matInput type="number" class="right" placeholder="Enter inventory count" formControlName="inventoryCount">
         </mat-form-field>
-      </div>
-      <div fxFlex="1 0 100px">
-        <mat-slide-toggle formControlName="showPublic" color="primary" matTooltip="Make this product available to public" matTooltipPosition="below">Show Public?</mat-slide-toggle>
       </div>
     </div>
   </form>
