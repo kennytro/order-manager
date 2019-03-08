@@ -1,24 +1,39 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
+import { CustomMaterialModule } from '../../../../shared/custom-material.module';
 import { CustomerRoutingModule } from './customer-routing.module';
-import { CustomerLayoutComponent } from './components/customer-layout/customer-layout.component';
+import { ConfirmLogoutComponent } from '../../shared/components/confirm-logout/confirm-logout.component';
 
+// Components
+import { CustomerLayoutComponent } from './components/customer-layout/customer-layout.component';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
+
+// Services
+
+// Misc.
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faSignOutAlt, faCog, faChartLine, faShoppingCart, faFileInvoiceDollar, faUsers } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faChartLine, faCog, faFileInvoiceDollar, faKey,
+  faSignOutAlt, faShoppingCart, faUsers } from '@fortawesome/free-solid-svg-icons';
 
 @NgModule({
-  declarations: [CustomerLayoutComponent],
+  declarations: [CustomerLayoutComponent, DashboardComponent, ConfirmLogoutComponent],
   imports: [
     CommonModule,
-    FontAwesomeModule,    
+    FormsModule,
+    FontAwesomeModule,
+    CustomMaterialModule,
     CustomerRoutingModule
+  ],
+  entryComponents: [
+    ConfirmLogoutComponent
   ]
 })
 export class CustomerModule {
   constructor() {
-    library.add(faSignOutAlt, faCog, faChartLine, faShoppingCart,
-      faFileInvoiceDollar, faUsers);
+    library.add(faBars, faChartLine, faCog, faFileInvoiceDollar, faKey,
+  faSignOutAlt, faShoppingCart, faUsers);
   }
 }

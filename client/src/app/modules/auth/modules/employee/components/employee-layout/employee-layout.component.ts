@@ -14,7 +14,7 @@ import { RootScopeShareService } from '../../../../../../services/root-scope-sha
 export class EmployeeLayoutComponent implements OnInit {
   private _companyLogo: string;
   private _companyName: string;
-  constructor(public auth: AuthService,
+  constructor(private _auth: AuthService,
     private _dataShare: RootScopeShareService,
     private _logoutDialog: MatDialog
     /*,
@@ -31,7 +31,7 @@ export class EmployeeLayoutComponent implements OnInit {
     const dialogRef = this._logoutDialog.open(ConfirmLogoutComponent);
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.auth.logout();
+        this._auth.logout();
       }
     })
   }
