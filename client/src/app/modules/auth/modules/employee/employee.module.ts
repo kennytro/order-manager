@@ -15,7 +15,6 @@ import { ClientsComponent } from './components/clients/clients.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { NewClientComponent } from './components/new-client/new-client.component';
 import { ClientDetailComponent } from './components/client-detail/client-detail.component';
-import { ConfirmLogoutComponent } from '../../shared/components/confirm-logout/confirm-logout.component';
 import { UsersComponent } from './components/users/users.component';
 import { UserDetailComponent } from './components/user-detail/user-detail.component';
 import { NewUserComponent } from './components/new-user/new-user.component';
@@ -25,6 +24,7 @@ import { NewDeliveryRouteComponent } from './components/new-delivery-route/new-d
 import { ProductsComponent } from './components/products/products.component';
 import { ProductDetailComponent } from './components/product-detail/product-detail.component';
 import { NewProductComponent } from './components/new-product/new-product.component';
+import { ConfirmLogoutComponent } from '../../shared/components/confirm-logout/confirm-logout.component';
 
 // Services
 import { DataResolver } from './services/data.resolver';

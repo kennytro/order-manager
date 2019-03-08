@@ -9,56 +9,66 @@ import { CookieService } from 'ngx-cookie-service';
 import { RootScopeShareService } from './root-scope-share.service';
 import { environment } from '../../environments/environment';
 
+import { isEmpty } from 'lodash/isEmpty';
+
+export interface UserProfile {
+  email: string,
+  pictureUrl: string
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private 
+  private _userProfile: UserProfile = <UserProfile>{};
   private _lock: any;
   private _jwtHelper: JwtHelperService = new JwtHelperService();
 
   constructor(private dataShare: RootScopeShareService,
     private router: Router,
-    private _cookieService: CookieService) {}
+    private _cookieService: CookieService) {
+    let tenant = this.dataShare.getData('tenant');
+    this._lock = new Auth0Lock(tenant.clientId, tenant.domainId, {
+      container: 'login-content-wrapper',
+      allowSignUp: false,
+      closable: false,
+      avatar: null,
+      rememberLastLogin: false,
+      auth: {
+        audience: tenant.audience,
+        redirect: false,
+        responseType: 'token id_token',
+        params: {
+          scope: 'openid email profile'
+        }
+      },
+      languageDictionary: {
+        title: ''
+      },
+      theme: {
+        logo: AWS_S3_PUBLIC_URL + tenant.id + '/favicon.png',
+        primaryColor: '#0B941E'
+      }
+    });
+
+    this._lock.on('authenticated', this.onAuthenticated.bind(this));
+    this._lock.on('authorization_error', error => {
+      console.log('something went wrong', error);
+    });
+
+    // restore user profile if accessToken is still available
+    if (this.isAuthenticated()) {
+      this._getAuth0UserProfile();
+    }
+  }
 
   async login() {
-    // for some reason, saved lock doesn't show again after navigating away to other page.
-    // if (!this._lock) {
-      // retrieve tenant Auth0 parameters.
-      let tenant = this.dataShare.getData('tenant');
-      this._lock = new Auth0Lock(tenant.clientId, tenant.domainId, {
-        container: 'login-content-wrapper',
-        allowSignUp: false,
-        closable: false,
-        avatar: null,
-        rememberLastLogin: false,
-        auth: {
-          audience: tenant.audience,
-          redirect: false,
-          responseType: 'token id_token',
-          params: {
-            scope: 'openid email profile'
-          }
-        },
-        languageDictionary: {
-          title: ''
-        },
-        theme: {
-          logo: AWS_S3_PUBLIC_URL + tenant.id + '/favicon.png',
-          primaryColor: '#0B941E'
-        }
-      });
-
-      this._lock.on('authenticated', this.onAuthenticated.bind(this));
-      this._lock.on('authorization_error', error => {
-        console.log('something went wrong', error);
-      });
-    // }
     this._lock.show();
   }
 
   onAuthenticated(authResult: any) {
     this._lock.hide();
+    this._setUserProfile(get(authResult, 'idTokenPayload'));
     this._cookieService.set('accessToken', authResult.accessToken, null, '/');
     this._cookieService.set('idToken', authResult.idToken, null, '/');
     // parse user role
@@ -86,6 +96,8 @@ export class AuthService {
     this._cookieService.delete('idTokne', '/');
     this._cookieService.delete('roles', '/');
 
+    this._userProfile = <UserProfile>{};
+
     this.router.navigate(['/login']);
   }
 
@@ -97,8 +109,11 @@ export class AuthService {
     return false;
   }
 
+  getUserProfile() {
+    return this._userProfile;
+  }
 
-  async getProfile(): Promise<void> {
+  private async _getAuth0UserProfile(): Promise<void> {
     const accessToken = this._cookieService.check('accessToken') ? this._cookieService.get('accessToken') : undefined;
     if (!accessToken) {
       throw new Error('Access Token must exist to fetch profile');
@@ -109,9 +124,18 @@ export class AuthService {
         if (error) {
           reject(error);
         } else {
-          self.dataShare.setData('profile', profile);
+          self._setUserProfile(profile);
+          // self.dataShare.setData('profile', profile);
         }
       });
     });
   }
+
+  private _setUserProfile(payload: any) {
+    if (payload) {
+      this._userProfile.email = get(payload, 'email');
+      this._userProfile.pictureUrl = get(payload, 'picture');
+    }
+  }
+
 }

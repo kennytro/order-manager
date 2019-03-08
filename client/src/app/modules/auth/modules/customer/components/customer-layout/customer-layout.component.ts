@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material';
+import { ConfirmLogoutComponent } from '../../../../shared/components/confirm-logout/confirm-logout.component';
 
 import { AWS_S3_PUBLIC_URL } from '../../../../../../shared/base.url';
-import { AuthService } from '../../../../../../services/auth.service';
+import { AuthService, UserProfile } from '../../../../../../services/auth.service';
 import { RootScopeShareService } from '../../../../../../services/root-scope-share.service';
 
 @Component({
@@ -12,8 +14,10 @@ import { RootScopeShareService } from '../../../../../../services/root-scope-sha
 export class CustomerLayoutComponent implements OnInit {
   private _companyLogo: string;
   private _storeName: string;
-  constructor(public auth: AuthService,
-    private _dataShare: RootScopeShareService) { }
+
+  constructor(private _auth: AuthService,
+    private _dataShare: RootScopeShareService,
+    private _logoutDialog: MatDialog) { }
 
   ngOnInit() {
     const tenant = this._dataShare.getData('tenant');
@@ -21,9 +25,21 @@ export class CustomerLayoutComponent implements OnInit {
     this._storeName = "Store Name Here";
   }
 
+  settings() {
+    console.log('clicked settings ');
+  }
+
+  changePassword() {
+    console.log('clicked change password');
+  }
+
   logout() {
-    // TODO: confirm with user before logout.
-    this.auth.logout();
+    const dialogRef = this._logoutDialog.open(ConfirmLogoutComponent);
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this._auth.logout();
+      }
+    })
   }
 
   getCompanyLogo() {
@@ -32,5 +48,13 @@ export class CustomerLayoutComponent implements OnInit {
 
   getStoreName() {
     return this._storeName;
+  }
+
+  getUserEmail() {
+    return this._auth.getUserProfile().email;
+  }
+  
+  getUserPicture() {
+    return this._auth.getUserProfile().pictureUrl;
   }
 }
