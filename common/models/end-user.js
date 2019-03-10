@@ -34,6 +34,7 @@ module.exports = function(EndUser) {
         email: userObject.email,
         password: DEFAULT_PW,
         app_metadata: {
+          clientId: userObject.clientId,
           roles: ['customer']
         }
       });

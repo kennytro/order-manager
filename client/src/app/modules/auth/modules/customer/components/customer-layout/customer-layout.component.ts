@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material';
-import { ConfirmLogoutComponent } from '../../../../shared/components/confirm-logout/confirm-logout.component';
+import { MatDialog, MatSnackBar } from '@angular/material';
+import { ConfirmDialogComponent, DialogData } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 import { AWS_S3_PUBLIC_URL } from '../../../../../../shared/base.url';
 import { AuthService, UserProfile } from '../../../../../../services/auth.service';
 import { RootScopeShareService } from '../../../../../../services/root-scope-share.service';
+
+import { DataApiService } from '../../services/data-api.service';
 
 @Component({
   selector: 'app-customer-layout',
@@ -17,7 +19,9 @@ export class CustomerLayoutComponent implements OnInit {
 
   constructor(private _auth: AuthService,
     private _dataShare: RootScopeShareService,
-    private _logoutDialog: MatDialog) { }
+    private _dialog: MatDialog,
+    private _snackBar: MatSnackBar,
+    private _dataApi: DataApiService) { }
 
   ngOnInit() {
     const tenant = this._dataShare.getData('tenant');
@@ -30,11 +34,39 @@ export class CustomerLayoutComponent implements OnInit {
   }
 
   changePassword() {
-    console.log('clicked change password');
+    const dialogData: DialogData = {
+      title: 'Change Password',
+      content: 'We will send an email with a link to change password.',
+      confirmColor: 'green',
+      confirmIcon: 'key',
+      confirmLabel: 'Send Email'
+    };
+    const dialogRef = this._dialog.open(ConfirmDialogComponent, {
+      data: dialogData
+    });
+    dialogRef.afterClosed().subscribe( async result => {
+      if (result) {
+        await this._dataApi.genericMethod('resetPassword').toPromise();
+        const snackBarRef = this._snackBar.open(`Sent password reset email to ${this.getUserEmail()}`, 'Close', {
+          duration: 3000
+        });
+        snackBarRef.onAction().subscribe(() => {
+          snackBarRef.dismiss();
+        });
+      }
+    });
   }
 
   logout() {
-    const dialogRef = this._logoutDialog.open(ConfirmLogoutComponent);
+    const dialogData: DialogData = {
+      title: 'Are you sure?',
+      confirmColor: 'warn',
+      confirmIcon: 'sign-out-alt',
+      confirmLabel: 'Log out'
+    };
+    const dialogRef = this._dialog.open(ConfirmDialogComponent, {
+      data: dialogData
+    });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this._auth.logout();

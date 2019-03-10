@@ -7,7 +7,7 @@ const jwtNode = require('jsonwebtoken');
 const app = require(appRoot + '/server/server');
 const logger = require(appRoot + '/config/winston');
 
-module.exports = function(EmployeeData) {
+module.exports = function(CustomerData) {
   const client = jwksClient({
     cache: true,
     rateLimit: true,
@@ -42,11 +42,11 @@ module.exports = function(EmployeeData) {
     }
   }
 
-  EmployeeData.genericFind = async function(idToken, modelName, filter) {
+  CustomerData.genericFind = async function(idToken, modelName, filter) {
     if (!idToken) {
-      // TO DO: parse idToken and check user role is either manager or admin
-      // if modelName is 'EndUser', only 'admin' is allowed to call.
-      logger.info('EmployeeData.genericFind() needs to parse idToken');
+      // TO DO: parse idToken to obtain user's client id. Ensure user only accesses
+      // data of matching client id
+      logger.info('CustomerData.genericFind() needs to parse idToken');
       // throwAuthError();
     }
     try {
@@ -57,11 +57,11 @@ module.exports = function(EmployeeData) {
     }
   };
 
-  EmployeeData.genericFindById = async function(idToken, modelName, id, filter) {
+  CustomerData.genericFindById = async function(idToken, modelName, id, filter) {
     if (!idToken) {
-      // TO DO: parse idToken and check user role is either manager or admin
-      // if modelName is 'EndUser', only 'admin' is allowed to call.
-      logger.info('EmployeeData.genericFindById() needs to parse idToken');
+      // TO DO: parse idToken to obtain user's client id. Ensure user only accesses
+      // data of matching client id
+      logger.info('CustomerData.genericFindById() needs to parse idToken');
       // throwAuthError();
     }
     try {
@@ -72,11 +72,11 @@ module.exports = function(EmployeeData) {
     }
   };
 
-  EmployeeData.genericUpsert = async function(idToken, modelName, modelObj) {
+  CustomerData.genericUpsert = async function(idToken, modelName, modelObj) {
     if (!idToken) {
-      // TO DO: parse idToken and check user role is either manager or admin
-      // if modelName is 'EndUser', only 'admin' is allowed to call.
-      logger.info('EmployeeData.genericUpsert() needs to parse idToken');
+      // TO DO: parse idToken to obtain user's client id. Ensure user only accesses
+      // data of matching client id
+      logger.info('CustomerData.genericUpsert() needs to parse idToken');
       // throwAuthError();
     }
     try {
@@ -90,11 +90,11 @@ module.exports = function(EmployeeData) {
     }
   };
 
-  EmployeeData.genericDestroyById = async function(idToken, modelName, id) {
+  CustomerData.genericDestroyById = async function(idToken, modelName, id) {
     if (!idToken) {
-      // TO DO: parse idToken and check user role is either manager or admin
-      // if modelName is 'EndUser', only 'admin' is allowed to call.
-      logger.info('EmployeeData.genericDestroyById() needs to parse idToken');
+      // TO DO: parse idToken to obtain user's client id. Ensure user only accesses
+      // data of matching client id
+      logger.info('CustomerData.genericDestroyById() needs to parse idToken');
       // throwAuthError();
     }
     try {
@@ -108,7 +108,7 @@ module.exports = function(EmployeeData) {
     }
   };
 
-  EmployeeData.resetPassword = async function(idToken) {
+  CustomerData.resetPassword = async function(idToken) {
     try {
       let decoded = await decodeIdToken(idToken);
       let endUser = await app.models.EndUser.findOne({ where: { authId: decoded.sub } });
@@ -127,7 +127,7 @@ module.exports = function(EmployeeData) {
     throw error;
   }
 
-  EmployeeData.remoteMethod('genericFind', {
+  CustomerData.remoteMethod('genericFind', {
     http: { path: '/find', verb: 'get' },
     accepts: [
       // { arg: 'req', type: 'object', http: { source: 'req' } },
@@ -137,7 +137,7 @@ module.exports = function(EmployeeData) {
     ],
     returns: { type: 'array', root: true }
   });
-  EmployeeData.remoteMethod('genericFindById', {
+  CustomerData.remoteMethod('genericFindById', {
     http: { path: '/findById/:id', verb: 'get' },
     accepts: [
       // { arg: 'req', type: 'object', http: { source: 'req' } },
@@ -148,7 +148,7 @@ module.exports = function(EmployeeData) {
     ],
     returns: { type: 'object', root: true }
   });
-  EmployeeData.remoteMethod('genericUpsert', {
+  CustomerData.remoteMethod('genericUpsert', {
     http: { path: '/upsert', verb: 'put' },
     accepts: [
       // { arg: 'req', type: 'object', http: { source: 'req' } },
@@ -158,7 +158,7 @@ module.exports = function(EmployeeData) {
     ],
     returns: { type: 'object', root: true }
   });
-  EmployeeData.remoteMethod('genericDestroyById', {
+  CustomerData.remoteMethod('genericDestroyById', {
     http: { path: '/delete/:id', verb: 'delete' },
     accepts: [
       // { arg: 'req', type: 'object', http: { source: 'req' } },
@@ -167,7 +167,7 @@ module.exports = function(EmployeeData) {
       { arg: 'id', type: 'string', required: true }
     ]
   });
-  EmployeeData.remoteMethod('resetPassword', {
+  CustomerData.remoteMethod('resetPassword', {
     http: { path: '/resetPassword', verb: 'post' },
     accepts: [
       { arg: 'idToken', type: 'string', required: true }
