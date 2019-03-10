@@ -9,14 +9,14 @@ import { LoopBackFilter,  } from '../../models/BaseModels';
 import { ErrorHandler } from '../core/error.service';
 import { Observable, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { EmployeeData } from '../../models/EmployeeData';
+import { CustomerData } from '../../models/CustomerData';
 
 
 /**
- * Api services for the `EmployeeData` model.
+ * Api services for the `CustomerData` model.
  */
 @Injectable()
-export class EmployeeDataApi extends BaseLoopBackApi {
+export class CustomerDataApi extends BaseLoopBackApi {
 
   constructor(
     @Inject(HttpClient) protected http: HttpClient,
@@ -44,13 +44,13 @@ export class EmployeeDataApi extends BaseLoopBackApi {
    *
    * <em>
    * (The remote method definition does not provide any description.
-   * This usually means the response is a `EmployeeData` object.)
+   * This usually means the response is a `CustomerData` object.)
    * </em>
    */
   public genericFind(idToken: any, modelName: any, filter: LoopBackFilter = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "GET";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
-    "/EmployeeData/find";
+    "/CustomerData/find";
     let _routeParams: any = {};
     let _postBody: any = {};
     let _urlParams: any = {};
@@ -80,13 +80,13 @@ export class EmployeeDataApi extends BaseLoopBackApi {
    *
    * <em>
    * (The remote method definition does not provide any description.
-   * This usually means the response is a `EmployeeData` object.)
+   * This usually means the response is a `CustomerData` object.)
    * </em>
    */
   public genericFindById(idToken: any, modelName: any, id: any, filter: LoopBackFilter = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "GET";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
-    "/EmployeeData/findById/:id";
+    "/CustomerData/findById/:id";
     let _routeParams: any = {
       id: id
     };
@@ -118,13 +118,13 @@ export class EmployeeDataApi extends BaseLoopBackApi {
    *
    * <em>
    * (The remote method definition does not provide any description.
-   * This usually means the response is a `EmployeeData` object.)
+   * This usually means the response is a `CustomerData` object.)
    * </em>
    */
   public genericUpsert(idToken: any, modelName: any, modelObj: any, customHeaders?: Function): Observable<any> {
     let _method: string = "PUT";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
-    "/EmployeeData/upsert";
+    "/CustomerData/upsert";
     let _routeParams: any = {};
     let _postBody: any = {};
     let _urlParams: any = {};
@@ -155,7 +155,7 @@ export class EmployeeDataApi extends BaseLoopBackApi {
   public genericDestroyById(idToken: any, modelName: any, id: any, customHeaders?: Function): Observable<any> {
     let _method: string = "DELETE";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
-    "/EmployeeData/delete/:id";
+    "/CustomerData/delete/:id";
     let _routeParams: any = {
       id: id
     };
@@ -185,7 +185,7 @@ export class EmployeeDataApi extends BaseLoopBackApi {
   public resetPassword(idToken: any, customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
-    "/EmployeeData/resetPassword";
+    "/CustomerData/resetPassword";
     let _routeParams: any = {};
     let _postBody: any = {};
     let _urlParams: any = {};
@@ -196,9 +196,9 @@ export class EmployeeDataApi extends BaseLoopBackApi {
 
   /**
    * The name of the model represented by this $resource,
-   * i.e. `EmployeeData`.
+   * i.e. `CustomerData`.
    */
   public getModelName() {
-    return "EmployeeData";
+    return "CustomerData";
   }
 }

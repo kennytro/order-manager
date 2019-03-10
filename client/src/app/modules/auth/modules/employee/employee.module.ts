@@ -1,11 +1,8 @@
 // Modules
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ImageCropperModule } from 'ngx-image-cropper';
 
-import { CustomMaterialModule } from '../../../../shared/custom-material.module';
+import { AuthSharedModule } from '../../shared/auth-shared.module';
 import { SharedModule } from '../../../../shared/shared.module';
 import { EmployeeRoutingModule } from './employee-routing.module';
 
@@ -24,7 +21,6 @@ import { NewDeliveryRouteComponent } from './components/new-delivery-route/new-d
 import { ProductsComponent } from './components/products/products.component';
 import { ProductDetailComponent } from './components/product-detail/product-detail.component';
 import { NewProductComponent } from './components/new-product/new-product.component';
-import { ConfirmLogoutComponent } from '../../shared/components/confirm-logout/confirm-logout.component';
 
 // Services
 import { DataResolver } from './services/data.resolver';
@@ -38,24 +34,21 @@ import { PhoneNumberPipe } from '../../shared/pipes/phone-number.pipe';
 
 // Misc.
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faArrowsAltV, faChartLine, faCog, faFileInvoiceDollar, faFolderOpen,
+import { faArrowsAltV, faChartLine, faCog, faFileInvoiceDollar, faFolderOpen, faKey,
         faLongArrowAltLeft, faLongArrowAltRight, faPlus, faShoppingCart,
         faSignOutAlt, faStoreAlt, faTag, faTags, faTruck,
         faUndoAlt, faUser, faUserPlus, faUsers } from '@fortawesome/free-solid-svg-icons';
 
 @NgModule({
   declarations: [
-    EmployeeLayoutComponent, DashboardComponent, ConfirmLogoutComponent,
+    EmployeeLayoutComponent, DashboardComponent,
     ClientsComponent, ClientDetailComponent, NewClientComponent,
     PhoneNumberPipe,
     UsersComponent, UserDetailComponent, NewUserComponent,
     DeliveryRoutesComponent, DeliveryRouteDetailComponent, NewDeliveryRouteComponent, ProductsComponent, ProductDetailComponent, NewProductComponent
   ],
   imports: [
-    CommonModule,
-    FormsModule,
-    FontAwesomeModule,
-    CustomMaterialModule,
+    AuthSharedModule,
     ImageCropperModule,
     SharedModule,
     EmployeeRoutingModule
@@ -68,7 +61,6 @@ import { faArrowsAltV, faChartLine, faCog, faFileInvoiceDollar, faFolderOpen,
     ProductService
   ],
   entryComponents: [
-    ConfirmLogoutComponent,
     NewClientComponent,
     NewUserComponent,
     NewDeliveryRouteComponent,
@@ -77,7 +69,7 @@ import { faArrowsAltV, faChartLine, faCog, faFileInvoiceDollar, faFolderOpen,
 })
 export class EmployeeModule {
   constructor() {
-    library.add(faArrowsAltV, faChartLine, faCog, faFileInvoiceDollar, faFolderOpen,
+    library.add(faArrowsAltV, faChartLine, faCog, faFileInvoiceDollar, faFolderOpen, faKey,
       faLongArrowAltLeft, faLongArrowAltRight, faPlus, faShoppingCart,
       faSignOutAlt, faStoreAlt, faTruck, faTag, faTags,
       faUndoAlt, faUser, faUserPlus, faUsers);

@@ -1,0 +1,11 @@
+{
+  "name": "CustomerData",
+  "base": "Model",
+  "plural": "CustomerData",
+  "options": {},
+  "properties": {},
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

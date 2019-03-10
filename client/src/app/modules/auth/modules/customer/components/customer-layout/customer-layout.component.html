@@ -1,6 +1,6 @@
 <div class="auth-body">
   <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
-    <a class="companyName" routerLink="/auth/customer"><img border="0" alt="Company Logo" src={{getCompanyLogo()}} width="40" height="40"><span>{{getStoreName()}}</span></a>
+    <a class="companyName" routerLink="/auth/customer"><img border="0" alt="Company Logo" src={{getCompanyLogo()}} width="60" height="60">{{getStoreName()}}</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -20,7 +20,7 @@
             <div class="dropdown-item user-email"><h3>User ID: </h3><p>{{getUserEmail()}}</p></div>
             <a class="dropdown-item" (click)="changePassword()"><fa-icon icon="key"></fa-icon> Change password</a> 
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="#" (click)="logout()"><fa-icon icon="sign-out-alt"></fa-icon> Logout</a>
+            <a class="dropdown-item" (click)="logout()"><fa-icon icon="sign-out-alt"></fa-icon> Logout</a>
           </div>
         </li>
       </ul>

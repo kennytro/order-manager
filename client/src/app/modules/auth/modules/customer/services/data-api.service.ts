@@ -3,14 +3,13 @@ import { CookieService } from 'ngx-cookie-service';
 import { Observable, EMPTY } from 'rxjs';
 import { BASE_URL, API_VERSION } from '../../../../../shared/base.url';
 import { LoopBackConfig } from '../../../../../shared/sdk/index';
-import { EmployeeDataApi } from '../../../../../shared/sdk/services';
+import { CustomerDataApi } from '../../../../../shared/sdk/services';
 
 @Injectable()
 export class DataApiService {
-
   constructor(
     private _cookieService: CookieService,
-    private _dataApi: EmployeeDataApi
+    private _dataApi: CustomerDataApi
   ) {
     LoopBackConfig.setBaseURL(BASE_URL);
     LoopBackConfig.setApiVersion(API_VERSION);    
@@ -43,5 +42,5 @@ export class DataApiService {
 
   private _getIdToken() {
     return this._cookieService.get('idToken');
-  }  
+  }
 }

@@ -2,13 +2,14 @@ main {
   margin-left: 0;
   margin-right: 0;
 }
+
 /*
  * Sidebar
  */
 
 .sidebar {
   position: fixed;
-  top: 48px;  /* Height of navbar */
+  top: 60px;  /* Height of navbar */
   bottom: 0;
   left: 0;
   z-index: 100; /* Behind the navbar */
@@ -19,7 +20,7 @@ main {
 .sidebar-sticky {
   position: -webkit-sticky;
   position: sticky;
-  height: calc(100vh - 48px);
+  height: calc(100vh - 60px);
   padding-top: .5rem;
   overflow-x: hidden;
   overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
@@ -62,4 +63,27 @@ main {
   /* color: #fff; */
   background-color: rgba(192, 192, 192, .2);
   border-color: rgba(255, 255, 255, .1);
+}
+
+.avatar {
+  vertical-align: middle;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.user-email h3, .user-email p {
+  display: inline;
+  vertical-align: top;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+  line-height: 28px;
+}
+
+.user-email h3 {
+  font-weight: bold;
+}
+
+.navbar-nav li a {
+  line-height: 40px;
 }

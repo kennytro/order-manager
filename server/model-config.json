@@ -62,5 +62,9 @@
   "EmployeeData": {
     "dataSource": "db",
     "public": true
+  },
+  "CustomerData": {
+    "dataSource": "db",
+    "public": true
   }
 }

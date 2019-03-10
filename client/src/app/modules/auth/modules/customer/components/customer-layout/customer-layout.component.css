@@ -18,27 +18,14 @@
   font-weight: bold;
 }
 
-.companyName {
-  font-size: 150%;
-}
+/*
+ * Navbar
+ */
 
-/*.toolbar-spacer {
-  flex: 1 1 auto;
+.navbar {
+  padding: 1px 16px;
+  border-bottom: 2px solid #1a1aff;  
 }
-
-.sidenav-container {
-   When the sidenav is not fixed, stretch the sidenav container to fill the available space. This
-     causes `<mat-sidenav-content>` to act as our scrolling element for desktop layouts. 
-  flex: 1;
-}
-
-.mat-icon-button {
-  min-width: 10px !important;
-}
-
-.mat-list-base {
-  padding-top: 0px;
-}*/
 
 .navbar-nav li a {
   line-height: 40px;
