@@ -81,7 +81,7 @@ module.exports = function(CustomerData) {
     }
     try {
       if (modelName === 'EndUser' && _.isUndefined(modelObj.id)) {
-        return await app.models.EndUser.createNewUser(modelObj);
+        throwAuthError();
       }
       return await app.models[modelName].upsert(modelObj);
     } catch (error) {
@@ -99,7 +99,7 @@ module.exports = function(CustomerData) {
     }
     try {
       if (modelName === 'EndUser') {
-        return await app.models.EndUser.deleteUser(id);
+        throwAuthError();
       }
       return await app.models[modelName].destroyById(id);
     } catch (error) {
