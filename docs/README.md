@@ -9,6 +9,7 @@ Single web application that manages order, invoice, statement, etc. The applicat
 The application serves public content that is both static(static HTML tags) and dynamic(rendered by Angular engine), and secured content which requires user authentication.
 
 ## Environment Variables
+
 |NAME|REQUIRED?|DEFAULT|DESCRIPTION|
 |----|---------|-------:|-----------|
 |DATABASE_URL|Yes|null|Database URL|
