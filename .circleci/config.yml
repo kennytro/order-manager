@@ -16,7 +16,7 @@ jobs:
           PGUSER: ubuntu
           DB: circle_test
 
-      - image: postgres:10
+      - image: nimbustech/postgres-ssl:9.5
         environment:
           POSTGRES_USER: ubuntu
           POSTGRES_DB: circle_test
