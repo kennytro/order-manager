@@ -1,5 +1,5 @@
 # order-manager
-Single web application that manages order, invoice, statement, etc. The application has the following specs:
+Single page application that manages order, invoice, statement, etc. The application has the following specs:
 - Front-end : Angular(~7.2.0)
 - Back-end: Loopback(^3.22.0)
 - Database: postgres
