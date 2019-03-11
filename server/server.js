@@ -33,7 +33,9 @@ app.start = function() {
   });
 };
 
-app.use(morgan('combined', { stream: logger.stream }));
+if (!process.env.ONE_OFF) {
+  app.use(morgan('combined', { stream: logger.stream }));
+}
 
 // Get the local tenant settings from environment variables.
 app.get('/tenant', function(req, res, next) {
