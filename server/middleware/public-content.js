@@ -10,8 +10,8 @@ module.exports = async function(app, req, res, next) {
     order: 'sequenceNumber ASC'
   });
   if (_.isEmpty(elements)) {
-    return next(new HttpErrors(`No element of ${name} found`));
+    return next(new HttpErrors(404, `No element of ${name} found`));
   }
 
-  res.send(_(elements).map('value').join(''));
+  res.send({ html: _(elements).map('value').join('') });
 };
