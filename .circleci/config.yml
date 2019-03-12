@@ -9,7 +9,7 @@ jobs:
     docker:
       - image: circleci/node:10.13.0
         environment:
-          NODE_ENV: production
+          NODE_ENV: test
           DATABASE_URL: "postgres://web_app:circleci_test@localhost:5432/circle_test?ssl=true"
           MIDAS_HOME: /home/circleci/order-manager
           PGHOST: 127.0.0.1
@@ -54,7 +54,7 @@ jobs:
             npm run build:ng
       - run:
           name: Start back-end app
-          command: ALLOW_HTTP=true ENABLE_FULL_STACK_TRACE=true ONE_OFF=true NODE_ENV=test node .
+          command: ALLOW_HTTP=true ENABLE_FULL_STACK_TRACE=true ONE_OFF=true node .
           background: true
       - run: sleep 5
       - run: 
