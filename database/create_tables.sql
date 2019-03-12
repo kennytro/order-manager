@@ -1,4 +1,6 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE SEQUENCE IF NOT EXISTS generic_id_seq; -- general purpose ID sequencer
+
 CREATE TABLE IF NOT EXISTS app_error
 (
   level text NOT NULL,
@@ -86,3 +88,24 @@ CREATE TABLE IF NOT EXISTS product
 );
 ALTER SEQUENCE product_id_seq OWNED BY product.id;
 
+CREATE SEQUENCE IF NOT EXISTS order_id_seq MINVALUE 10000;
+CREATE TABLE IF NOT EXISTS order_t
+(
+  id integer PRIMARY KEY DEFAULT nextval('order_id_seq'),
+  client_id integer REFERENCES client,
+  total_amount numeric DEFAULT 0,
+  note text,
+  created_by integer REFERENCES end_user,
+  created_date timestamptz DEFAULT now()
+);
+ALTER SEQUENCE order_id_seq OWNED BY order_t.id;
+
+CREATE TABLE IF NOT EXISTS order_item
+(
+  id integer PRIMARY KEY DEFAULT nextval('generic_id_seq'),
+  order_id integer REFERENCES order_t,
+  product_id integer REFERENCES product,
+  quantity numeric DEFAULT 0,
+  unit_price numeric DEFAULT 0,
+  UNIQUE(order_id, product_id)
+);

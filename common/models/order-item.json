@@ -1,0 +1,53 @@
+{
+  "name": "OrderItem",
+  "plural": "OrderItems",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true,
+    "postgresql": {
+      "schema": "public",
+      "table": "order_item"
+    }
+  },
+  "properties": {
+    "id": {
+      "type": "number"
+    },
+    "orderId": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "order_id"
+      }
+    },
+    "productId": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "product_id"
+      }
+    },
+    "quantity": {
+      "type": "number"
+    },
+    "unitPrice": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "unit_price"
+      }
+    }
+  },
+  "validations": [],
+  "relations": {
+    "order": {
+      "type": "belongsTo",
+      "model": "Order"
+    },
+    "product": {
+      "type": "hasOne",
+      "model": "Product",
+      "foreignKey": "productId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

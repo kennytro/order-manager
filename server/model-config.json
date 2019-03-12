@@ -39,14 +39,6 @@
     "dataSource": "db",
     "public": false
   },
-  "EndUser": {
-    "dataSource": "OrderManager",
-    "public": false
-  },
-  "PublicPageElement": {
-    "dataSource": "OrderManager",
-    "public": false
-  },
   "Client": {
     "dataSource": "OrderManager",
     "public": false
@@ -55,7 +47,23 @@
     "dataSource": "OrderManager",
     "public": false
   },
+  "EndUser": {
+    "dataSource": "OrderManager",
+    "public": false
+  },
+  "Order": {
+    "dataSource": "OrderManager",
+    "public": false
+  },
+  "OrderItem": {
+    "dataSource": "OrderManager",
+    "public": false
+  },
   "Product": {
+    "dataSource": "OrderManager",
+    "public": false
+  },
+  "PublicPageElement": {
     "dataSource": "OrderManager",
     "public": false
   },

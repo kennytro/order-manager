@@ -1,0 +1,65 @@
+{
+  "name": "Order",
+  "plural": "Orders",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true,
+    "postgresql": {
+      "schema": "public",
+      "table": "order_t"
+    }
+  },
+  "properties": {
+    "id": {
+      "type": "number"
+    },
+    "clientId": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "client_id"
+      }
+    },
+    "totalAmount": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "total_amount"
+      }
+    },
+    "note": {
+      "type": "string"
+    },
+    "createdBy": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "created_by"
+      }
+    },
+    "createdDate": {
+      "type": "date",
+      "postgresql": {
+        "dateType": "timestamptz",
+        "columnName": "created_date"
+      }
+    }
+  },
+  "validations": [],
+  "relations": {
+    "orderItem": {
+      "type": "hasMany",
+      "model": "OrderItem",
+      "foreignKey": "orderId"
+    },
+    "client": {
+      "type": "belongsTo",
+      "model": "Client"
+    },
+    "creator": {
+      "type": "belongsTo",
+      "model": "EndUser",
+      "foreignKey": "createdBy"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}
