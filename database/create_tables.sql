@@ -88,15 +88,24 @@ CREATE TABLE IF NOT EXISTS product
 );
 ALTER SEQUENCE product_id_seq OWNED BY product.id;
 
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'order_status') THEN
+      CREATE TYPE order_status AS  ENUM ('Submitted', 'Processed', 'Completed', 'Cancelled');
+  END IF;
+END$$;
+
 CREATE SEQUENCE IF NOT EXISTS order_id_seq MINVALUE 10000;
 CREATE TABLE IF NOT EXISTS order_t
 (
   id integer PRIMARY KEY DEFAULT nextval('order_id_seq'),
   client_id integer REFERENCES client,
+  status order_status DEFAULT 'Submitted',
   total_amount numeric DEFAULT 0,
   note text,
   created_by integer REFERENCES end_user,
-  created_date timestamptz DEFAULT now()
+  created_date timestamptz DEFAULT now(),
+  last_updated_date timestamptz DEFAULT now()
 );
 ALTER SEQUENCE order_id_seq OWNED BY order_t.id;
 

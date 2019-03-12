@@ -20,6 +20,14 @@
         "columnName": "client_id"
       }
     },
+    "orderStatus": {
+      "type": "string",
+      "default": "Submitted",
+      "description": "'Submitted', 'Processed' or 'Completed'",
+      "postgresql": {
+        "columnName": "order_status"
+      }
+    },
     "totalAmount": {
       "type": "number",
       "postgresql": {
@@ -41,7 +49,14 @@
         "dateType": "timestamptz",
         "columnName": "created_date"
       }
-    }
+    },
+    "lastUpdatedDate": {
+      "type": "date",
+      "postgresql": {
+        "dateType": "timestamptz",
+        "columnName": "last_updated_date"
+      }
+    }    
   },
   "validations": [],
   "relations": {
