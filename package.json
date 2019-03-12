@@ -13,7 +13,7 @@
     "start": "node .",
     "posttest": "npm run lint",
     "ng": "ng",
-    "back-test": "./node_modules/.bin/mocha test/**/*.js",
+    "back-test": "./node_modules/.bin/mocha test/ -name '*.js' --recursive",
     "front-test": "ng test",
     "e2e": "ng e2e"
   },
