@@ -1,7 +1,4 @@
 'use strict';
-process.env.ONE_OFF = true;    // disable various server initialization.
-process.env.NODE_ENV = 'test';
-
 module.exports = {
   diff: true,
   extension: ['js'],

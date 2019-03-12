@@ -14,7 +14,7 @@ VALUES
   ('contact us', 1, '<div><p>Contact us content goes here<p></dev>')
 ;
 
-TRUNCATE TABLE delivery_route;
+TRUNCATE TABLE delivery_route CASCADE;
 INSERT INTO delivery_route (id, description)
 VALUES ('Pick Up', 'Customer picks up orders.')
 ;

@@ -1,0 +1,97 @@
+# Javascript Node CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-javascript/ for more details
+#
+version: 2
+jobs:
+  build-and-test:
+    working_directory: ~/order-manager
+    docker:
+      - image: circleci/node:10.13.0
+        environment:
+          NODE_ENV: test
+          DATABASE_URL: "postgres://web_app:circleci_test@localhost:5432/circle_test?ssl=true"
+          MIDAS_HOME: /home/circleci/order-manager
+          PGHOST: 127.0.0.1
+          PGUSER: ubuntu
+          DB: circle_test
+
+      - image: nimbustech/postgres-ssl:9.5
+        environment:
+          POSTGRES_USER: ubuntu
+          POSTGRES_DB: circle_test
+    environment:
+      CIRCLE_ARTIFACTS: /tmp/circleci-artifacts
+      CIRCLE_TEST_REPORTS: /tmp/circleci-test-results
+    steps:
+      - checkout
+      - run: mkdir -p $CIRCLE_ARTIFACTS $CIRCLE_TEST_REPORTS
+      - restore_cache:
+          key: v1-order-manager-dev-{{ .Branch }}-{{ checksum "package.json" }}
+      - run: npm install
+      - save_cache:
+          key: v1-order-manager-dev-{{ .Branch }}-{{ checksum "package.json" }}
+          paths:
+            - ./node_modules
+      - run:
+          name: Install postgres 
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y postgresql-client
+      - run:
+          name: Setup database
+          command: |
+            cat ./database/create_roles.sql | psql -U ubuntu -d $DB --set pw="ciecleci_test" 
+            cat ./database/create_tables.sql | psql -U ubuntu -d $DB
+            cat ./database/seed_data.sql | psql -U ubuntu -d $DB
+      - run:
+          name: Build front-end app
+      # Create a fake icon for loopback initial:before middleware
+          command: |
+            mkdir -p dist
+            touch dist/favicon.ico
+            npm run build:sdk
+            npm run build:ng
+      - run:
+          name: Start back-end app
+          command: ALLOW_HTTP=true ENABLE_FULL_STACK_TRACE=true ONE_OFF=true node .
+          background: true
+      - run: sleep 5
+      - run: 
+          name: Run test
+          command: npm run back-test
+      # Save test results
+      - store_test_results:
+          path: /tmp/circleci-test-results
+      # Save artifacts
+      - store_artifacts:
+          path: /tmp/circleci-artifacts
+      - store_artifacts:
+          path: /tmp/circleci-test-results
+
+  deploy:
+    docker:
+      - image: buildpack-deps:trusty
+    steps:
+      - checkout
+      - run:
+          name: Deploy Master to Heroku
+          command: |
+            git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git master
+
+workflows:
+  version: 2
+  build-test-deploy:
+    jobs:
+      - build-and-test:
+          filters:
+            branches:
+              ignore:
+                release
+      - deploy:
+          filters:
+            branches:
+              only:
+                master
+          requires:
+            - build-and-test
