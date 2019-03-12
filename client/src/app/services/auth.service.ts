@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, NavigationStart } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
+import { Subscription } from 'rxjs';
 import { AWS_S3_PUBLIC_URL } from '../shared/base.url';
 import Auth0Lock from 'auth0-lock';
 import get from 'lodash/get';
@@ -9,7 +10,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { RootScopeShareService } from './root-scope-share.service';
 import { environment } from '../../environments/environment';
 
-import { isEmpty } from 'lodash/isEmpty';
+import { filter } from 'rxjs/operators';
 
 export interface UserProfile {
   email: string,
@@ -23,6 +24,7 @@ export class AuthService {
   private _userProfile: UserProfile = <UserProfile>{};
   private _lock: any;
   private _jwtHelper: JwtHelperService = new JwtHelperService();
+  private navSubscription: Subscription;
 
   constructor(private dataShare: RootScopeShareService,
     private router: Router,
@@ -64,6 +66,15 @@ export class AuthService {
 
   async login() {
     this._lock.show();
+    // hide lock when we navigate away from login page.
+    this.navSubscription = this.router.events.pipe(
+      filter((event) => event instanceof NavigationStart)
+    ).subscribe((event) => {
+        if (this._lock) {
+          this._lock.hide();
+          this.navSubscription.unsubscribe();
+        }
+    })    
   }
 
   onAuthenticated(authResult: any) {

@@ -4,6 +4,10 @@ Replace 'client/src/favicon.ico' to use a custom logo instead of default logo.
 
 *** 
 # Auth0 Configuration
+## Connections
+Use 'Username-Password-Authentication' connection type. 
+Toggle 'Disable Sing Ups' since we only allow invited users.
+
 ## Applications
 Create two applications, one for 'SINGLE PAGE APPLICATION' type and another one for 'MACHINE TO MACHINE' type. SPA type application authorized front end application, and MTM type application authrozies back end server. SPA app settings are set in environment variables which back end server provides to front end app. MTM app settings are used by back end server to initialize Auth0 environment.
 
