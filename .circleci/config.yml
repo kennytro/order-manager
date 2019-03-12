@@ -46,12 +46,7 @@ jobs:
             cat ./database/seed_data.sql | psql -U ubuntu -d $DB
       - run:
           name: Build front-end app
-      # Create a fake icon for loopback initial:before middleware
-          command: |
-            mkdir -p dist
-            touch dist/favicon.ico
-            npm run build:sdk
-            npm run build:ng
+          command: npm run build:ng
       - run:
           name: Start back-end app
           command: ALLOW_HTTP=true ENABLE_FULL_STACK_TRACE=true ONE_OFF=true node .
