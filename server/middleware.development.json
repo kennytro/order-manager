@@ -1,4 +1,9 @@
 {
+  "initial:before": {
+    "loopback#favicon": {
+      "params": "$!../client/src/favicon.ico"
+    }
+  },
   "final:after": {
     "./middleware/error-logger": {},
     "strong-error-handler": {

@@ -45,7 +45,8 @@
     "product": {
       "type": "hasOne",
       "model": "Product",
-      "foreignKey": "productId"
+      "foreignKey": "id",
+      "primaryKey": "productId"
     }
   },
   "acls": [],

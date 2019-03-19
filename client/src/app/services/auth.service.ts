@@ -14,6 +14,8 @@ import { filter } from 'rxjs/operators';
 
 export interface UserProfile {
   email: string,
+  authId: string,
+  clientId: string,
   pictureUrl: string
 }
 
@@ -78,10 +80,11 @@ export class AuthService {
   }
 
   onAuthenticated(authResult: any) {
-    this._lock.hide();
-    this._setUserProfile(get(authResult, 'idTokenPayload'));
+    // this._lock.hide();
     this._cookieService.set('accessToken', authResult.accessToken, null, '/');
     this._cookieService.set('idToken', authResult.idToken, null, '/');
+    this._setUserProfile(this._jwtHelper.decodeToken(authResult.idToken));
+
     // parse user role
     console.log(`Saved Auth0 token for user ${authResult.idTokenPayload.email}`);
 
@@ -145,6 +148,8 @@ export class AuthService {
   private _setUserProfile(payload: any) {
     if (payload) {
       this._userProfile.email = get(payload, 'email');
+      this._userProfile.authId = get(payload, 'sub');
+      this._userProfile.clientId = get(payload, [environment.auth0Namespace + 'app_metadata', 'clientId']);
       this._userProfile.pictureUrl = get(payload, 'picture');
     }
   }

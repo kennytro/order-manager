@@ -176,6 +176,45 @@ export class CustomerDataApi extends BaseLoopBackApi {
    *
    *  - `idToken` – `{string}` - 
    *
+   *  - `modelName` – `{string}` - 
+   *
+   *  - `methodName` – `{string}` - 
+   *
+   *  - `params` – `{any}` - 
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * <em>
+   * (The remote method definition does not provide any description.
+   * This usually means the response is a `CustomerData` object.)
+   * </em>
+   */
+  public genericMethod(idToken: any, modelName: any, methodName: any, params: any = {}, customHeaders?: Function): Observable<any> {
+    let _method: string = "POST";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/CustomerData/method";
+    let _routeParams: any = {};
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    if (typeof idToken !== 'undefined' && idToken !== null) _urlParams.idToken = idToken;
+    if (typeof modelName !== 'undefined' && modelName !== null) _urlParams.modelName = modelName;
+    if (typeof methodName !== 'undefined' && methodName !== null) _urlParams.methodName = methodName;
+    if (typeof params !== 'undefined' && params !== null) _urlParams.params = params;
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * <em>
+         * (The remote method definition does not provide any description.)
+         * </em>
+   *
+   * @param {object} data Request data.
+   *
+   *  - `idToken` – `{string}` - 
+   *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
    *   from the server.

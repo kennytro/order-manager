@@ -3,6 +3,8 @@ import { Routes, RouterModule } from '@angular/router';
 import { CustomerLayoutComponent } from './components/customer-layout/customer-layout.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { OrdersComponent } from './components/orders/orders.component';
+import { NewOrderComponent } from './components/new-order/new-order.component';
+import { DataResolver } from './services/data.resolver';
 import { DataArrayResolver } from './services/data-array.resolver';
 
 const routes: Routes = [
@@ -18,8 +20,20 @@ const routes: Routes = [
             path: '',
             component: OrdersComponent,
             resolve: { orders: DataArrayResolver },
-            data: { arrayModelName: 'Order'}
-          }        
+            data: { arrayModelName: 'Order' }
+          },
+          {
+            path: 'new',
+            component: NewOrderComponent,
+            resolve: { 
+              endUser: DataResolver,
+              products: DataArrayResolver
+            },
+            data: {
+              modelName: 'EndUser',
+              arrayModelName: 'Product'
+            }
+          }
         ]
       }
     ]

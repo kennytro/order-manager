@@ -35,9 +35,8 @@ export class DataApiService {
       modelName, id);
   }
 
-  genericMethod(methodName: string, param?: Array<any>): Observable<any> {
-    let newParams = param ? [this._getIdToken(), ...param] : [this._getIdToken()];
-    return this._dataApi[methodName](...newParams);
+  genericMethod(modelName: string, methodName: string, param?: Array<any>): Observable<any> {
+    return this._dataApi.genericMethod(this._getIdToken(), modelName, methodName, param || []);
   }
 
   private _getIdToken() {
