@@ -127,6 +127,14 @@ module.exports = function(CustomerData) {
           throwAuthError();
         }
       }
+
+      let metadata = {};
+      let endUser = await app.models.EndUser.findOne({ where: { authId: decoded.sub } });
+      if (endUser) {
+        logger.debug(`EndUser id: ${endUser.id}`);
+        metadata.endUserId = endUser.id;
+        params = [].concat(params || [], metadata);
+      }
       return await app.models[modelName][methodName].apply(app.models[modelName], params);
     } catch (error) {
       logger.error(`Cannot execute ${modelName}.${methodName}(${JSON.stringify(params)}) - ${error.message}`);

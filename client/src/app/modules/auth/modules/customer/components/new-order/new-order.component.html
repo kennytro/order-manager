@@ -60,7 +60,7 @@
           <div fxLayout="row" fxLayoutAlign="end">
             <div fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="center">
               <div>
-                Subtotal: {{subTotal | currency}}
+                Subtotal: {{subtotal | currency}}
               </div>
               <div>
                 Fee: {{fee | currency}} <fa-icon icon="question-circle" matTooltip="{{explainFee()}}" matTooltipPosition="right">
@@ -132,7 +132,7 @@
           <div fxLayout="row" fxLayoutAlign="end">
             <div fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="center">
               <div>
-                Subtotal: {{subTotal | currency}}
+                Subtotal: {{subtotal | currency}}
               </div>
               <div>
                 Fee: {{fee | currency}} <fa-icon icon="question-circle" matTooltip="{{explainFee()}}" matTooltipPosition="right">
@@ -153,7 +153,7 @@
         <div fxLayout="row" fxLayoutAlign="end" fxLayoutGap="20px">
           <button mat-raised-button routerLink="../">Cancel</button>
           <button mat-raised-button matStepperPrevious type="button"><fa-icon icon="long-arrow-alt-left"></fa-icon> Edit</button>
-          <button mat-raised-button color="green">Submit</button>
+          <button mat-raised-button color="green" (click)="create()">Submit</button>
         </div>          
       </mat-step>
     </mat-horizontal-stepper>

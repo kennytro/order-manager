@@ -1,7 +1,6 @@
 import { Component, OnInit /*, ViewChild*/ } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { MatDialogRef, MatStepper, MatSnackBar } from '@angular/material';
-import { MatSort, MatTableDataSource} from '@angular/material';
+import { Router, ActivatedRoute } from '@angular/router';
+import { MatSort, MatTableDataSource, MatSnackBar, MatDialogRef, MatStepper } from '@angular/material';
 import { AbstractControl, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { DataApiService } from '../../services/data-api.service';
 import { AuthService, UserProfile } from '../../../../../../services/auth.service';
@@ -17,7 +16,7 @@ export class NewOrderComponent implements OnInit {
   displayedColumns = ['id', 'name', 'description', 'category', 'unitPrice', 'quantity', 'subTotal'];
   products: MatTableDataSource<any>;
   orderFG: FormGroup;
-  subTotal: number = 0.00;
+  subtotal: number = 0.00;
   fee: number = 0.00;
   totalAmount: number = 0.00;
   private _endUser: any;
@@ -28,6 +27,7 @@ export class NewOrderComponent implements OnInit {
   constructor(
     private _auth: AuthService,
     private _route: ActivatedRoute,
+    private _router: Router,
     private _formBuilder: FormBuilder,
     private _snackBar: MatSnackBar,
     private _dataApi: DataApiService
@@ -45,8 +45,6 @@ export class NewOrderComponent implements OnInit {
       if (routeData['products']) {
         this.orderFG = this._formBuilder.group({
           products: this._formBuilder.array([]),
-          subtotal: [''],
-          fee: [''],
           note: ['']
         });
         let productsFA = this.orderFG.get('products') as FormArray;
@@ -60,7 +58,37 @@ export class NewOrderComponent implements OnInit {
   }
 
   async create() {
-    console.log('TO DO: create new order');
+    try {
+      // preprocess order items
+      let orderItems = this.orderFG.get('products').value;
+      orderItems = orderItems.filter(oi => oi.quantity > '0');
+      orderItems = orderItems.map(oi => {
+        return {
+          productId: oi.id,
+          quantity: oi.quantity,
+          unitPrice: oi.unitPrice
+        };
+      });
+      let status = await this._dataApi.genericMethod('Order', 'createNew', [
+        {
+          clientId: this._client.id,
+          subtotal: this.subtotal,
+          fee: this.fee,
+          totalAmount: this.totalAmount,
+          note: this.orderFG.get('note').value,
+          // userId: this._auth.getUserProfile().authId
+        },
+        orderItems
+      ]).toPromise();
+      const snackBarRef = this._snackBar.open(`Order(id: ${status.orderId}) successfully created`,
+        'Close', { duration: 3000 });
+      snackBarRef.onAction().subscribe(() => {
+        snackBarRef.dismiss();
+      });
+      this._router.navigate(['../'], { relativeTo: this._route});
+    } catch (err) {
+      console.log(`error: failed to create a order - ${err.message}`);      
+    }
   }
 
   getOrderItemTableSource() {
@@ -75,7 +103,7 @@ export class NewOrderComponent implements OnInit {
         text = 'Fixed amount';
       }
       if (this._client.feeType == 'Rate') {
-        text = `$${this.subTotal} x ${this._client.feeValue}(%) = ${this.fee}`;
+        text = `$${this.subtotal} x ${this._client.feeValue}(%) = ${this.fee}`;
       }
     }
     return text;
@@ -108,7 +136,7 @@ export class NewOrderComponent implements OnInit {
     for (let row of rows.controls) {
       newTotal += Number(row.get('subTotal').value);
     }
-    this.subTotal = newTotal;
+    this.subtotal = newTotal;
     this.fee = this._calculateFee(newTotal);
     this.totalAmount = newTotal + this.fee;
   }

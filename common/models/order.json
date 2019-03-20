@@ -10,6 +10,12 @@
       "table": "order_t"
     }
   },
+  "mixins": {
+    "TimeStamp": {
+      "createdAt" : "created_at",
+      "updatedAt" : "updated_at"
+    }
+  },
   "properties": {
     "id": {
       "type": "number"
@@ -20,13 +26,16 @@
         "columnName": "client_id"
       }
     },
-    "orderStatus": {
+    "status": {
       "type": "string",
       "default": "Submitted",
-      "description": "'Submitted', 'Processed' or 'Completed'",
-      "postgresql": {
-        "columnName": "order_status"
-      }
+      "description": "'Submitted', 'Processed' or 'Completed'"
+    },
+    "subtotal": {
+      "type": "number"
+    },
+    "fee": {
+      "type": "number"
     },
     "totalAmount": {
       "type": "number",
@@ -43,18 +52,24 @@
         "columnName": "created_by"
       }
     },
-    "createdDate": {
+    "createdAt": {
       "type": "date",
       "postgresql": {
         "dateType": "timestamptz",
-        "columnName": "created_date"
+        "columnName": "created_at"
       }
     },
-    "lastUpdatedDate": {
+    "UpdatedBy": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "updated_by"
+      }
+    },
+    "UpdatedAt": {
       "type": "date",
       "postgresql": {
         "dateType": "timestamptz",
-        "columnName": "last_updated_date"
+        "columnName": "updated_at"
       }
     }    
   },

@@ -101,11 +101,14 @@ CREATE TABLE IF NOT EXISTS order_t
   id integer PRIMARY KEY DEFAULT nextval('order_id_seq'),
   client_id integer REFERENCES client,
   status order_status DEFAULT 'Submitted',
+  subtotal numeric DEFAULT 0,
+  fee numeric DEFAULT 0,
   total_amount numeric DEFAULT 0,
   note text,
   created_by integer REFERENCES end_user,
-  created_date timestamptz DEFAULT now(),
-  last_updated_date timestamptz DEFAULT now()
+  created_at timestamptz DEFAULT now(),
+  updated_by integer REFERENCES end_user,
+  updated_at timestamptz DEFAULT now()
 );
 ALTER SEQUENCE order_id_seq OWNED BY order_t.id;
 
