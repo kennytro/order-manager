@@ -30,12 +30,14 @@ module.exports = function(Order) {
     return result;
   };
 
-  Order.update = async function(orderData, orderItems, metadata) {
+  Order.updateOrder = async function(orderData, orderItems, metadata) {
     let result = {};
     try {
       await app.dataSources.OrderManager.transaction(async models => {
         const { Order, OrderItem } = models;
+        await _checkDataVersion(orderData);
         logger.debug(`Updating order(id: ${orderData.id})...`);
+        // update metadata
         if (_.get(metadata, ['endUserId'])) {
           orderData.updatedBy = metadata.endUserId;
         }
@@ -57,4 +59,48 @@ module.exports = function(Order) {
     }
     return result;
   };
+
+  Order.cancelOrder = async function(orderData, metadata) {
+    let result = {};
+    try {
+      await app.dataSources.OrderManager.transaction(async models => {
+        const { Order } = models;
+        let existingOrder = await _checkDataVersion(orderData);
+        // update metadata
+        if (_.get(metadata, ['endUserId'])) {
+          existingOrder.updatedBy = metadata.endUserId;
+        }
+        existingOrder.status = 'Cancelled';
+        await existingOrder.save();
+        logger.info(`Cancelled order(id: ${existingOrder.id})`);
+        result = {
+          status: 200,
+          message: `Order(id: ${existingOrder.id}) is cancelled.`,
+          orderId: existingOrder.id
+        };
+      });
+    } catch (error) {
+      if (error instanceof HttpErrors) {
+        throw error;
+      }
+      throw new HttpErrors(500, `cannot cancel order(id: ${orderData.id}) - ${error.message}`);
+    }
+    return result;
+  };
+
+  /*
+   * Check if persistent data has been changed.
+   * @param{Order} - orderData
+   * @returns{Order} - order instance in database
+   */
+  async function _checkDataVersion(orderData) {
+    let existingOrder = await app.models.Order.findById(orderData.id);
+    if (!existingOrder) {
+      throw new HttpErrors(404, `cannot find order(id: ${orderData.id})`);
+    }
+    if (existingOrder.updatedAt > orderData.updatedAt) {
+      throw new HttpErrors(409, `Your order data(updated at ${orderData.updatedAt}) is older than the copy in database(updated at ${existingOrder.updatedAt})`);
+    }
+    return existingOrder;
+  }
 };

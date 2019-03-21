@@ -5,6 +5,7 @@ const AWS = require('aws-sdk');
 const db = require(appRoot + '/common/util/database');
 const logger = require(appRoot + '/config/winston');
 const tenantSetting = require(appRoot + '/config/tenant');
+const app = require(appRoot + '/server/server');
 
 module.exports = function(Product) {
   const AWS_S3_PUBLIC_URL = 'https://s3-us-west-2.amazonaws.com/om-public/';
@@ -90,4 +91,19 @@ module.exports = function(Product) {
     }
     next();
   });
+
+  /*
+   * @param {string} Auth0 user id
+   * @returns {Product[]} - Array of product excluding end user's exclusion list.
+   */
+  Product.getMyProducts = async function(authId) {
+    let endUser = await app.models.EndUser.getMyUser(authId);
+    let filter = {};
+    if (endUser && _.get(endUser, ['userSettings', 'productExcluded'])) {
+      filter.where = {
+        id: { nin: _.get(endUser, ['userSettings', 'productExcluded']) }
+      };
+    }
+    return await app.models.Product.find(filter);
+  };
 };

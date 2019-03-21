@@ -65,7 +65,7 @@ module.exports = function(EmployeeData) {
       // throwAuthError();
     }
     try {
-      return await app.models[modelName].findById(id);
+      return await app.models[modelName].findById(id, filter);
     } catch (error) {
       logger.error(`Cannot find by id (model: ${modelName}, id: ${id}) - ${error.message}`);
       throw error;

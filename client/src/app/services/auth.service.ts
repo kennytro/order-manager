@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { Router, NavigationStart } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { Subscription } from 'rxjs';
@@ -28,7 +29,9 @@ export class AuthService {
   private _jwtHelper: JwtHelperService = new JwtHelperService();
   private navSubscription: Subscription;
 
-  constructor(private dataShare: RootScopeShareService,
+  constructor(
+    @Inject(DOCUMENT) private _document: Document,
+    private dataShare: RootScopeShareService,
     private router: Router,
     private _cookieService: CookieService) {
     let tenant = this.dataShare.getData('tenant');
@@ -111,8 +114,9 @@ export class AuthService {
     this._cookieService.delete('roles', '/');
 
     this._userProfile = <UserProfile>{};
-
-    this.router.navigate(['/login']);
+    this._lock.logout({
+      returnTo: this._document.location.origin + '/login'
+    });
   }
 
   isAuthenticated() {

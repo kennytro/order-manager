@@ -1,6 +1,6 @@
 import { Component, OnInit /*, ViewChild*/ } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { MatSort, MatTableDataSource, MatSnackBar, MatDialogRef, MatStepper } from '@angular/material';
+import { MatSort, MatTableDataSource, MatSnackBar, MatStepper } from '@angular/material';
 import { AbstractControl, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { DataApiService } from '../../services/data-api.service';
 import { AuthService, UserProfile } from '../../../../../../services/auth.service';
@@ -87,7 +87,7 @@ export class NewOrderComponent implements OnInit {
       });
       this._router.navigate(['../'], { relativeTo: this._route});
     } catch (err) {
-      console.log(`error: failed to create a order - ${err.message}`);      
+      console.log(`error: failed to create an order - ${err.message}`);      
     }
   }
 

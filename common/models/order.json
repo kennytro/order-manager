@@ -11,9 +11,8 @@
     }
   },
   "mixins": {
-    "TimeStamp": {
-      "createdAt" : "created_at",
-      "updatedAt" : "updated_at"
+    "Timestamps": {
+      "beforeSave": 1
     }
   },
   "properties": {
@@ -59,13 +58,13 @@
         "columnName": "created_at"
       }
     },
-    "UpdatedBy": {
+    "updatedBy": {
       "type": "number",
       "postgresql": {
         "columnName": "updated_by"
       }
     },
-    "UpdatedAt": {
+    "updatedAt": {
       "type": "date",
       "postgresql": {
         "dateType": "timestamptz",
@@ -84,10 +83,15 @@
       "type": "belongsTo",
       "model": "Client"
     },
-    "creator": {
+    "userCreated": {
       "type": "belongsTo",
       "model": "EndUser",
       "foreignKey": "createdBy"
+    },
+    "userUpdated": {
+      "type": "belongsTo",
+      "model": "EndUser",
+      "foreignKey": "updatedBy"
     }
   },
   "acls": [],

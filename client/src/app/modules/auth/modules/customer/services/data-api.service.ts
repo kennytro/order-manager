@@ -20,9 +20,9 @@ export class DataApiService {
       modelName, filter);
   }
 
-  findById(modelName: string, id: string): Observable<any> {
+  findById(modelName: string, id: string, filter:object = {}): Observable<any> {
     return this._dataApi.genericFindById(this._getIdToken(),
-      modelName, id);
+      modelName, id, filter);
   }
 
   upsert(modelName: string, modelObj: object): Observable<any> {

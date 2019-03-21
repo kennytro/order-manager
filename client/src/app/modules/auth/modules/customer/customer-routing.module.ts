@@ -4,8 +4,10 @@ import { CustomerLayoutComponent } from './components/customer-layout/customer-l
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { OrdersComponent } from './components/orders/orders.component';
 import { NewOrderComponent } from './components/new-order/new-order.component';
+import { OrderDetailComponent } from './components/order-detail/order-detail.component';
 import { DataResolver } from './services/data.resolver';
 import { DataArrayResolver } from './services/data-array.resolver';
+import { OrderResolver } from './services/order.resolver';
 
 const routes: Routes = [
   {
@@ -33,6 +35,13 @@ const routes: Routes = [
               modelName: 'EndUser',
               arrayModelName: 'Product'
             }
+          },
+          {
+            path: ':id',
+            component: OrderDetailComponent,
+            resolve: {
+              orderInfo: OrderResolver
+            }            
           }
         ]
       }

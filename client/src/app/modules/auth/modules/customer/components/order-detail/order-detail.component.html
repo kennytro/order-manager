@@ -1,92 +1,24 @@
 <mat-card>
   <mat-card-header>
-    <div mat-card-avatar><fa-icon icon="cart-plus" size="3x"></fa-icon></div>
-    <mat-card-title> New Order</mat-card-title>
+    <div mat-card-avatar><fa-icon icon="shopping-cart" size="3x"></fa-icon></div>
+    <mat-card-title>Order</mat-card-title>
+    <mat-card-subtitle>ID: {{order.id}}</mat-card-subtitle>
   </mat-card-header>
   <mat-card-content>
+    <div>Status: <span [ngClass]="{
+      'status-submitted' : order.status == 'Submitted',
+      'status-processed' : order.status == 'Processed',
+      'status-completed' : order.status == 'Completed',
+      'status-cancelled' : order.status == 'Cancelled'
+    }"> {{order.status | uppercase }} </span><fa-icon icon="question-circle" matTooltip="You can change this order as long as it has not been processed." matTooltipPosition="right"></fa-icon></div>
+    <div>Created by {{getEmailCreated()}} at {{order.createdAt | date:'short'}}</div>
+    <div *ngIf="getEmailUpdated()">Updated by {{getEmailUpdated()}} at {{order.updatedAt | date:'short'}}</div>    
     <mat-horizontal-stepper linear #stepper>
     <!-- HACK: set 'completed' to false in order to suppress 'Create' label -->
-      <mat-step [stepControl]="orderFG" label="Fill out order items" [completed]="false">
-        <form [formGroup]="orderFG" class="form-container">
+      <mat-step [stepControl]="orderFC" label="Fill out order items" [completed]="false">
         <div style="margin-top: 10px; margin-bottom: 10px" fxLayout="column" fxLayoutGap="20px" fxLayoutAlign="center space-between">
           <div class="table-responsive">
-            <table mat-table [dataSource]="products" formArrayName="products">
-              <!-- Row definitions -->
-              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-              <!-- Column definitions -->
-              <ng-container matColumnDef="id">
-                <th mat-header-cell *matHeaderCellDef> ID </th>
-                <td mat-cell *matCellDef="let row">{{row.value.id}}</td>
-              </ng-container>
-              <ng-container matColumnDef="name">
-                <th mat-header-cell *matHeaderCellDef> NAME </th>
-                <td mat-cell *matCellDef="let row">
-                  <span *ngIf="row.value.imageUrl; else noImage">
-                    <img src={{row.value.imageUrl}} height="50" width="50">
-                  </span>
-                  <ng-template #noImage>
-                    <img src='/assets/img/no-picture.png' height="50" width="50">
-                  </ng-template>
-                   {{row.value.name}}
-                 </td>
-              </ng-container>
-              <ng-container matColumnDef="description">
-                <th mat-header-cell *matHeaderCellDef> DESCRIPTION </th>
-                <td mat-cell *matCellDef="let row">{{row.value.description}}</td>
-              </ng-container>
-              <ng-container matColumnDef="category">
-                <th mat-header-cell *matHeaderCellDef> CATEGORY </th>
-                <td mat-cell *matCellDef="let row">{{row.value.category}}</td>
-              </ng-container>
-              <ng-container matColumnDef="unitPrice">
-                <th mat-header-cell *matHeaderCellDef> UNIT PRICE </th>
-                <td mat-cell *matCellDef="let row">&#36;{{row.value.unitPrice}}&#47;{{row.value.unit}}</td>
-              </ng-container>
-              <ng-container matColumnDef="quantity">
-                <th mat-header-cell *matHeaderCellDef> QTY. </th>
-                <td mat-cell *matCellDef="let row; let rowFG = index" [formGroupName]="rowFG" >
-                  <mat-form-field appearance="outline" class="mat-input-qty">
-                    <input matInput type="number" min="0" placeholder="Quantity" formControlName="quantity">
-                  </mat-form-field>
-                </td>
-              </ng-container>
-              <ng-container matColumnDef="subTotal">
-                <th mat-header-cell *matHeaderCellDef> SUBTOTAL </th>
-                <td mat-cell *matCellDef="let row">{{row.value.subTotal | currency }}</td>
-              </ng-container>              
-            </table>
-          </div>
-          <div fxLayout="row" fxLayoutAlign="end">
-            <div fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="center">
-              <div>
-                Subtotal: {{subtotal | currency}}
-              </div>
-              <div>
-                Fee: {{fee | currency}} <fa-icon icon="question-circle" matTooltip="{{explainFee()}}" matTooltipPosition="right">
-                </fa-icon>                  
-              </div>
-              <div style="background-color: #F5F5F5">
-                <h3><span style="font-weight: bold">TOTAL</span>: {{totalAmount | currency}}</h3>
-              </div>
-            </div>
-          </div>
-          <div>
-            <mat-form-field class="full-width">
-              <textarea matInput placeholder="Note/Comment" formControlName="note"></textarea>
-            </mat-form-field>
-          </div>
-        </div>
-        <div fxLayout="row" fxLayoutAlign="end" fxLayoutGap="20px">
-          <button mat-raised-button routerLink="../">Cancel</button>
-          <button mat-raised-button matStepperNext type="button" [disabled]="totalAmount<=0">Review <fa-icon icon="long-arrow-alt-right"></fa-icon></button>
-        </div>
-      </form>
-      </mat-step>
-      <mat-step [stepControl]="orderFG" label="Review your order" [completed]="false">
-        <div style="margin-top: 10px; margin-bottom: 10px" [formGroup]="orderFG" fxLayout="column" fxLayoutGap="20px" fxLayoutAlign="center space-between">
-          <div class="table-responsive">
-            <table mat-table [dataSource]="getOrderItemTableSource()">
+            <table mat-table [dataSource]="orderItems">
               <!-- Row definitions -->
               <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
               <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
@@ -121,7 +53,11 @@
               </ng-container>
               <ng-container matColumnDef="quantity">
                 <th mat-header-cell *matHeaderCellDef> QTY. </th>
-                <td mat-cell *matCellDef="let row;">{{row.quantity}}</td>
+                <td mat-cell *matCellDef="let row">
+                  <mat-form-field appearance="outline" class="mat-input-qty">
+                    <input matInput type="number" min="0" placeholder="Quantity" [formControl]="row.quantity">
+                  </mat-form-field>
+                </td>
               </ng-container>
               <ng-container matColumnDef="subTotal">
                 <th mat-header-cell *matHeaderCellDef> SUBTOTAL </th>
@@ -132,32 +68,104 @@
           <div fxLayout="row" fxLayoutAlign="end">
             <div fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="center">
               <div>
-                Subtotal: {{subtotal | currency}}
+                Subtotal: {{order.subtotal | currency}}
               </div>
               <div>
-                Fee: {{fee | currency}} <fa-icon icon="question-circle" matTooltip="{{explainFee()}}" matTooltipPosition="right">
+                Fee: {{order.fee | currency}} <fa-icon icon="question-circle" matTooltip="{{explainFee()}}" matTooltipPosition="right">
                 </fa-icon>                  
               </div>
               <div style="background-color: #F5F5F5">
-                <h3><span style="font-weight: bold">TOTAL</span>: {{totalAmount | currency}}</h3>
+                <h3><span style="font-weight: bold">TOTAL</span>: {{order.totalAmount | currency}}</h3>
+              </div>
+            </div>
+          </div>
+          <div>
+            <mat-form-field class="full-width">
+              <textarea matInput placeholder="Note/Comment" [(ngModel)]="order.note"></textarea>
+            </mat-form-field>
+          </div>
+        </div>
+        <div fxLayout="row" fxLayoutAlign="end" fxLayoutGap="20px">
+          <button mat-raised-button routerLink="../">Close</button>
+          <button mat-raised-button color="warn" (click)="cancelOrder()" [disabled]="order.status != 'Submitted'">
+            <fa-icon icon="exclamation-circle"></fa-icon> Cancel Order
+          </button>
+          <button mat-raised-button matStepperNext type="button" [disabled]="order.status != 'Submitted' || order.totalAmount <= 0">Review <fa-icon icon="long-arrow-alt-right"></fa-icon></button>
+        </div>
+      </mat-step>
+      <mat-step [stepControl]="orderFC" label="Review your order" [completed]="false">
+        <div style="margin-top: 10px; margin-bottom: 10px" fxLayout="column" fxLayoutGap="20px" fxLayoutAlign="center space-between">
+          <div class="table-responsive">
+            <table mat-table [dataSource]="getReviewItemTableSource()">
+              <!-- Row definitions -->
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+              <!-- Column definitions -->
+              <ng-container matColumnDef="id">
+                <th mat-header-cell *matHeaderCellDef> ID </th>
+                <td mat-cell *matCellDef="let row">{{row.id}}</td>
+              </ng-container>
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef> NAME </th>
+                <td mat-cell *matCellDef="let row">
+                  <span *ngIf="row.imageUrl; else noImage">
+                    <img src={{row.imageUrl}} height="50" width="50">
+                  </span>
+                  <ng-template #noImage>
+                    <img src='/assets/img/no-picture.png' height="50" width="50">
+                  </ng-template>
+                   {{row.name}}
+                 </td>
+              </ng-container>
+              <ng-container matColumnDef="description">
+                <th mat-header-cell *matHeaderCellDef> DESCRIPTION </th>
+                <td mat-cell *matCellDef="let row">{{row.description}}</td>
+              </ng-container>
+              <ng-container matColumnDef="category">
+                <th mat-header-cell *matHeaderCellDef> CATEGORY </th>
+                <td mat-cell *matCellDef="let row">{{row.category}}</td>
+              </ng-container>
+              <ng-container matColumnDef="unitPrice">
+                <th mat-header-cell *matHeaderCellDef> UNIT PRICE </th>
+                <td mat-cell *matCellDef="let row">&#36;{{row.unitPrice}}&#47;{{row.unit}}</td>
+              </ng-container>
+              <ng-container matColumnDef="quantity">
+                <th mat-header-cell *matHeaderCellDef> QTY. </th>
+                <td mat-cell *matCellDef="let row;">{{row.quantity.value}}</td>
+              </ng-container>
+              <ng-container matColumnDef="subTotal">
+                <th mat-header-cell *matHeaderCellDef> SUBTOTAL </th>
+                <td mat-cell *matCellDef="let row">{{row.subTotal | currency }}</td>
+              </ng-container>              
+            </table>
+          </div>
+          <div fxLayout="row" fxLayoutAlign="end">
+            <div fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="center">
+              <div>
+                Subtotal: {{order.subtotal | currency}}
+              </div>
+              <div>
+                Fee: {{order.fee | currency}} <fa-icon icon="question-circle" matTooltip="{{explainFee()}}" matTooltipPosition="right">
+                </fa-icon>                  
+              </div>
+              <div style="background-color: #F5F5F5">
+                <h3><span style="font-weight: bold">TOTAL</span>: {{order.totalAmount | currency}}</h3>
               </div>
             </div>
           </div>
           <div>
             <h5>Note/Comment:</h5>
             <div class="text-box full-width">
-              {{orderFG.get('note').value}}
+              {{order.note}}
             </div>
           </div>
         </div>
         <div fxLayout="row" fxLayoutAlign="end" fxLayoutGap="20px">
-          <button mat-raised-button routerLink="../">Cancel</button>
+          <button mat-raised-button routerLink="../">Close</button>
           <button mat-raised-button matStepperPrevious type="button"><fa-icon icon="long-arrow-alt-left"></fa-icon> Edit</button>
-          <button mat-raised-button color="green" (click)="create()">Submit</button>
+          <button mat-raised-button color="green" (click)="save()">Update</button>
         </div>          
       </mat-step>
     </mat-horizontal-stepper>
   </mat-card-content>
 </mat-card>
-
-
