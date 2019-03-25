@@ -1,6 +1,8 @@
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
+import { Inject, Injectable } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { Router, NavigationStart } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
+import { Subscription } from 'rxjs';
 import { AWS_S3_PUBLIC_URL } from '../shared/base.url';
 import Auth0Lock from 'auth0-lock';
 import get from 'lodash/get';
@@ -9,10 +11,12 @@ import { CookieService } from 'ngx-cookie-service';
 import { RootScopeShareService } from './root-scope-share.service';
 import { environment } from '../../environments/environment';
 
-import { isEmpty } from 'lodash/isEmpty';
+import { filter } from 'rxjs/operators';
 
 export interface UserProfile {
   email: string,
+  authId: string,
+  clientId: string,
   pictureUrl: string
 }
 
@@ -23,8 +27,11 @@ export class AuthService {
   private _userProfile: UserProfile = <UserProfile>{};
   private _lock: any;
   private _jwtHelper: JwtHelperService = new JwtHelperService();
+  private navSubscription: Subscription;
 
-  constructor(private dataShare: RootScopeShareService,
+  constructor(
+    @Inject(DOCUMENT) private _document: Document,
+    private dataShare: RootScopeShareService,
     private router: Router,
     private _cookieService: CookieService) {
     let tenant = this.dataShare.getData('tenant');
@@ -64,13 +71,23 @@ export class AuthService {
 
   async login() {
     this._lock.show();
+    // hide lock when we navigate away from login page.
+    this.navSubscription = this.router.events.pipe(
+      filter((event) => event instanceof NavigationStart)
+    ).subscribe((event) => {
+        if (this._lock) {
+          this._lock.hide();
+          this.navSubscription.unsubscribe();
+        }
+    })    
   }
 
   onAuthenticated(authResult: any) {
-    this._lock.hide();
-    this._setUserProfile(get(authResult, 'idTokenPayload'));
+    // this._lock.hide();
     this._cookieService.set('accessToken', authResult.accessToken, null, '/');
     this._cookieService.set('idToken', authResult.idToken, null, '/');
+    this._setUserProfile(this._jwtHelper.decodeToken(authResult.idToken));
+
     // parse user role
     console.log(`Saved Auth0 token for user ${authResult.idTokenPayload.email}`);
 
@@ -97,8 +114,9 @@ export class AuthService {
     this._cookieService.delete('roles', '/');
 
     this._userProfile = <UserProfile>{};
-
-    this.router.navigate(['/login']);
+    this._lock.logout({
+      returnTo: this._document.location.origin + '/login'
+    });
   }
 
   isAuthenticated() {
@@ -134,6 +152,8 @@ export class AuthService {
   private _setUserProfile(payload: any) {
     if (payload) {
       this._userProfile.email = get(payload, 'email');
+      this._userProfile.authId = get(payload, 'sub');
+      this._userProfile.clientId = get(payload, [environment.auth0Namespace + 'app_metadata', 'clientId']);
       this._userProfile.pictureUrl = get(payload, 'picture');
     }
   }

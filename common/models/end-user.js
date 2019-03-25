@@ -5,11 +5,48 @@ const _ = require('lodash');
 const auth0ManagementClient = require('auth0').ManagementClient;
 const tenantSettings = require(appRoot + '/config/tenant');
 const logger = require(appRoot + '/config/winston');
+const app = require(appRoot + '/server/server');
 
 module.exports = function(EndUser) {
   const CLIENT_ID = process.env.AUTH0_API_CLIENT_ID;
   const CLIENT_SECRET = process.env.AUTH0_API_CLIENT_SECRET;
   const DEFAULT_PW = process.env.DEFAULT_PW;
+
+  const AllowedMethodsByRole = {
+    customer: ['sendMeResetPasswordEmail', 'getMyUser'],
+    manager: [''],
+    admin: ['sendMeResetPasswordEmail']
+  };
+
+  /*
+   * @param {string} role name
+   * @returns {string[]} allowed method name array.
+   */
+  EndUser.allowedMethods = function(role) {
+    if (AllowedMethodsByRole[role]) {
+      return AllowedMethodsByRole[role];
+    }
+    return [];
+  };
+
+  /*
+   * @param {string[]} - roles
+   * @returns {string} - role with highest privilege.
+   */
+  EndUser.getHighestRole = function(roles) {
+    if (_.includes(roles, 'admin')) {
+      return 'admin';
+    }
+    if (_.includes(roles, 'manager')) {
+      return 'manager';
+    }
+    if (_.includes(roles, 'customer')) {
+      return 'customer';
+    }
+    let error = new Error(`Unauthorized roles - ${JSON.stringify(roles)}`);
+    error.status = 401;
+    throw error;
+  };
 
   /*
   ** @param {object} userObject
@@ -87,8 +124,50 @@ module.exports = function(EndUser) {
     }
   };
 
+  EndUser.getMyUser = async function(authId) {
+    return await app.models.EndUser.findOne({
+      where: { authId: authId }
+    });
+  };
+
+  /*
+   * @param {string} Auth0 user id
+   * @returns {{status: string}}
+   */
+  EndUser.sendMeResetPasswordEmail = async function(authId) {
+    let endUser = await app.models.EndUser.findOne({
+      where: { authId: authId }
+    });
+    if (!endUser) {
+      return { status: `Cannot find user with Auth0 ID: ${authId}` };
+    }
+    const options = {
+      method: 'POST',
+      url: 'https://' + tenantSettings.domainId + '/dbconnections/change_password',
+      headers: { 'content-type': 'application/json' },
+      body: {
+        client_id: CLIENT_ID,
+        email: endUser.email,
+        connection: tenantSettings.connection
+      },
+      json: true
+    };
+    let response = await new Promise((resolve, reject) => {
+      request(options, function(error, response, body) {
+        if (error) {
+          reject(new Error(error));
+        } else {
+          logger.info(body);
+          resolve(body);
+        }
+      });
+    });
+    return { status: response };
+  };
+
   /**
    * @param {string} email
+   * DEPRECATED. Use 'sendMeResetPasswordEmail'
    */
   EndUser.sendPasswordResetEmail = function(email) {
     const options = {

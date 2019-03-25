@@ -8,6 +8,7 @@ const app = require(appRoot + '/server/server');
 const logger = require(appRoot + '/config/winston');
 
 module.exports = function(CustomerData) {
+  const APP_METADATA_KEY = 'https://om.com/app_metadata';
   const client = jwksClient({
     cache: true,
     rateLimit: true,
@@ -65,7 +66,7 @@ module.exports = function(CustomerData) {
       // throwAuthError();
     }
     try {
-      return await app.models[modelName].findById(id);
+      return await app.models[modelName].findById(id, filter);
     } catch (error) {
       logger.error(`Cannot find by id (model: ${modelName}, id: ${id}) - ${error.message}`);
       throw error;
@@ -108,6 +109,40 @@ module.exports = function(CustomerData) {
     }
   };
 
+  CustomerData.genericMethod = async function(idToken, modelName, methodName, params) {
+    try {
+      let decoded = await decodeIdToken(idToken);
+      const role = app.models.EndUser.getHighestRole(_.get(decoded, [APP_METADATA_KEY, 'roles'], []));
+      if ((modelName === 'EndUser' || modelName === 'Client')) {
+        // EndUser and Client requires additional access checking
+        if (!_.includes(app.models[modelName].allowedMethods(role), methodName)) {
+          throwAuthError();
+        }
+        // EndUser methods must have 'authId' as the first argument.
+        if (modelName === 'EndUser' && decoded.sub !== _.get(params, '0')) {
+          throwAuthError();
+        }
+        // Client method must have 'clientId' as the first argument.
+        if (modelName === 'Client' && _.get(decoded, [APP_METADATA_KEY, 'clientId']) !== _.get(params, '0')) {
+          throwAuthError();
+        }
+      }
+
+      let metadata = {};
+      let endUser = await app.models.EndUser.findOne({ where: { authId: decoded.sub } });
+      if (endUser) {
+        logger.debug(`EndUser id: ${endUser.id}`);
+        metadata.endUserId = endUser.id;
+        params = [].concat(params || [], metadata);
+      }
+      return await app.models[modelName][methodName].apply(app.models[modelName], params);
+    } catch (error) {
+      logger.error(`Cannot execute ${modelName}.${methodName}(${JSON.stringify(params)}) - ${error.message}`);
+      throw error;
+    }
+  };
+
+  // TO DO: replace this function with genericMethod.
   CustomerData.resetPassword = async function(idToken) {
     try {
       let decoded = await decodeIdToken(idToken);
@@ -166,6 +201,16 @@ module.exports = function(CustomerData) {
       { arg: 'modelName', type: 'string', required: true },
       { arg: 'id', type: 'string', required: true }
     ]
+  });
+  CustomerData.remoteMethod('genericMethod', {
+    http: { path: '/method', verb: 'post' },
+    accepts: [
+      { arg: 'idToken', type: 'string', required: true },
+      { arg: 'modelName', type: 'string', required: true },
+      { arg: 'methodName', type: 'string', required: true },
+      { arg: 'params', type: 'array', default: '[]' }
+    ],
+    returns: { type: 'object', root: true }
   });
   CustomerData.remoteMethod('resetPassword', {
     http: { path: '/resetPassword', verb: 'post' },

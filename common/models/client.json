@@ -86,6 +86,7 @@
     },
     "feeType": {
       "type": "string",
+      "description": "'Fixed' or 'Rate'",
       "postgresql": {
         "columnName": "fee_type"
       }

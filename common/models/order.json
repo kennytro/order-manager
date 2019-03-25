@@ -1,0 +1,99 @@
+{
+  "name": "Order",
+  "plural": "Orders",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true,
+    "postgresql": {
+      "schema": "public",
+      "table": "order_t"
+    }
+  },
+  "mixins": {
+    "Timestamps": {
+      "beforeSave": 1
+    }
+  },
+  "properties": {
+    "id": {
+      "type": "number"
+    },
+    "clientId": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "client_id"
+      }
+    },
+    "status": {
+      "type": "string",
+      "default": "Submitted",
+      "description": "'Submitted', 'Processed' or 'Completed'"
+    },
+    "subtotal": {
+      "type": "number"
+    },
+    "fee": {
+      "type": "number"
+    },
+    "totalAmount": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "total_amount"
+      }
+    },
+    "note": {
+      "type": "string"
+    },
+    "createdBy": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "created_by"
+      }
+    },
+    "createdAt": {
+      "type": "date",
+      "postgresql": {
+        "dateType": "timestamptz",
+        "columnName": "created_at"
+      }
+    },
+    "updatedBy": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "updated_by"
+      }
+    },
+    "updatedAt": {
+      "type": "date",
+      "postgresql": {
+        "dateType": "timestamptz",
+        "columnName": "updated_at"
+      }
+    }    
+  },
+  "validations": [],
+  "relations": {
+    "orderItem": {
+      "type": "hasMany",
+      "model": "OrderItem",
+      "foreignKey": "orderId"
+    },
+    "client": {
+      "type": "belongsTo",
+      "model": "Client"
+    },
+    "userCreated": {
+      "type": "belongsTo",
+      "model": "EndUser",
+      "foreignKey": "createdBy"
+    },
+    "userUpdated": {
+      "type": "belongsTo",
+      "model": "EndUser",
+      "foreignKey": "updatedBy"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

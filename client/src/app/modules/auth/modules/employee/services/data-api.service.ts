@@ -21,7 +21,7 @@ export class DataApiService {
       modelName, filter);
   }
 
-  findById(modelName: string, id: string): Observable<any> {
+  findById(modelName: string, id: string, filter: object = {}): Observable<any> {
     return this._dataApi.genericFindById(this._getIdToken(),
       modelName, id);
   }
@@ -36,9 +36,8 @@ export class DataApiService {
       modelName, id);
   }
 
-  genericMethod(methodName: string, param?: Array<any>): Observable<any> {
-    let newParams = param ? [this._getIdToken(), ...param] : [this._getIdToken()];
-    return this._dataApi[methodName](...newParams);
+  genericMethod(modelName: string, methodName: string, param?: Array<any>): Observable<any> {
+    return this._dataApi.genericMethod(this._getIdToken(), modelName, methodName, param || []);
   }
 
   private _getIdToken() {

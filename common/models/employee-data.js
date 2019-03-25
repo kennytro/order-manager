@@ -65,7 +65,7 @@ module.exports = function(EmployeeData) {
       // throwAuthError();
     }
     try {
-      return await app.models[modelName].findById(id);
+      return await app.models[modelName].findById(id, filter);
     } catch (error) {
       logger.error(`Cannot find by id (model: ${modelName}, id: ${id}) - ${error.message}`);
       throw error;
@@ -104,6 +104,23 @@ module.exports = function(EmployeeData) {
       return await app.models[modelName].destroyById(id);
     } catch (error) {
       logger.error(`Cannot destroy by id (model: ${modelName}, id: ${id}) - ${error.message}`);
+      throw error;
+    }
+  };
+
+  EmployeeData.genericMethod = async function(idToken, modelName, methodName, params) {
+    try {
+      // TO DO: parse idToken and check user role is either manager or admin
+      // if modelName is 'EndUser', only 'admin' is allowed to call.
+      let decoded = await decodeIdToken(idToken);
+      const role = app.models.EndUser.getHighestRole(_.get(decoded, ['app_metadata', 'roles'], []));
+      if ((modelName === 'EndUser' || modelName === 'Client') &&
+        !_.includes(app.models[modelName].allowedMethods(role), methodName)) {
+        throwAuthError();
+      }
+      return await app.models[modelName][methodName].apply(app.models[modelName], params);
+    } catch (error) {
+      logger.error(`Cannot execute ${modelName}.${methodName}(${JSON.stringify(params)}) - ${error.message}`);
       throw error;
     }
   };
@@ -166,6 +183,16 @@ module.exports = function(EmployeeData) {
       { arg: 'modelName', type: 'string', required: true },
       { arg: 'id', type: 'string', required: true }
     ]
+  });
+  EmployeeData.remoteMethod('genericMethod', {
+    http: { path: '/method', verb: 'post' },
+    accepts: [
+      { arg: 'idToken', type: 'string', required: true },
+      { arg: 'modelName', type: 'string', required: true },
+      { arg: 'methodName', type: 'string', required: true },
+      { arg: 'params', type: 'array', default: '[]' }
+    ],
+    returns: { type: 'object', root: true }
   });
   EmployeeData.remoteMethod('resetPassword', {
     http: { path: '/resetPassword', verb: 'post' },

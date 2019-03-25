@@ -46,7 +46,7 @@ export class CustomerLayoutComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe( async result => {
       if (result) {
-        await this._dataApi.genericMethod('resetPassword').toPromise();
+        await this._dataApi.genericMethod('EndUser', 'sendMeResetPasswordEmail', [this._auth.getUserProfile().authId]).toPromise();
         const snackBarRef = this._snackBar.open(`Sent password reset email to ${this.getUserEmail()}`, 'Close', {
           duration: 3000
         });

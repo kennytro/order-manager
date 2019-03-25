@@ -61,17 +61,41 @@ button {
 
 .btn-toolbar .btn {
   color: white;
-  background-color: #2eb82e
+  background-color: #2eb82e;
 }
 
 .mat-green {
 	color: white;
-  background-color: #2eb82e
+  background-color: #2eb82e;
 }
 
 /****** Text ******/
 .right {
   text-align: right;
+}
+
+.status-submitted {
+  color: orange;
+  font-weight: 500;
+  font-family: Tahoma, Geneva, sans-serif;
+}
+
+.status-processed {
+  color: brown;
+  font-weight: 500;
+  font-family: Tahoma, Geneva, sans-serif;
+}
+
+.status-completed {
+  color: green;
+  font-weight: 500;
+  font-family: Tahoma, Geneva, sans-serif;
+}
+
+.status-cancelled {
+  color: gray;
+  font-weight: 500;
+  font-family: Tahoma, Geneva, sans-serif;
 }
 
 /****** Form ******/
