@@ -1,0 +1,196 @@
+<div fxLayout="column" fxLayoutGap="20px" fxLayoutAlign="center">
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title class="status-submitted">
+        Submitted
+      </mat-panel-title>
+      <mat-panel-description>
+        Total {{submittedOrders.data.length}}
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <ng-template matExpansionPanelContent>
+      <div fxLayout="row wrap" fxLayoutGap="20px" fxLayoutAlign="start space-between">
+        <mat-menu #submittedMenu="matMenu">
+          <button mat-menu-item [disabled]="submittedOrderSelection.selected.length==0" [matMenuTriggerFor]="moveSubmittedMenu">Move to</button>
+          <button mat-menu-item (click)="showInventoryDialog()">Check Inventory</button>
+        </mat-menu>
+        <mat-menu #moveSubmittedMenu="matMenu">
+          <button mat-menu-item (click)="moveFromSubmittedToProcessed()"><fa-icon icon="arrow-alt-circle-down"></fa-icon> Processed</button>
+<!--           <button mat-menu-item>Shipped</button>
+          <button mat-menu-item>Completed</button> -->
+          <button mat-menu-item (click)="cancelSelectedSubmitted()"><fa-icon icon="times-circle"></fa-icon> Cancelled</button>
+        </mat-menu>
+        <button mat-button [matMenuTriggerFor]="submittedMenu">Action <fa-icon icon="caret-down"></fa-icon></button>
+      </div>
+      <div class="table-responsive">
+        <table mat-table [dataSource]="submittedOrders" matSort>
+          <ng-container matColumnDef="select">
+            <th mat-header-cell *matHeaderCellDef>
+              <mat-checkbox (change)="$event ? masterSubmittedToggle() : null"
+                            [checked]="submittedOrderSelection.hasValue() && isAllSubmittedSelected()"
+                            [indeterminate]="submittedOrderSelection.hasValue() && !isAllSubmittedSelected()">
+              </mat-checkbox>
+            </th>
+            <td mat-cell *matCellDef="let row">
+              <mat-checkbox (click)="$event.stopPropagation()"
+                            (change)="$event ? submittedOrderSelection.toggle(row) : null"
+                            [checked]="submittedOrderSelection.isSelected(row)">
+              </mat-checkbox>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
+            <td mat-cell *matCellDef="let row"><a [routerLink]="['../', row.id]">{{row.id}}</a></td>
+          </ng-container>
+          <ng-container matColumnDef="client">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> CLIENT </th>
+            <td mat-cell *matCellDef="let row"><a [routerLink]="['../../clients/', row.clientId]">{{row.clientName}}</a></td>
+          </ng-container>
+          <ng-container matColumnDef="totalAmount">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> TOTAL </th>
+            <td mat-cell *matCellDef="let row"> {{row.totalAmount | currency}} </td>
+          </ng-container>
+          <ng-container matColumnDef="note">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> NOTE </th>
+            <td mat-cell *matCellDef="let row"> {{row.note}} </td>
+          </ng-container>
+          <ng-container matColumnDef="createdDate">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> CREATED </th>
+            <td mat-cell *matCellDef="let row"> {{row.createdAt | date:'shortDate'}} </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </div>
+    </ng-template>
+  </mat-expansion-panel>
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title class="status-processed">
+        Processed
+      </mat-panel-title>
+      <mat-panel-description>
+        Total {{processedOrders.data.length}}
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <ng-template matExpansionPanelContent>
+      <div fxLayout="row wrap" fxLayoutGap="20px" fxLayoutAlign="start space-between">
+        <mat-menu #processedMenu="matMenu">
+          <button mat-menu-item [disabled]="processedOrderSelection.selected.length==0" [matMenuTriggerFor]="moveProcessedMenu">Move to</button>
+          <button mat-menu-item (click)="showPackageDistributionDialog()">Package distribution</button>
+        </mat-menu>
+        <mat-menu #moveProcessedMenu="matMenu">
+          <button mat-menu-item (click)="moveFromProcessedToSubmitted()"><fa-icon icon="arrow-alt-circle-up"></fa-icon> Submitted</button>
+          <button mat-menu-item (click)="moveFromProcessedToShipped()"><fa-icon icon="arrow-alt-circle-down"></fa-icon> Shipped</button>
+          <!-- <button mat-menu-item>Completed</button> -->
+          <button mat-menu-item (click)="cancelSelectedProcessed()"><fa-icon icon="times-circle"></fa-icon> Cancelled</button>
+        </mat-menu>
+        <button mat-button [matMenuTriggerFor]="processedMenu">Action <fa-icon icon="caret-down"></fa-icon></button>
+      </div>
+      <div class="table-responsive">
+        <table mat-table [dataSource]="processedOrders" matSort>
+          <ng-container matColumnDef="select">
+            <th mat-header-cell *matHeaderCellDef>
+              <mat-checkbox (change)="$event ? masterProcessedToggle() : null"
+                            [checked]="processedOrderSelection.hasValue() && isAllProcessedSelected()"
+                            [indeterminate]="processedOrderSelection.hasValue() && !isAllProcessedSelected()">
+              </mat-checkbox>
+            </th>
+            <td mat-cell *matCellDef="let row">
+              <mat-checkbox (click)="$event.stopPropagation()"
+                            (change)="$event ? processedOrderSelection.toggle(row) : null"
+                            [checked]="processedOrderSelection.isSelected(row)">
+              </mat-checkbox>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
+            <td mat-cell *matCellDef="let row"><a [routerLink]="['../', row.id]">{{row.id}}</a></td>
+          </ng-container>
+          <ng-container matColumnDef="client">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> CLIENT </th>
+            <td mat-cell *matCellDef="let row"><a [routerLink]="['../../clients/', row.clientId]">{{row.clientName}}</a></td>
+          </ng-container>
+          <ng-container matColumnDef="totalAmount">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> TOTAL </th>
+            <td mat-cell *matCellDef="let row"> {{row.totalAmount | currency}} </td>
+          </ng-container>
+          <ng-container matColumnDef="note">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> NOTE </th>
+            <td mat-cell *matCellDef="let row"> {{row.note}} </td>
+          </ng-container>
+          <ng-container matColumnDef="createdDate">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> CREATED </th>
+            <td mat-cell *matCellDef="let row"> {{row.createdAt | date:'shortDate'}} </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </div>
+    </ng-template>
+  </mat-expansion-panel>
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title class="status-shipped" >
+        Shipped
+      </mat-panel-title>
+      <mat-panel-description>
+        Total {{shippedOrders.data.length}}
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <ng-template matExpansionPanelContent>
+      <div fxLayout="row wrap" fxLayoutGap="20px" fxLayoutAlign="start space-between">
+        <mat-menu #shippedMenu="matMenu">
+          <button mat-menu-item [disabled]="shippedOrderSelection.selected.length==0" [matMenuTriggerFor]="moveShippedMenu">Move to</button>
+        </mat-menu>
+        <mat-menu #moveShippedMenu="matMenu">
+          <button mat-menu-item (click)="moveFromShippedToProcessed()"><fa-icon icon="arrow-alt-circle-up"></fa-icon> Processed</button>
+<!--           <button mat-menu-item>Shipped</button> -->
+          <button mat-menu-item (click)="moveFromShippedToCompleted()"><fa-icon icon="check-circle"></fa-icon> Completed</button>
+          <button mat-menu-item (click)="cancelSelectedShipped()"><fa-icon icon="times-circle"></fa-icon> Cancelled</button>
+        </mat-menu>
+        <button mat-button [matMenuTriggerFor]="shippedMenu">Action <fa-icon icon="caret-down"></fa-icon></button>
+      </div>
+      <div class="table-responsive">
+        <table mat-table [dataSource]="shippedOrders" matSort>
+          <ng-container matColumnDef="select">
+            <th mat-header-cell *matHeaderCellDef>
+              <mat-checkbox (change)="$event ? masterShippedToggle() : null"
+                            [checked]="shippedOrderSelection.hasValue() && isAllShippedSelected()"
+                            [indeterminate]="shippedOrderSelection.hasValue() && !isAllShippedSelected()">
+              </mat-checkbox>
+            </th>
+            <td mat-cell *matCellDef="let row">
+              <mat-checkbox (click)="$event.stopPropagation()"
+                            (change)="$event ? shippedOrderSelection.toggle(row) : null"
+                            [checked]="shippedOrderSelection.isSelected(row)">
+              </mat-checkbox>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
+            <td mat-cell *matCellDef="let row"><a [routerLink]="['../', row.id]">{{row.id}}</a></td>
+          </ng-container>
+          <ng-container matColumnDef="client">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> CLIENT </th>
+            <td mat-cell *matCellDef="let row"><a [routerLink]="['../../clients/', row.clientId]">{{row.clientName}}</a></td>
+          </ng-container>
+          <ng-container matColumnDef="totalAmount">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> TOTAL </th>
+            <td mat-cell *matCellDef="let row"> {{row.totalAmount | currency}} </td>
+          </ng-container>
+          <ng-container matColumnDef="note">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> NOTE </th>
+            <td mat-cell *matCellDef="let row"> {{row.note}} </td>
+          </ng-container>
+          <ng-container matColumnDef="createdDate">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> CREATED </th>
+            <td mat-cell *matCellDef="let row"> {{row.createdAt | date:'shortDate'}} </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </div>
+    </ng-template>
+  </mat-expansion-panel>
+</div>

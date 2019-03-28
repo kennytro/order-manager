@@ -1,0 +1,15 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
+  <h2>Orders</h2>
+  <div class="btn-toolbar mb-2 mb-md-0">
+    <button mat-raised-button color="green" (click)="addOrder()">
+      <fa-icon icon="cart-plus"></fa-icon>
+       New Order
+    </button>
+  </div>
+</div>
+<nav mat-tab-nav-bar>
+  <a mat-tab-link class="mat-tab-orders" *ngFor="let link of navLinks" [routerLink]="link.link"
+routerLinkActive #rla="routerLinkActive" [active]="rla.isActive"><h5>{{link.label | uppercase}}</h5>
+  </a>
+</nav>
+<router-outlet></router-outlet>

@@ -9,6 +9,7 @@ const logger = require(appRoot + '/config/winston');
 
 module.exports = function(CustomerData) {
   const APP_METADATA_KEY = 'https://om.com/app_metadata';
+  const CLIENT_MODELS = ['Order', 'Statement', 'EndUser'];
   const client = jwksClient({
     cache: true,
     rateLimit: true,
@@ -44,14 +45,17 @@ module.exports = function(CustomerData) {
   }
 
   CustomerData.genericFind = async function(idToken, modelName, filter) {
-    if (!idToken) {
-      // TO DO: parse idToken to obtain user's client id. Ensure user only accesses
-      // data of matching client id
-      logger.info('CustomerData.genericFind() needs to parse idToken');
-      // throwAuthError();
-    }
     try {
-      return await app.models[modelName].find(filter || {});
+      let decoded = await decodeIdToken(idToken);
+      if (!filter) {
+        filter = {};
+      }
+      if (_.includes(CLIENT_MODELS, modelName)) {
+        // limit scope to the user's client
+        _.set(filter, ['where', 'clientId'], _.get(decoded, [APP_METADATA_KEY, 'clientId']));
+      }
+
+      return await app.models[modelName].find(filter);
     } catch (error) {
       logger.error(`Cannot find ${modelName} - ${error.message}`);
       throw error;
@@ -59,13 +63,15 @@ module.exports = function(CustomerData) {
   };
 
   CustomerData.genericFindById = async function(idToken, modelName, id, filter) {
-    if (!idToken) {
-      // TO DO: parse idToken to obtain user's client id. Ensure user only accesses
-      // data of matching client id
-      logger.info('CustomerData.genericFindById() needs to parse idToken');
-      // throwAuthError();
-    }
     try {
+      let decoded = await decodeIdToken(idToken);
+      if (!filter) {
+        filter = {};
+      }
+      if (_.includes(CLIENT_MODELS, modelName)) {
+        // limit scope to the user's client
+        _.set(filter, ['where', 'clientId'], _.get(decoded, [APP_METADATA_KEY, 'clientId']));
+      }
       return await app.models[modelName].findById(id, filter);
     } catch (error) {
       logger.error(`Cannot find by id (model: ${modelName}, id: ${id}) - ${error.message}`);

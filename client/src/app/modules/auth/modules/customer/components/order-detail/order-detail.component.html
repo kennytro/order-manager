@@ -8,6 +8,7 @@
     <div>Status: <span [ngClass]="{
       'status-submitted' : order.status == 'Submitted',
       'status-processed' : order.status == 'Processed',
+      'status-shipped' : order.status == 'Shipped',
       'status-completed' : order.status == 'Completed',
       'status-cancelled' : order.status == 'Cancelled'
     }"> {{order.status | uppercase }} </span><fa-icon icon="question-circle" matTooltip="You can change this order as long as it has not been processed." matTooltipPosition="right"></fa-icon></div>

@@ -2,30 +2,23 @@ import { Injectable } from '@angular/core';
 import { Resolve, Router, ActivatedRouteSnapshot } from "@angular/router";
 
 import { DataApiService } from './data-api.service';
-import { AuthService } from '../../../../../services/auth.service';
-
-import get from 'lodash/get';
 
 @Injectable()
 export class OrderResolver implements Resolve<any> {
-  constructor(
-    private _auth: AuthService,
-    private _dataService: DataApiService
-  ) {
-  }
+  constructor(private _dataService: DataApiService) { }
 
   async resolve(route: ActivatedRouteSnapshot) {
     let id = route.paramMap.get('id');
     if (id) {
       try {
-        let [order, products, currentUser] = await Promise.all([
+        let [order, products] = await Promise.all([
           this._dataService.findById('Order', id,
             { include: [
               { relation: 'orderItem' },
               { 
                 relation: 'client',
                 scope: {
-                  fields: ['id', 'name', 'feeType', 'feeValue']
+                  fields: ['id', 'feeType', 'feeValue']
                 }
               },
               { 
@@ -41,13 +34,11 @@ export class OrderResolver implements Resolve<any> {
                 }
               }
             ] }).toPromise(),
-          this._dataService.find('Product').toPromise(),
-          this._dataService.genericMethod('EndUser', 'getMyUser', [this._auth.getUserProfile().authId]).toPromise()
+          this._dataService.find('Product').toPromise()
         ]);
         return {
           order: order,
-          products: products,
-          productExclusionList: currentUser.userSettings.productExcluded || []
+          products: products
         };
       } catch (err) {
         console.error(`Errro while resolving order data - ${err.message}`);

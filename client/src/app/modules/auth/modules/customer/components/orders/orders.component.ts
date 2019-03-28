@@ -23,7 +23,7 @@ export class OrdersComponent implements OnInit {
       if (routeData['orders']) {
         this._setTableDataSource(routeData['orders']);
       }
-    });    
+    });
   }
 
   applyFilter(filterValue: string) {

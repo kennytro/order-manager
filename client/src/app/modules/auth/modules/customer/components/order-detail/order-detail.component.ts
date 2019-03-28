@@ -1,24 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { MatDialog, MatTableDataSource, MatSnackBar, MatStepper } from '@angular/material';
+import { MatDialog, MatTableDataSource, MatSnackBar /* , MatStepper*/ } from '@angular/material';
 import { FormControl } from '@angular/forms';
 import { ConfirmDialogComponent, DialogData } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { DataApiService } from '../../services/data-api.service';
 
 import get from 'lodash/get';
 import sortBy from 'lodash/sortBy';
-
-interface OrderItem {
-  id: number,
-  imageUrl?: string,
-  name: string,
-  description: string,
-  category: string,
-  unitPrice: number,
-  unit: string,
-  quantity: FormControl,
-  subTotal: number
-}
 
 @Component({
   selector: 'app-order-detail',
@@ -38,7 +26,7 @@ export class OrderDetailComponent implements OnInit {
     private _route: ActivatedRoute,
     private _router: Router,
     private _dialog: MatDialog,
-    private _snackBar: MatSnackBar,    
+    private _snackBar: MatSnackBar,
     private _dataApi: DataApiService
   ) {
     this.orderFC = new FormControl(true);
