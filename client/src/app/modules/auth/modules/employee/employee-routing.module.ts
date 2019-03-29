@@ -97,13 +97,15 @@ const routes: Routes = [
             ]
           },
           {
+            path: 'new',
+            component: NewOrderComponent,
+            resolve: { clients: DataArrayResolver },
+            data: { arrayModelName: 'Client' }
+          },
+          {
             path: ':id',
             component: OrderDetailComponent,
             resolve: { orderInfo: OrderResolver }
-          },
-          {
-            path: 'new',
-            component: NewOrderComponent
           }
         ]
       },

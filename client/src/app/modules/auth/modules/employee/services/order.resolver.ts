@@ -18,7 +18,7 @@ export class OrderResolver implements Resolve<any> {
               { 
                 relation: 'client',
                 scope: {
-                  fields: ['id', 'feeType', 'feeValue']
+                  fields: ['id', 'name', 'feeType', 'feeValue']
                 }
               },
               { 

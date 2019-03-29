@@ -8,6 +8,7 @@ const app = require(appRoot + '/server/server');
 const logger = require(appRoot + '/config/winston');
 
 module.exports = function(EmployeeData) {
+  const APP_METADATA_KEY = 'https://om.com/app_metadata';
   const client = jwksClient({
     cache: true,
     rateLimit: true,
@@ -110,14 +111,27 @@ module.exports = function(EmployeeData) {
 
   EmployeeData.genericMethod = async function(idToken, modelName, methodName, params) {
     try {
-      // TO DO: parse idToken and check user role is either manager or admin
-      // if modelName is 'EndUser', only 'admin' is allowed to call.
       let decoded = await decodeIdToken(idToken);
-      const role = app.models.EndUser.getHighestRole(_.get(decoded, ['app_metadata', 'roles'], []));
-      if ((modelName === 'EndUser' || modelName === 'Client') &&
-        !_.includes(app.models[modelName].allowedMethods(role), methodName)) {
+      const role = app.models.EndUser.getHighestRole(_.get(decoded, [APP_METADATA_KEY, 'roles'], []));
+      if (!_.includes(['manager', 'admin'], role)) {
         throwAuthError();
       }
+      if (role === 'manager') {
+        if (modelName === 'EndUser' && !_.includes(app.models.EndUser.allowedMethods(role), methodName)) {
+          throwAuthError();
+        }
+      }
+
+      let metadata = {};
+      let endUser = await app.models.EndUser.findOne({ where: { authId: decoded.sub } });
+      if (endUser) {
+        logger.debug(`EndUser id: ${endUser.id}`);
+        metadata.endUserId = endUser.id;
+        params = [].concat(params || [], metadata);
+      } else {
+        logger.warn(`Could not find end user whose authId is '${decoded.sub}'`);
+      }
+
       return await app.models[modelName][methodName].apply(app.models[modelName], params);
     } catch (error) {
       logger.error(`Cannot execute ${modelName}.${methodName}(${JSON.stringify(params)}) - ${error.message}`);

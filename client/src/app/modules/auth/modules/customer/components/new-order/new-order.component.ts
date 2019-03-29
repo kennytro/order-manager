@@ -13,7 +13,7 @@ import sortBy from 'lodash/sortBy';
   styleUrls: ['./new-order.component.css']
 })
 export class NewOrderComponent implements OnInit {
-  displayedColumns = ['id', 'name', 'description', 'category', 'unitPrice', 'quantity', 'subTotal'];
+  displayedColumns = ['id', 'name', 'description', 'category', 'unitPrice', 'quantity', 'subtotal'];
   products: MatTableDataSource<any>;
   orderFG: FormGroup;
   subtotal: number = 0.00;
@@ -119,12 +119,12 @@ export class NewOrderComponent implements OnInit {
       unitPrice: product.unitPrice,
       unit: product.unit,
       quantity: '0',
-      subTotal: '0.00'
+      subtotal: '0.00'
     });
 
     // update subtotal of row and total.
     newFG.get('quantity').valueChanges.subscribe(val => {
-      newFG.get('subTotal').setValue(newFG.get('unitPrice').value * val);
+      newFG.get('subtotal').setValue(newFG.get('unitPrice').value * val);
       this._updateTotalAmount();
     });
     return newFG;
@@ -134,21 +134,21 @@ export class NewOrderComponent implements OnInit {
     const rows = this.orderFG.get('products') as FormArray;
     let newTotal = 0;
     for (let row of rows.controls) {
-      newTotal += Number(row.get('subTotal').value);
+      newTotal += Number(row.get('subtotal').value);
     }
     this.subtotal = newTotal;
     this.fee = this._calculateFee(newTotal);
     this.totalAmount = newTotal + this.fee;
   }
 
-  private _calculateFee(subTotal: number): number {
+  private _calculateFee(subtotal: number): number {
     let newFee = 0;
     if (this._client) {
       if (this._client.feeType == 'Fixed') {
         newFee = this._client.feeValue;
       }
       if (this._client.feeType == 'Rate') {
-        newFee = subTotal * this._client.feeValue / 100.0;
+        newFee = subtotal * this._client.feeValue / 100.0;
       }
     }
     return newFee;

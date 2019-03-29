@@ -14,7 +14,7 @@ import sortBy from 'lodash/sortBy';
   styleUrls: ['./order-detail.component.css']
 })
 export class OrderDetailComponent implements OnInit {
-  displayedColumns = ['id', 'name', 'description', 'category', 'unitPrice', 'quantity', 'subTotal'];
+  displayedColumns = ['id', 'name', 'description', 'category', 'unitPrice', 'quantity', 'subtotal'];
   orderItems: MatTableDataSource<any>;
   order: any;
   orderFC: FormControl;  // Unused but just to address stepper icon bug. 
@@ -151,30 +151,30 @@ export class OrderDetailComponent implements OnInit {
       unitPrice: product.unitPrice,
       unit: product.unit,
       quantity: new FormControl('0'),
-      subTotal: 0
+      subtotal: 0
     }
     // override with order item
     if (orderItem) {
       oItem.unitPrice = orderItem.unitPrice;
       oItem.quantity.setValue(orderItem.quantity);
-      oItem.subTotal = orderItem.unitPrice * orderItem.quantity;
+      oItem.subtotal = orderItem.unitPrice * orderItem.quantity;
     }
     // update subtotal of item and order
     oItem.quantity.valueChanges.subscribe(val => {
-      oItem.subTotal = oItem.unitPrice * val;
+      oItem.subtotal = oItem.unitPrice * val;
       this._updateTotalAmount();
     });
     return oItem;
   }
 
-  private _calculateFee(subTotal: number): number {
+  private _calculateFee(subtotal: number): number {
     let newFee = 0;
     if (this._client) {
       if (this._client.feeType == 'Fixed') {
         newFee = this._client.feeValue;
       }
       if (this._client.feeType == 'Rate') {
-        newFee = subTotal * this._client.feeValue / 100.0;
+        newFee = subtotal * this._client.feeValue / 100.0;
       }
     }
     return newFee;
@@ -183,7 +183,7 @@ export class OrderDetailComponent implements OnInit {
   private _updateTotalAmount() {
     let newSubtotal = 0;
     for (let element of this.orderItems.data) {
-      newSubtotal += Number(element.subTotal);
+      newSubtotal += Number(element.subtotal);
     }
     this.order.subtotal = newSubtotal;
     this.order.fee = this._calculateFee(newSubtotal);

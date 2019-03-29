@@ -28,8 +28,4 @@ export class OrderLayoutComponent implements OnInit {
 
   ngOnInit() {
   }
-
-  addOrder() {
-    console.log('clicked New Order button');
-  }
 }

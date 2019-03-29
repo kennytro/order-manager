@@ -51,9 +51,9 @@
                   </mat-form-field>
                 </td>
               </ng-container>
-              <ng-container matColumnDef="subTotal">
+              <ng-container matColumnDef="subtotal">
                 <th mat-header-cell *matHeaderCellDef> SUBTOTAL </th>
-                <td mat-cell *matCellDef="let row">{{row.value.subTotal | currency }}</td>
+                <td mat-cell *matCellDef="let row">{{row.value.subtotal | currency }}</td>
               </ng-container>              
             </table>
           </div>
@@ -123,9 +123,9 @@
                 <th mat-header-cell *matHeaderCellDef> QTY. </th>
                 <td mat-cell *matCellDef="let row;">{{row.quantity}}</td>
               </ng-container>
-              <ng-container matColumnDef="subTotal">
+              <ng-container matColumnDef="subtotal">
                 <th mat-header-cell *matHeaderCellDef> SUBTOTAL </th>
-                <td mat-cell *matCellDef="let row">{{row.subTotal | currency }}</td>
+                <td mat-cell *matCellDef="let row">{{row.subtotal | currency }}</td>
               </ng-container>              
             </table>
           </div>

@@ -1,0 +1,33 @@
+th, td {
+  width: initial;
+} 
+
+.table-responsive {
+  overflow-x: initial;    /* gets rid of scroll bar*/
+}
+
+.mat-column-id {
+  max-width: 50px;
+}
+
+.mat-column-subTotal {
+  max-width: 50px;
+  text-align: right;
+}
+
+.mat-input-qty {
+  margin-bottom: -1.25em;   /* make input vertically center aligned */
+  max-width: 70px !important;
+  text-align: right !important;
+}
+
+.text-box {
+  border-radius: 15px;
+  border: 1px solid lightgray;
+  padding: 5px;
+  min-height: 40px;
+}
+
+.full-width {
+  width: 100%;
+}

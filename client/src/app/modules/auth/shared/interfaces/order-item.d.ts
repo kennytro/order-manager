@@ -10,5 +10,5 @@ declare interface OrderItem {
   unit: string,
 //  quantity: FormControl,
   quantity: any,
-  subTotal: number
+  subtotal: number
 }
