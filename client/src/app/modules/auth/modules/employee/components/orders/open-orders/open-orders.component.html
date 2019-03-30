@@ -2,25 +2,16 @@
   <mat-expansion-panel>
     <mat-expansion-panel-header>
       <mat-panel-title class="status-submitted">
-        Submitted
+        <span matBadge="{{submittedOrders.data.length}}" matBadgeOverlap="false">Submitted</span>
       </mat-panel-title>
-      <mat-panel-description>
+<!--       <mat-panel-description>
         Total {{submittedOrders.data.length}}
-      </mat-panel-description>
+      </mat-panel-description> -->
     </mat-expansion-panel-header>
     <ng-template matExpansionPanelContent>
-      <div fxLayout="row wrap" fxLayoutGap="20px" fxLayoutAlign="start space-between">
-        <mat-menu #submittedMenu="matMenu">
-          <button mat-menu-item [disabled]="submittedOrderSelection.selected.length==0" [matMenuTriggerFor]="moveSubmittedMenu">Move to</button>
-          <button mat-menu-item (click)="showInventoryDialog()">Check Inventory</button>
-        </mat-menu>
-        <mat-menu #moveSubmittedMenu="matMenu">
-          <button mat-menu-item (click)="moveFromSubmittedToProcessed()"><fa-icon icon="arrow-alt-circle-down"></fa-icon> Processed</button>
-<!--           <button mat-menu-item>Shipped</button>
-          <button mat-menu-item>Completed</button> -->
-          <button mat-menu-item (click)="cancelSelectedSubmitted()"><fa-icon icon="times-circle"></fa-icon> Cancelled</button>
-        </mat-menu>
-        <button mat-button [matMenuTriggerFor]="submittedMenu">Action <fa-icon icon="caret-down"></fa-icon></button>
+      <div class="order-button-row" fxLayout="row wrap" fxLayoutGap="10px" fxLayoutAlign="center space-between">
+        <button mat-stroked-button (click)="moveFromSubmittedToProcessed()" matTooltip="Change status of the selected order to 'Processed'" [disabled]="submittedOrderSelection.selected.length==0"><fa-icon icon="arrow-alt-circle-down"></fa-icon> Move Down</button>
+        <button mat-stroked-button (click)="showInventoryDialog()" matTooltip="Show inventory status of submitted orders" [disabled]="submittedOrders.data.length == 0"><fa-icon icon="file-alt"></fa-icon> Check Inventory</button>
       </div>
       <div class="table-responsive">
         <table mat-table [dataSource]="submittedOrders" matSort>
@@ -67,25 +58,14 @@
   <mat-expansion-panel>
     <mat-expansion-panel-header>
       <mat-panel-title class="status-processed">
-        Processed
+        <span matBadge="{{processedOrders.data.length}}" matBadgeOverlap="false">Processed</span>
       </mat-panel-title>
-      <mat-panel-description>
-        Total {{processedOrders.data.length}}
-      </mat-panel-description>
     </mat-expansion-panel-header>
     <ng-template matExpansionPanelContent>
-      <div fxLayout="row wrap" fxLayoutGap="20px" fxLayoutAlign="start space-between">
-        <mat-menu #processedMenu="matMenu">
-          <button mat-menu-item [disabled]="processedOrderSelection.selected.length==0" [matMenuTriggerFor]="moveProcessedMenu">Move to</button>
-          <button mat-menu-item (click)="showPackageDistributionDialog()">Package distribution</button>
-        </mat-menu>
-        <mat-menu #moveProcessedMenu="matMenu">
-          <button mat-menu-item (click)="moveFromProcessedToSubmitted()"><fa-icon icon="arrow-alt-circle-up"></fa-icon> Submitted</button>
-          <button mat-menu-item (click)="moveFromProcessedToShipped()"><fa-icon icon="arrow-alt-circle-down"></fa-icon> Shipped</button>
-          <!-- <button mat-menu-item>Completed</button> -->
-          <button mat-menu-item (click)="cancelSelectedProcessed()"><fa-icon icon="times-circle"></fa-icon> Cancelled</button>
-        </mat-menu>
-        <button mat-button [matMenuTriggerFor]="processedMenu">Action <fa-icon icon="caret-down"></fa-icon></button>
+      <div class="order-button-row" fxLayout="row wrap" fxLayoutGap="10px" fxLayoutAlign="center space-between">
+        <button mat-stroked-button (click)="moveFromProcessedToSubmitted()" matTooltip="Change status of the selected order to 'Submitted'" [disabled]="processedOrderSelection.selected.length==0"><fa-icon icon="arrow-alt-circle-up"></fa-icon> Move Up</button>
+        <button mat-stroked-button (click)="moveFromProcessedToShipped()" matTooltip="Change status of the selected order to 'Shipped'" [disabled]="processedOrderSelection.selected.length==0"><fa-icon icon="arrow-alt-circle-down"></fa-icon> Move Down</button>
+        <button mat-stroked-button (click)="showPackageDistributionDialog()" matTooltip="Show inventory status of submitted orders" [disabled]="processedOrders.data.length == 0"><fa-icon icon="file-alt"></fa-icon> Package Distribution</button>
       </div>
       <div class="table-responsive">
         <table mat-table [dataSource]="processedOrders" matSort>
@@ -132,24 +112,13 @@
   <mat-expansion-panel>
     <mat-expansion-panel-header>
       <mat-panel-title class="status-shipped" >
-        Shipped
+        <span matBadge="{{shippedOrders.data.length}}" matBadgeOverlap="false">Shipped</span>
       </mat-panel-title>
-      <mat-panel-description>
-        Total {{shippedOrders.data.length}}
-      </mat-panel-description>
     </mat-expansion-panel-header>
     <ng-template matExpansionPanelContent>
-      <div fxLayout="row wrap" fxLayoutGap="20px" fxLayoutAlign="start space-between">
-        <mat-menu #shippedMenu="matMenu">
-          <button mat-menu-item [disabled]="shippedOrderSelection.selected.length==0" [matMenuTriggerFor]="moveShippedMenu">Move to</button>
-        </mat-menu>
-        <mat-menu #moveShippedMenu="matMenu">
-          <button mat-menu-item (click)="moveFromShippedToProcessed()"><fa-icon icon="arrow-alt-circle-up"></fa-icon> Processed</button>
-<!--           <button mat-menu-item>Shipped</button> -->
-          <button mat-menu-item (click)="moveFromShippedToCompleted()"><fa-icon icon="check-circle"></fa-icon> Completed</button>
-          <button mat-menu-item (click)="cancelSelectedShipped()"><fa-icon icon="times-circle"></fa-icon> Cancelled</button>
-        </mat-menu>
-        <button mat-button [matMenuTriggerFor]="shippedMenu">Action <fa-icon icon="caret-down"></fa-icon></button>
+      <div class="order-button-row" fxLayout="row wrap" fxLayoutGap="10px" fxLayoutAlign="center space-between">
+        <button mat-stroked-button (click)="moveFromShippedToProcessed()" matTooltip="Change status of the selected order back to 'Processed'" [disabled]="shippedOrderSelection.selected.length==0"><fa-icon icon="arrow-alt-circle-up"></fa-icon> Move Up</button>
+        <button mat-stroked-button (click)="moveFromShippedToCompleted()" matTooltip="Change status of the selected order to 'Completed'" [disabled]="shippedOrderSelection.selected.length==0"><fa-icon icon="check-circle"></fa-icon> Complete</button>
       </div>
       <div class="table-responsive">
         <table mat-table [dataSource]="shippedOrders" matSort>

@@ -23,7 +23,8 @@ export class OpenOrdersComponent implements OnInit {
   shippedOrders: MatTableDataSource<OrderSummary>;
   shippedOrderSelection: SelectionModel<OrderSummary>;
 
-  constructor(private _route: ActivatedRoute) { }
+  constructor(private _route: ActivatedRoute, private _dataApi: DataApiService
+) { }
 
   @ViewChild(MatSort) sortSubmitted: MatSort;
   @ViewChild(MatSort) sortProcessed: MatSort;
@@ -31,7 +32,7 @@ export class OpenOrdersComponent implements OnInit {
   ngOnInit() {
     this._route.data.subscribe(routeData => {
       if (routeData['orders']) {
-        this._setTableDataSource(routeData['orders']);
+        this._setTableDataSource(routeData['orders'], ['Submitted', 'Processed', 'Shipped']);
       }
     });
   }
@@ -73,12 +74,11 @@ export class OpenOrdersComponent implements OnInit {
   }
 
   /*********  Submitted Order Functions **********/
-  moveFromSubmittedToProcessed() {
-    console.log('move selected order from submitted to processed');
-  }
-
-  cancelSelectedSubmitted() {
-    console.log('cancel selected submitted orders');
+  async moveFromSubmittedToProcessed() {
+    let orderIds = this.submittedOrderSelection.selected.map(selected => selected.id);
+    if (orderIds.length > 0) {
+      this._updateOrderStatus(orderIds, 'Submitted', 'Processed');
+    }
   }
 
   showInventoryDialog() {
@@ -87,15 +87,17 @@ export class OpenOrdersComponent implements OnInit {
 
   /*********  Processed Order Functions **********/
   moveFromProcessedToSubmitted() {
-    console.log('move selected order from processed to submitted');
+    let orderIds = this.processedOrderSelection.selected.map(selected => selected.id);
+    if (orderIds.length > 0) {
+      this._updateOrderStatus(orderIds, 'Processed', 'Submitted');
+    }
   }
 
   moveFromProcessedToShipped() {
-    console.log('move selected order from processed to shipped');    
-  }
-
-  cancelSelectedProcessed() {
-    console.log('cancel selected submitted orders');
+    let orderIds = this.processedOrderSelection.selected.map(selected => selected.id);
+    if (orderIds.length > 0) {
+      this._updateOrderStatus(orderIds, 'Processed', 'Shipped');
+    }
   }
 
   showPackageDistributionDialog() {
@@ -104,18 +106,47 @@ export class OpenOrdersComponent implements OnInit {
 
   /*********  Shipped Order Functions **********/
   moveFromShippedToProcessed() {
-    console.log('move selected order from shipped to processed');
+    let orderIds = this.shippedOrderSelection.selected.map(selected => selected.id);
+    if (orderIds.length > 0) {
+      this._updateOrderStatus(orderIds, 'Shipped', 'Processed');
+    }
   }
 
   moveFromShippedToCompleted() {
-    console.log('move selected order from shipped to completed');    
+    let orderIds = this.shippedOrderSelection.selected.map(selected => selected.id);
+    if (orderIds.length > 0) {
+      this._updateOrderStatus(orderIds, 'Shipped', 'Completed');
+    }
   }
 
-  cancelSelectedShipped() {
-    console.log('cancel selected shipped orders');
+  /*
+   * Bulk update order status. Afterward, also update order tables that have changed.
+   * @params {String[]} - order Ids
+   * @param {String} - from status.
+   * @param {String} - to status,
+   */
+  private async _updateOrderStatus(orderIds: Array<string>, fromStatus: string, toStatus: string) {
+    if (orderIds.length > 0) {
+      try {
+        // update order status
+        await this._dataApi.genericMethod('Order', 'updateAll', [{ id: { inq: orderIds } },
+          { status: toStatus }]).toPromise();
+        // query orders to update affected tables.
+        let orders = await this._dataApi.find('Order', {
+          where: { status: { inq: [fromStatus, toStatus] } },
+          include: [{
+            relation: 'client',
+            scope: { fields: { id: true, name: true }}
+          }]
+         }).toPromise();
+        this._setTableDataSource(orders, [fromStatus, toStatus]);
+      } catch (err) {
+        console.log(`error: failed to change order status - ${err.message}`);
+      }
+    }
   }
 
-  private _setTableDataSource(orders: Array<any>) {
+  private _setTableDataSource(orders: Array<any>, statuses: Array<string> ) {
     orders = map(orders, order => {
       let client = order.client;
       return {
@@ -128,17 +159,26 @@ export class OpenOrdersComponent implements OnInit {
         note: order.note
       };
     });
-    let submits = remove(orders, { status: 'Submitted' });
-    let processed = remove(orders, { status: 'Processed' });
-    let shipped = orders;
-    this.submittedOrders = new MatTableDataSource(submits);
-    this.submittedOrders.sort = this.sortSubmitted;
-    this.submittedOrderSelection = new SelectionModel<OrderSummary>(true, []);
-    this.processedOrders = new MatTableDataSource(processed);
-    this.processedOrders.sort = this.sortProcessed;
-    this.processedOrderSelection = new SelectionModel<OrderSummary>(true, []);
-    this.shippedOrders = new MatTableDataSource(shipped);
-    this.shippedOrders.sort = this.sortShipped;
-    this.shippedOrderSelection = new SelectionModel<OrderSummary>(true, []);
+
+    if (statuses.includes('Submitted')) {
+      let submits = remove(orders, { status: 'Submitted' });
+      this.submittedOrders = new MatTableDataSource(submits);
+      this.submittedOrders.sort = this.sortSubmitted;
+      this.submittedOrderSelection = new SelectionModel<OrderSummary>(true, []);
+    }
+
+    if (statuses.includes('Processed')) {
+      let processed = remove(orders, { status: 'Processed' });
+      this.processedOrders = new MatTableDataSource(processed);
+      this.processedOrders.sort = this.sortProcessed;
+      this.processedOrderSelection = new SelectionModel<OrderSummary>(true, []);
+    }
+
+    if (statuses.includes('Shipped')) {
+      let shipped = remove(orders, { status: 'Shipped' });
+      this.shippedOrders = new MatTableDataSource(shipped);
+      this.shippedOrders.sort = this.sortShipped;
+      this.shippedOrderSelection = new SelectionModel<OrderSummary>(true, []);
+    }
   }
 }

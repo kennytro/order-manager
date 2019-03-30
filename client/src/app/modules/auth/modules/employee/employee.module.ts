@@ -42,9 +42,9 @@ import { PhoneNumberPipe } from '../../shared/pipes/phone-number.pipe';
 
 // Misc.
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV, faCaretDown,
-        faCartPlus, faChartLine, faCheckCircle, faCog,
-        faExclamationCircle, faFileInvoiceDollar, faFolderOpen, faKey,
+import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV,
+        faCaretDown, faCaretUp, faCartPlus, faChartLine, faCheckCircle, faCog,
+        faExclamationCircle, faFileAlt, faFileInvoiceDollar, faFolderOpen, faKey,
         faLongArrowAltLeft, faLongArrowAltRight, faPlus, faQuestionCircle,
         faSearchDollar, faShoppingCart, faSignOutAlt, faStoreAlt,
         faTag, faTags, faTimesCircle, faTruck,
@@ -84,9 +84,9 @@ import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV, faCaretDown,
 })
 export class EmployeeModule {
   constructor() {
-    library.add(faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV, faCaretDown,
-      faCartPlus, faChartLine, faCheckCircle, faCog,
-      faExclamationCircle, faFileInvoiceDollar, faFolderOpen, faKey,
+    library.add(faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV,
+      faCaretDown, faCaretUp, faCartPlus, faChartLine, faCheckCircle, faCog,
+      faExclamationCircle, faFileAlt, faFileInvoiceDollar, faFolderOpen, faKey,
       faLongArrowAltLeft, faLongArrowAltRight, faPlus, faQuestionCircle,
       faSearchDollar, faShoppingCart, faSignOutAlt, faStoreAlt,
       faTag, faTags, faTimesCircle, faTruck,

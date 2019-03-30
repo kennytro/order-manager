@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { 
-  MatButtonModule, MatCardModule, MatCheckboxModule, MatDialogModule, MatDividerModule,
+  MatBadgeModule, MatButtonModule, MatCardModule, MatCheckboxModule, MatDialogModule, MatDividerModule,
   MatExpansionModule, MatFormFieldModule, MatInputModule, MatMenuModule,
   MatPaginatorModule,
   MatSelectModule, MatSlideToggleModule, MatSnackBarModule, MatSortModule, MatStepperModule,
@@ -10,6 +10,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { ReactiveFormsModule } from '@angular/forms';
 
 const modules = [
+  MatBadgeModule,
   MatButtonModule,
   MatCardModule,
   MatCheckboxModule,

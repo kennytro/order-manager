@@ -5,3 +5,11 @@
 .mat-menu-panel {
   overflow: hidden !important;
 }
+
+.order-button-row button {
+  margin-right: 8px;
+}
+
+.mat-expansion-panel-header-title {
+  margin-top: 20px;   /* room for badge */
+}
