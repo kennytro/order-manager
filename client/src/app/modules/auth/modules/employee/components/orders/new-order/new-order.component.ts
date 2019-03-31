@@ -1,9 +1,9 @@
-import { Component, OnInit /*, ViewChild*/ } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { MatSort, MatTableDataSource, MatSnackBar, MatStepper } from '@angular/material';
+import { MatTableDataSource, MatSnackBar } from '@angular/material';
 import { FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
-import { DataApiService } from '../../services/data-api.service';
-import { AuthService, UserProfile } from '../../../../../../services/auth.service';
+import { DataApiService } from '../../../services/data-api.service';
+
 import get from 'lodash/get';
 import sortBy from 'lodash/sortBy';
 
@@ -16,14 +16,10 @@ export class NewOrderComponent implements OnInit {
   displayedColumns = ['id', 'name', 'description', 'category', 'unitPrice', 'quantity', 'subtotal'];
   orderItems: MatTableDataSource<OrderItem>;
   order: any;
+  clientList: Array<any>;
+  selectedClient: any;
   orderFG: FormGroup;
-  private _endUser: any;
-  private _client: any;
-
-  // disabling sort because it doesn't work with form group in row
-//  @ViewChild(MatSort) sort: MatSort;
   constructor(
-    private _auth: AuthService,
     private _route: ActivatedRoute,
     private _router: Router,
     private _formBuilder: FormBuilder,
@@ -31,7 +27,6 @@ export class NewOrderComponent implements OnInit {
     private _dataApi: DataApiService
   ) { 
     this.order = {
-      clientId: '',
       subtotal: 0,
       fee: 0,
       totalAmount: 0,
@@ -42,38 +37,43 @@ export class NewOrderComponent implements OnInit {
   ngOnInit() {
     /***** Form initialization *****/
     this.orderFG = this._formBuilder.group({
+      clientId: ['', Validators.required],
       orderItemQuantities: this._formBuilder.array([]),
       note: ['']
     });
+    
+    this.orderFG.get('clientId').valueChanges.subscribe(clientId => {
+      this.selectedClient = this.clientList.find(client => client.id === clientId);
+      this.order.clientId = this.selectedClient.id;
+      this._updateTotalAmount();    // client change may affect fee and total amount.
+    });
+
     /***** Data initialization: client and product list *****/
-    this._dataApi.genericMethod('Client', 'getMyClient', [this._auth.getUserProfile().clientId])
-      .subscribe(result => {
-        this._client = result;
-        this.order.clientId = result.id;
-      });
     this._route.data.subscribe(routeData => {
-      if (routeData['endUser']) {
-        this._endUser = routeData['endUser'];
+      if (routeData['clients']) {
+        this.clientList = routeData['clients'].map(client => {
+          return {
+            id: client.id,
+            name: client.name,
+            feeType: client.feeType,
+            feeValue: client.feeValue
+          };
+        });
       }
-      if (routeData['products']) {
-        let products = sortBy(routeData['products'], ['category', 'name']);
-        if (this._endUser) {
-          // remove products the user does not want.
-          let excluded = get(this._endUser, ['userSettings', 'productExcluded'], []);
-          if (excluded.length > 0) {
-            products = products.filter(product => !excluded.includes(product.id));
-          }
-        }
+    });
+
+    this._dataApi.find('Product', { where: { isAvailable: true }})
+      .subscribe(products => {
+        products = sortBy(products, ['category', 'name']);
         let orderItems:OrderItem[] = [];
         let quantitiesControl = <FormArray>this.orderFG.get('orderItemQuantities');
         for (let product of products) {
           let orderItem = this._createOrderItem(product);
           orderItems.push(orderItem);
-          quantitiesControl.push(orderItem.quantity);          
+          quantitiesControl.push(orderItem.quantity);
         }
         this._setTableDataSource(orderItems);
-      }
-    });
+      });
   }
 
   getOrderItemTableSource() {
@@ -86,12 +86,12 @@ export class NewOrderComponent implements OnInit {
 
   explainFee(): string {
     let text = '';
-    if (this._client) {
-      if (this._client.feeType == 'Fixed') {
+    if (this.selectedClient) {
+      if (this.selectedClient.feeType == 'Fixed') {
         text = 'Fixed amount';
       }
-      if (this._client.feeType == 'Rate') {
-        text = `$${this.order.subtotal.toFixed(2)} x ${this._client.feeValue}(%) = ${this.order.fee.toFixed(2)}`;
+      if (this.selectedClient.feeType == 'Rate') {
+        text = `$${this.order.subtotal.toFixed(2)} x ${this.selectedClient.feeValue}(%) = ${this.order.fee.toFixed(2)}`;
       }
     }
     return text;
@@ -109,6 +109,7 @@ export class NewOrderComponent implements OnInit {
           };
       });
       this.order.note = this.orderFG.get('note').value;
+
       let status = await this._dataApi.genericMethod('Order', 'createNew', [this.order, orderItems]).toPromise();
       const snackBarRef = this._snackBar.open(`Order(id: ${status.orderId}) successfully created`,
         'Close', { duration: 3000 });
@@ -121,7 +122,7 @@ export class NewOrderComponent implements OnInit {
     }
   }
 
-  private _createOrderItem(product): OrderItem {
+  private _createOrderItem(product) {
     let newOrderItem = {
       id: product.id,
       imageUrl: get(product, ['settings', 'imageUrl']),
@@ -150,23 +151,22 @@ export class NewOrderComponent implements OnInit {
     this.order.subtotal = newSubtotal;
     this.order.fee = this._calculateFee(newSubtotal);
     this.order.totalAmount = newSubtotal + this.order.fee;
-
   }
 
   private _calculateFee(subtotal: number): number {
     let newFee = 0;
-    if (this._client) {
-      if (this._client.feeType == 'Fixed') {
-        newFee = this._client.feeValue;
+    if (this.selectedClient) {
+      if (this.selectedClient.feeType == 'Fixed') {
+        newFee = Number(this.selectedClient.feeValue);
       }
-      if (this._client.feeType == 'Rate') {
-        newFee = subtotal * this._client.feeValue / 100.0;
+      if (this.selectedClient.feeType == 'Rate') {
+        newFee = subtotal * this.selectedClient.feeValue / 100.0;
       }
     }
     return newFee;
   }
 
-  private _setTableDataSource(orderItems: Array<OrderItem>) {
-    this.orderItems = new MatTableDataSource(orderItems);
+  private _setTableDataSource(products: Array<OrderItem>) {
+    this.orderItems = new MatTableDataSource(products);
   }
 }

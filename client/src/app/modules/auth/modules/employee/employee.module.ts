@@ -21,10 +21,18 @@ import { NewDeliveryRouteComponent } from './components/new-delivery-route/new-d
 import { ProductsComponent } from './components/products/products.component';
 import { ProductDetailComponent } from './components/product-detail/product-detail.component';
 import { NewProductComponent } from './components/new-product/new-product.component';
+import { OrderLayoutComponent } from './components/orders/order-layout/order-layout.component';
+import { TodaysOrdersComponent } from './components/orders/todays-orders/todays-orders.component';
+import { OpenOrdersComponent } from './components/orders/open-orders/open-orders.component';
+import { ClosedOrdersComponent } from './components/orders/closed-orders/closed-orders.component';
+import { OrderDetailComponent } from './components/orders/order-detail/order-detail.component';
+import { NewOrderComponent } from './components/orders/new-order/new-order.component';
 
 // Services
 import { DataResolver } from './services/data.resolver';
 import { DataArrayResolver } from './services/data-array.resolver';
+import { OrderResolver } from './services/order.resolver';
+import { OrdersResolver } from './services/orders.resolver';
 import { AlertService } from '../../shared/services/alert.service';
 import { DataApiService } from './services/data-api.service';
 import { ProductService } from './services/product.service';
@@ -34,9 +42,12 @@ import { PhoneNumberPipe } from '../../shared/pipes/phone-number.pipe';
 
 // Misc.
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faArrowsAltV, faChartLine, faCog, faFileInvoiceDollar, faFolderOpen, faKey,
-        faLongArrowAltLeft, faLongArrowAltRight, faPlus, faShoppingCart,
-        faSignOutAlt, faStoreAlt, faTag, faTags, faTruck,
+import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV,
+        faCaretDown, faCaretUp, faCartPlus, faChartLine, faCheckCircle, faCog,
+        faExclamationCircle, faFileAlt, faFileInvoiceDollar, faFolderOpen, faKey,
+        faLongArrowAltLeft, faLongArrowAltRight, faPlus, faQuestionCircle,
+        faSearchDollar, faShoppingCart, faSignOutAlt, faStoreAlt,
+        faTag, faTags, faTimesCircle, faTruck,
         faUndoAlt, faUser, faUserPlus, faUsers } from '@fortawesome/free-solid-svg-icons';
 
 @NgModule({
@@ -45,7 +56,9 @@ import { faArrowsAltV, faChartLine, faCog, faFileInvoiceDollar, faFolderOpen, fa
     ClientsComponent, ClientDetailComponent, NewClientComponent,
     PhoneNumberPipe,
     UsersComponent, UserDetailComponent, NewUserComponent,
-    DeliveryRoutesComponent, DeliveryRouteDetailComponent, NewDeliveryRouteComponent, ProductsComponent, ProductDetailComponent, NewProductComponent
+    DeliveryRoutesComponent, DeliveryRouteDetailComponent, NewDeliveryRouteComponent,
+    ProductsComponent, ProductDetailComponent, NewProductComponent,
+    OrderLayoutComponent, TodaysOrdersComponent, OpenOrdersComponent, ClosedOrdersComponent, OrderDetailComponent, NewOrderComponent
   ],
   imports: [
     AuthSharedModule,
@@ -56,6 +69,8 @@ import { faArrowsAltV, faChartLine, faCog, faFileInvoiceDollar, faFolderOpen, fa
   providers: [
     DataResolver,
     DataArrayResolver,
+    OrderResolver,
+    OrdersResolver,
     AlertService,
     DataApiService,
     ProductService
@@ -69,9 +84,12 @@ import { faArrowsAltV, faChartLine, faCog, faFileInvoiceDollar, faFolderOpen, fa
 })
 export class EmployeeModule {
   constructor() {
-    library.add(faArrowsAltV, faChartLine, faCog, faFileInvoiceDollar, faFolderOpen, faKey,
-      faLongArrowAltLeft, faLongArrowAltRight, faPlus, faShoppingCart,
-      faSignOutAlt, faStoreAlt, faTruck, faTag, faTags,
+    library.add(faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV,
+      faCaretDown, faCaretUp, faCartPlus, faChartLine, faCheckCircle, faCog,
+      faExclamationCircle, faFileAlt, faFileInvoiceDollar, faFolderOpen, faKey,
+      faLongArrowAltLeft, faLongArrowAltRight, faPlus, faQuestionCircle,
+      faSearchDollar, faShoppingCart, faSignOutAlt, faStoreAlt,
+      faTag, faTags, faTimesCircle, faTruck,
       faUndoAlt, faUser, faUserPlus, faUsers);
   }
 }

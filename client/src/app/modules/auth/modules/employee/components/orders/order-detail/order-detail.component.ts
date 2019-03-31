@@ -1,11 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { MatDialog, MatTableDataSource, MatSnackBar /* , MatStepper*/ } from '@angular/material';
+import { MatDialog, MatTableDataSource, MatSnackBar } from '@angular/material';
 import { FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
-import { ConfirmDialogComponent, DialogData } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { DataApiService } from '../../services/data-api.service';
+import { Location } from '@angular/common';
+
+import { ConfirmDialogComponent, DialogData } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { DataApiService } from '../../../services/data-api.service';
 
 import get from 'lodash/get';
+import map from 'lodash/map';
 import sortBy from 'lodash/sortBy';
 
 @Component({
@@ -15,14 +18,15 @@ import sortBy from 'lodash/sortBy';
 })
 export class OrderDetailComponent implements OnInit {
   displayedColumns = ['id', 'name', 'description', 'category', 'unitPrice', 'quantity', 'subtotal'];
-  orderItems: MatTableDataSource<any>;
+  orderItems: MatTableDataSource<OrderItem>;
   order: any;
   orderFG: FormGroup;
-
+  products: any[];
   constructor(
     private _route: ActivatedRoute,
     private _router: Router,
     private _formBuilder: FormBuilder,
+    private _location: Location,
     private _dialog: MatDialog,
     private _snackBar: MatSnackBar,
     private _dataApi: DataApiService
@@ -36,45 +40,28 @@ export class OrderDetailComponent implements OnInit {
       note: ['']
     });
 
-    /***** Data initialization: order and product list *****/
+    /***** Data initialization: order, client and product list *****/
     this._route.data.subscribe(routeData => {
       if (routeData['orderInfo']) {
         let orderInfo = routeData['orderInfo'];
         this._setOrderObject(orderInfo.order);
+        this.products = orderInfo.products;
 
-        let existingOrderItems = this.order.orderItem;
-        let products = orderInfo.products;
-        let productExclusionList = orderInfo.productExclusionList;
+        // NOTE: 'clientInfo' is read-only.
+        this.orderFG.get('clientInfo').setValue(`${this.order.clientId} - ${this.order.client.name}`);
 
         // build array of order item.
-        let orderItems = new Array() as Array<OrderItem>;
+        let orderItems:OrderItem[] = [];
         let quantitiesControl = <FormArray>this.orderFG.get('orderItemQuantities');
-        for (let product of sortBy(products, ['category', 'name'])) {
-          // include existing order item
-          let existingOrderItem = existingOrderItems.find((oi) => oi.productId == product.id);
-          if (existingOrderItem) {
-            let orderItem = this._createItem(product, existingOrderItem);
-            orderItems.push(orderItem);
-            quantitiesControl.push(orderItem.quantity);
-          } else {
-            // add additional item if order can be changed and
-            // item is not in exclusion list.
-            if (this.order.status == 'Submitted' &&
-                !productExclusionList.includes(product.id)) {
-              let orderItem = this._createItem(product);
-              orderItems.push(orderItem);
-              quantitiesControl.push(orderItem.quantity);
-            }
-          }
+        for (let oItem of this.order.orderItem) {
+          let orderItem = this._createItem(oItem);
+          orderItems.push(orderItem);
+          quantitiesControl.push(orderItem.quantity);
         }
+        orderItems = sortBy(orderItems, ['category', 'name']);
         this.orderItems = new MatTableDataSource(orderItems);
       }
     });
-  }
-
-  getReviewItemTableSource() {
-    const rows = this.orderItems.data;
-    return new MatTableDataSource(rows.filter(row => row.quantity.value > '0'));
   }
 
   explainFee(): string {
@@ -98,6 +85,9 @@ export class OrderDetailComponent implements OnInit {
     return this.order.userUpdated ? this.order.userUpdated.email : null;
   }
 
+  close() {
+    this._location.back();
+  }
   async cancelOrder() {
     const dialogData: DialogData = {
       title: `Do you want to cancel this order(id: ${this.order.id})`,
@@ -142,30 +132,25 @@ export class OrderDetailComponent implements OnInit {
       snackBarRef.onAction().subscribe(() => {
         snackBarRef.dismiss();
       });
-      this._router.navigate(['../'], { relativeTo: this._route});
+      this._location.back();
     } catch (err) {
       console.log(`error: failed to update an order - ${err.message}`);
     }
   }
 
-  private _createItem(product, orderItem?): OrderItem {
-    let oItem = {
-      id: product.id,
+  private _createItem(orderItem): OrderItem {
+    const product = this.products.find(p => p.id === orderItem.productId);
+    let oItem: OrderItem = {
+      id: orderItem.productId,
       imageUrl: get(product, ['settings', 'imageUrl']),
-      name: product.name,
-      description: product.description,
-      category: product.category,
-      unitPrice: product.unitPrice,
-      unit: product.unit,
-      quantity: new FormControl('0'),
-      subtotal: 0
-    }
-    // override with order item
-    if (orderItem) {
-      oItem.unitPrice = orderItem.unitPrice;
-      oItem.quantity.setValue(orderItem.quantity);
-      oItem.subtotal = orderItem.unitPrice * orderItem.quantity;
-    }
+      name: get(product, ['name']),
+      description: get(product, ['description']),
+      category: get(product, ['category']),
+      unitPrice: orderItem.unitPrice,
+      unit: get(product, ['unit']),
+      quantity: new FormControl(orderItem.quantity),
+      subtotal: orderItem.unitPrice * orderItem.quantity
+    };
     // update subtotal of item and order
     oItem.quantity.valueChanges.subscribe(val => {
       oItem.subtotal = oItem.unitPrice * val;

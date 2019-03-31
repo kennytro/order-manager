@@ -1,21 +1,25 @@
 import { NgModule } from '@angular/core';
 import { 
-  MatButtonModule, MatCardModule, MatDialogModule, MatDividerModule, MatFormFieldModule,
-  MatInputModule,
+  MatBadgeModule, MatButtonModule, MatCardModule, MatCheckboxModule, MatDialogModule, MatDividerModule,
+  MatExpansionModule, MatFormFieldModule, MatInputModule, MatMenuModule,
   MatPaginatorModule,
   MatSelectModule, MatSlideToggleModule, MatSnackBarModule, MatSortModule, MatStepperModule,
-  MatTableModule, MatTooltipModule
+  MatTableModule, MatTabsModule, MatToolbarModule, MatTooltipModule
 } from '@angular/material';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { ReactiveFormsModule } from '@angular/forms';
 
 const modules = [
+  MatBadgeModule,
   MatButtonModule,
   MatCardModule,
+  MatCheckboxModule,
   MatDialogModule,
   MatDividerModule,
+  MatExpansionModule,
   MatFormFieldModule,
   MatInputModule,
+  MatMenuModule,
   MatPaginatorModule,
   MatSelectModule,
   MatSlideToggleModule,
@@ -23,6 +27,8 @@ const modules = [
   MatSortModule,
   MatStepperModule,
   MatTableModule,
+  MatTabsModule,
+  MatToolbarModule,
   MatTooltipModule,
   FlexLayoutModule,
   ReactiveFormsModule

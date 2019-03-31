@@ -91,7 +91,7 @@ ALTER SEQUENCE product_id_seq OWNED BY product.id;
 DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'order_status') THEN
-      CREATE TYPE order_status AS  ENUM ('Submitted', 'Processed', 'Completed', 'Cancelled');
+      CREATE TYPE order_status AS  ENUM ('Submitted', 'Processed', 'Shipped', 'Completed', 'Cancelled');
   END IF;
 END$$;
 

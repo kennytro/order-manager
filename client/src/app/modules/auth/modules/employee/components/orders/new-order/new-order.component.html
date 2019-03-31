@@ -6,7 +6,26 @@
   <mat-card-content>
     <mat-horizontal-stepper linear #stepper>
     <!-- HACK: set 'completed' to false in order to suppress 'Create' label -->
-      <mat-step [stepControl]="orderFG" label="Fill out order items" [completed]="false">
+      <mat-step [stepControl]="orderFG" [completed]="false">
+        <ng-template matStepLabel><fa-icon icon="store-alt"></fa-icon> Select Client</ng-template>
+        <form [formGroup]="orderFG" class="form-container">
+          <div style="margin-top: 10px; margin-bottom: 10px" fxLayout="column" fxLayoutGap="20px" fxLayoutAlign="center space-between">
+            <mat-form-field appearance="outline">
+              <mat-label>Client</mat-label>
+              <mat-select placeholder="Select client" formControlName="clientId" required>
+                <mat-option *ngFor="let client of clientList" [value]="client.id">{{ client.id }} - {{client.name}}</mat-option>
+              </mat-select>
+              <mat-error>This field is required</mat-error>
+            </mat-form-field>            
+          </div>
+          <div fxLayout="row" fxLayoutAlign="end" fxLayoutGap="20px">
+            <button mat-raised-button routerLink="../">Cancel</button>
+            <button mat-raised-button matStepperNext type="button">Next <fa-icon icon="long-arrow-alt-right"></fa-icon></button>
+          </div>
+        </form>
+      </mat-step>
+      <mat-step [stepControl]="orderFG" [completed]="false">
+        <ng-template matStepLabel><fa-icon icon="tags"></fa-icon> Fill out order items</ng-template>
         <form [formGroup]="orderFG" class="form-container">
         <div style="margin-top: 10px; margin-bottom: 10px" fxLayout="column" fxLayoutGap="20px" fxLayoutAlign="center space-between">
           <div class="table-responsive">
@@ -79,11 +98,13 @@
         </div>
         <div fxLayout="row" fxLayoutAlign="end" fxLayoutGap="20px">
           <button mat-raised-button routerLink="../">Cancel</button>
-          <button mat-raised-button matStepperNext type="button" [disabled]="order.totalAmount<=0">Review <fa-icon icon="long-arrow-alt-right"></fa-icon></button>
+          <button mat-raised-button matStepperPrevious type="button"><fa-icon icon="long-arrow-alt-left"></fa-icon> Back</button>
+          <button mat-raised-button matStepperNext type="button" [disabled]="order.totalAmount <= 0">Review <fa-icon icon="long-arrow-alt-right"></fa-icon></button>
         </div>
       </form>
       </mat-step>
-      <mat-step [stepControl]="orderFG" label="Review your order" [completed]="false">
+      <mat-step [stepControl]="orderFG" [completed]="false">
+        <ng-template matStepLabel><fa-icon icon="search-dollar"></fa-icon> Review your order</ng-template>
         <div style="margin-top: 10px; margin-bottom: 10px" [formGroup]="orderFG" fxLayout="column" fxLayoutGap="20px" fxLayoutAlign="center space-between">
           <div class="table-responsive">
             <table mat-table [dataSource]="getOrderItemTableSource()">
@@ -159,5 +180,3 @@
     </mat-horizontal-stepper>
   </mat-card-content>
 </mat-card>
-
-
