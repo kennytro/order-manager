@@ -19,7 +19,7 @@
       <div style="margin-top: 10px; margin-bottom: 10px" fxLayout="column" fxLayoutGap="20px" fxLayoutAlign="center space-between">
         <mat-form-field appearance="outline">
           <mat-label>Client</mat-label>
-          <input matInput formControlName="clientInfo" readonly="true">
+          <input matInput formControlName="clientInfo" [readonly]="true">
         </mat-form-field>
         <div class="table-responsive">
           <table mat-table [dataSource]="orderItems">

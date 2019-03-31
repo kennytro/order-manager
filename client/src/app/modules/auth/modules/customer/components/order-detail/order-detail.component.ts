@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatDialog, MatTableDataSource, MatSnackBar /* , MatStepper*/ } from '@angular/material';
-import { FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
 import { ConfirmDialogComponent, DialogData } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { DataApiService } from '../../services/data-api.service';
 
@@ -17,29 +17,30 @@ export class OrderDetailComponent implements OnInit {
   displayedColumns = ['id', 'name', 'description', 'category', 'unitPrice', 'quantity', 'subtotal'];
   orderItems: MatTableDataSource<any>;
   order: any;
-  orderFC: FormControl;  // Unused but just to address stepper icon bug. 
-  private _userCreated: any;
-  private _userUpdated: any;
-  private _client: any;
+  orderFG: FormGroup;
 
   constructor(
     private _route: ActivatedRoute,
     private _router: Router,
+    private _formBuilder: FormBuilder,
     private _dialog: MatDialog,
     private _snackBar: MatSnackBar,
     private _dataApi: DataApiService
-  ) {
-    this.orderFC = new FormControl(true);
-  }
+  ) { }
 
   ngOnInit() {
+    /***** Form initialization *****/
+    this.orderFG = this._formBuilder.group({
+      clientInfo: [''],
+      orderItemQuantities: this._formBuilder.array([]),
+      note: ['']
+    });
+
+    /***** Data initialization: order and product list *****/
     this._route.data.subscribe(routeData => {
       if (routeData['orderInfo']) {
         let orderInfo = routeData['orderInfo'];
-        this.order = orderInfo.order;
-        this._userCreated = this.order.userCreated;
-        this._userUpdated = this.order.userUpdated;
-        this._client = this.order.client;
+        this._setOrderObject(orderInfo.order);
 
         let existingOrderItems = this.order.orderItem;
         let products = orderInfo.products;
@@ -47,17 +48,22 @@ export class OrderDetailComponent implements OnInit {
 
         // build array of order item.
         let orderItems = new Array() as Array<OrderItem>;
+        let quantitiesControl = <FormArray>this.orderFG.get('orderItemQuantities');
         for (let product of sortBy(products, ['category', 'name'])) {
           // include existing order item
-          let orderItem = existingOrderItems.find((oi) => oi.productId == product.id);
-          if (orderItem) {
-            orderItems.push(this._createItem(product, orderItem));
+          let existingOrderItem = existingOrderItems.find((oi) => oi.productId == product.id);
+          if (existingOrderItem) {
+            let orderItem = this._createItem(product, existingOrderItem);
+            orderItems.push(orderItem);
+            quantitiesControl.push(orderItem.quantity);
           } else {
             // add additional item if order can be changed and
             // item is not in exclusion list.
             if (this.order.status == 'Submitted' &&
                 !productExclusionList.includes(product.id)) {
-              orderItems.push(this._createItem(product));
+              let orderItem = this._createItem(product);
+              orderItems.push(orderItem);
+              quantitiesControl.push(orderItem.quantity);
             }
           }
         }
@@ -73,23 +79,23 @@ export class OrderDetailComponent implements OnInit {
 
   explainFee(): string {
     let text = '';
-    if (this._client) {
-      if (this._client.feeType == 'Fixed') {
+    if (this.order.client) {
+      if (this.order.client.feeType == 'Fixed') {
         text = 'Fixed amount';
       }
-      if (this._client.feeType == 'Rate') {
-        text = `$${this.order.subtotal} x ${this._client.feeValue}(%) = ${this.order.fee}`;
+      if (this.order.client.feeType == 'Rate') {
+        text = `$${this.order.subtotal.toFixed(2)} x ${this.order.client.feeValue}(%) = ${this.order.fee.toFixed(2)}`;
       }
     }
     return text;
   }
 
   getEmailCreated() {
-    return this._userCreated.email;
+    return this.order.userCreated.email;
   }
 
   getEmailUpdated() {
-    return this._userUpdated ? this._userUpdated.email : null;
+    return this.order.userUpdated ? this.order.userUpdated.email : null;
   }
 
   async cancelOrder() {
@@ -121,15 +127,16 @@ export class OrderDetailComponent implements OnInit {
       // preprocess order items
       let newOrderItems = this.orderItems.data;
       newOrderItems = newOrderItems.filter(oi => oi.quantity.value > '0');
-      newOrderItems = newOrderItems.map(oi => {
+      let newOrderItems2 = newOrderItems.map(oi => {
         return {
           productId: oi.id,
           quantity: oi.quantity.value,
           unitPrice: oi.unitPrice
         };
       });
+      this.order.note = this.orderFG.get('note').value;
       let status = await this._dataApi.genericMethod('Order', 'updateOrder',
-        [this.order, newOrderItems]).toPromise();
+        [this.order, newOrderItems2]).toPromise();
       const snackBarRef = this._snackBar.open(`Order(id: ${this.order.id}) successfully updated`,
         'Close', { duration: 3000 });
       snackBarRef.onAction().subscribe(() => {
@@ -169,12 +176,12 @@ export class OrderDetailComponent implements OnInit {
 
   private _calculateFee(subtotal: number): number {
     let newFee = 0;
-    if (this._client) {
-      if (this._client.feeType == 'Fixed') {
-        newFee = this._client.feeValue;
+    if (this.order.client) {
+      if (this.order.client.feeType == 'Fixed') {
+        newFee = this.order.client.feeValue;
       }
-      if (this._client.feeType == 'Rate') {
-        newFee = subtotal * this._client.feeValue / 100.0;
+      if (this.order.client.feeType == 'Rate') {
+        newFee = subtotal * this.order.client.feeValue / 100.0;
       }
     }
     return newFee;
@@ -188,5 +195,17 @@ export class OrderDetailComponent implements OnInit {
     this.order.subtotal = newSubtotal;
     this.order.fee = this._calculateFee(newSubtotal);
     this.order.totalAmount = this.order.subtotal + this.order.fee;
+  }
+
+  /*
+   * Because Postgres converts Numeric value to string, we need to convert it back.
+   */
+  private _setOrderObject(orderObject) {
+    this.order = orderObject;
+    this.order.subtotal = Number(this.order.subtotal);
+    this.order.fee = Number(this.order.fee);
+    this.order.totalAmount = Number(this.order.totalAmount);
+
+    this.orderFG.get('note').setValue(this.order.note);
   }
 }

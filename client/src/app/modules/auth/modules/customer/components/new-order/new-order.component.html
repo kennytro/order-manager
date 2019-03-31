@@ -10,64 +10,64 @@
         <form [formGroup]="orderFG" class="form-container">
         <div style="margin-top: 10px; margin-bottom: 10px" fxLayout="column" fxLayoutGap="20px" fxLayoutAlign="center space-between">
           <div class="table-responsive">
-            <table mat-table [dataSource]="products" formArrayName="products">
+            <table mat-table [dataSource]="orderItems">
               <!-- Row definitions -->
               <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
               <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
               <!-- Column definitions -->
               <ng-container matColumnDef="id">
                 <th mat-header-cell *matHeaderCellDef> ID </th>
-                <td mat-cell *matCellDef="let row">{{row.value.id}}</td>
+                <td mat-cell *matCellDef="let row">{{row.id}}</td>
               </ng-container>
               <ng-container matColumnDef="name">
                 <th mat-header-cell *matHeaderCellDef> NAME </th>
                 <td mat-cell *matCellDef="let row">
-                  <span *ngIf="row.value.imageUrl; else noImage">
-                    <img src={{row.value.imageUrl}} height="50" width="50">
+                  <span *ngIf="row.imageUrl; else noImage">
+                    <img src={{row.imageUrl}} height="50" width="50">
                   </span>
                   <ng-template #noImage>
                     <img src='/assets/img/no-picture.png' height="50" width="50">
                   </ng-template>
-                   {{row.value.name}}
+                   {{row.name}}
                  </td>
               </ng-container>
               <ng-container matColumnDef="description">
                 <th mat-header-cell *matHeaderCellDef> DESCRIPTION </th>
-                <td mat-cell *matCellDef="let row">{{row.value.description}}</td>
+                <td mat-cell *matCellDef="let row">{{row.description}}</td>
               </ng-container>
               <ng-container matColumnDef="category">
                 <th mat-header-cell *matHeaderCellDef> CATEGORY </th>
-                <td mat-cell *matCellDef="let row">{{row.value.category}}</td>
+                <td mat-cell *matCellDef="let row">{{row.category}}</td>
               </ng-container>
               <ng-container matColumnDef="unitPrice">
                 <th mat-header-cell *matHeaderCellDef> UNIT PRICE </th>
-                <td mat-cell *matCellDef="let row">&#36;{{row.value.unitPrice}}&#47;{{row.value.unit}}</td>
+                <td mat-cell *matCellDef="let row">&#36;{{row.unitPrice}}&#47;{{row.unit}}</td>
               </ng-container>
               <ng-container matColumnDef="quantity">
                 <th mat-header-cell *matHeaderCellDef> QTY. </th>
-                <td mat-cell *matCellDef="let row; let rowFG = index" [formGroupName]="rowFG" >
+                <td mat-cell *matCellDef="let row">
                   <mat-form-field appearance="outline" class="mat-input-qty">
-                    <input matInput type="number" min="0" placeholder="Quantity" formControlName="quantity">
+                    <input matInput type="number" min="0" placeholder="Quantity" [formControl]="row.quantity">
                   </mat-form-field>
                 </td>
               </ng-container>
               <ng-container matColumnDef="subtotal">
                 <th mat-header-cell *matHeaderCellDef> SUBTOTAL </th>
-                <td mat-cell *matCellDef="let row">{{row.value.subtotal | currency }}</td>
+                <td mat-cell *matCellDef="let row">{{row.subtotal | currency }}</td>
               </ng-container>              
             </table>
           </div>
           <div fxLayout="row" fxLayoutAlign="end">
             <div fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="center">
               <div>
-                Subtotal: {{subtotal | currency}}
+                Subtotal: {{order.subtotal | currency}}
               </div>
               <div>
-                Fee: {{fee | currency}} <fa-icon icon="question-circle" matTooltip="{{explainFee()}}" matTooltipPosition="right">
+                Fee: {{order.fee | currency}} <fa-icon icon="question-circle" matTooltip="{{explainFee()}}" matTooltipPosition="right">
                 </fa-icon>                  
               </div>
               <div style="background-color: #F5F5F5">
-                <h3><span style="font-weight: bold">TOTAL</span>: {{totalAmount | currency}}</h3>
+                <h3><span style="font-weight: bold">TOTAL</span>: {{order.totalAmount | currency}}</h3>
               </div>
             </div>
           </div>
@@ -79,7 +79,7 @@
         </div>
         <div fxLayout="row" fxLayoutAlign="end" fxLayoutGap="20px">
           <button mat-raised-button routerLink="../">Cancel</button>
-          <button mat-raised-button matStepperNext type="button" [disabled]="totalAmount<=0">Review <fa-icon icon="long-arrow-alt-right"></fa-icon></button>
+          <button mat-raised-button matStepperNext type="button" [disabled]="order.totalAmount<=0">Review <fa-icon icon="long-arrow-alt-right"></fa-icon></button>
         </div>
       </form>
       </mat-step>
@@ -121,7 +121,7 @@
               </ng-container>
               <ng-container matColumnDef="quantity">
                 <th mat-header-cell *matHeaderCellDef> QTY. </th>
-                <td mat-cell *matCellDef="let row;">{{row.quantity}}</td>
+                <td mat-cell *matCellDef="let row;">{{row.quantity.value}}</td>
               </ng-container>
               <ng-container matColumnDef="subtotal">
                 <th mat-header-cell *matHeaderCellDef> SUBTOTAL </th>
@@ -132,14 +132,14 @@
           <div fxLayout="row" fxLayoutAlign="end">
             <div fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="center">
               <div>
-                Subtotal: {{subtotal | currency}}
+                Subtotal: {{order.subtotal | currency}}
               </div>
               <div>
-                Fee: {{fee | currency}} <fa-icon icon="question-circle" matTooltip="{{explainFee()}}" matTooltipPosition="right">
+                Fee: {{order.fee | currency}} <fa-icon icon="question-circle" matTooltip="{{explainFee()}}" matTooltipPosition="right">
                 </fa-icon>                  
               </div>
               <div style="background-color: #F5F5F5">
-                <h3><span style="font-weight: bold">TOTAL</span>: {{totalAmount | currency}}</h3>
+                <h3><span style="font-weight: bold">TOTAL</span>: {{order.totalAmount | currency}}</h3>
               </div>
             </div>
           </div>

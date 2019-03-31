@@ -44,15 +44,11 @@ export class OrderDetailComponent implements OnInit {
     this._route.data.subscribe(routeData => {
       if (routeData['orderInfo']) {
         let orderInfo = routeData['orderInfo'];
-        this.order = orderInfo.order;
+        this._setOrderObject(orderInfo.order);
         this.products = orderInfo.products;
 
         // NOTE: 'clientInfo' is read-only.
         this.orderFG.get('clientInfo').setValue(`${this.order.clientId} - ${this.order.client.name}`);
-        this.orderFG.get('note').setValue(this.order.note);
-        this.orderFG.get('note').valueChanges.subscribe(note => {
-          this.order.note = note;
-        });
 
         // build array of order item.
         let orderItems:OrderItem[] = [];
@@ -75,7 +71,7 @@ export class OrderDetailComponent implements OnInit {
         text = 'Fixed amount';
       }
       if (this.order.client.feeType == 'Rate') {
-        text = `$${this.order.subtotal} x ${this.order.client.feeValue}(%) = ${this.order.fee}`;
+        text = `$${this.order.subtotal.toFixed(2)} x ${this.order.client.feeValue}(%) = ${this.order.fee.toFixed(2)}`;
       }
     }
     return text;
@@ -128,6 +124,7 @@ export class OrderDetailComponent implements OnInit {
           unitPrice: oi.unitPrice
         };
       });
+      this.order.note = this.orderFG.get('note').value;
       let status = await this._dataApi.genericMethod('Order', 'updateOrder',
         [this.order, newOrderItems2]).toPromise();
       const snackBarRef = this._snackBar.open(`Order(id: ${this.order.id}) successfully updated`,
@@ -183,5 +180,17 @@ export class OrderDetailComponent implements OnInit {
     this.order.subtotal = newSubtotal;
     this.order.fee = this._calculateFee(newSubtotal);
     this.order.totalAmount = this.order.subtotal + this.order.fee;
+  }
+
+  /*
+   * Because Postgres converts Numeric value to string, we need to convert it back.
+   */
+  private _setOrderObject(orderObject) {
+    this.order = orderObject;
+    this.order.subtotal = Number(this.order.subtotal);
+    this.order.fee = Number(this.order.fee);
+    this.order.totalAmount = Number(this.order.totalAmount);
+
+    this.orderFG.get('note').setValue(this.order.note);
   }
 }

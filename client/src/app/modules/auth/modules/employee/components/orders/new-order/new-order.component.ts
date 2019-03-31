@@ -29,7 +29,8 @@ export class NewOrderComponent implements OnInit {
     this.order = {
       subtotal: 0,
       fee: 0,
-      totalAmount: 0
+      totalAmount: 0,
+      note: null
     };
   }
 
@@ -40,7 +41,7 @@ export class NewOrderComponent implements OnInit {
       orderItemQuantities: this._formBuilder.array([]),
       note: ['']
     });
-
+    
     this.orderFG.get('clientId').valueChanges.subscribe(clientId => {
       this.selectedClient = this.clientList.find(client => client.id === clientId);
       this.order.clientId = this.selectedClient.id;
@@ -65,11 +66,10 @@ export class NewOrderComponent implements OnInit {
       .subscribe(products => {
         products = sortBy(products, ['category', 'name']);
         let orderItems:OrderItem[] = [];
+        let quantitiesControl = <FormArray>this.orderFG.get('orderItemQuantities');
         for (let product of products) {
           let orderItem = this._createOrderItem(product);
-
           orderItems.push(orderItem);
-          let quantitiesControl = <FormArray>this.orderFG.get('orderItemQuantities');
           quantitiesControl.push(orderItem.quantity);
         }
         this._setTableDataSource(orderItems);
