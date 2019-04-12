@@ -25,7 +25,7 @@ describe('Auth API', function() {
     api
       .post('/api/EmployeeData/resetPassword')
       .query({ idToken: 'invalid token' })
-      .expect(403)
+      .expect(401)
       .end(done);
   });
 
@@ -33,7 +33,7 @@ describe('Auth API', function() {
     api
       .post('/api/CustomerData/resetPassword')
       .query({ idToken: 'invalid token' })
-      .expect(403)
+      .expect(401)
       .end(done);
   });
 });
