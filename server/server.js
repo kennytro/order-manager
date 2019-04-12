@@ -10,6 +10,7 @@ require('dotenv').config();
 const logger = require(appRoot + '/config/winston.js');
 const tenantSettings = require(appRoot + '/config/tenant');
 const getPublicContent = require('./middleware/public-content');
+const checkJwt = require('./middleware/check-jwt');
 
 const app = module.exports = loopback();
 const ENV = process.env.NODE_ENV || 'production';
@@ -47,7 +48,8 @@ app.get('/public/:name', function(req, res, next) {
   getPublicContent(app, req, res, next);
 });
 
-app.use('/api', loopback.rest());
+// check JWT access token for all request hitting '/api'
+app.use('/api', checkJwt, loopback.rest());
 
 app.use(function(err, req, res, next) {
   logger.error(`${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);

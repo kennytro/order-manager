@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { Router, NavigationStart } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import { Subscription } from 'rxjs';
+import { Subscription, timer } from 'rxjs';
 import { AWS_S3_PUBLIC_URL } from '../shared/base.url';
 import Auth0Lock from 'auth0-lock';
 import get from 'lodash/get';
@@ -27,7 +27,9 @@ export class AuthService {
   private _userProfile: UserProfile = <UserProfile>{};
   private _lock: any;
   private _jwtHelper: JwtHelperService = new JwtHelperService();
-  private navSubscription: Subscription;
+  private _navSubscription: Subscription;
+  private _refreshTokenSubscription: Subscription;
+  private _expiresAt: number;
 
   constructor(
     @Inject(DOCUMENT) private _document: Document,
@@ -63,8 +65,9 @@ export class AuthService {
       console.log('something went wrong', error);
     });
 
-    // restore user profile if accessToken is still available
+    // renew tokens and user profile if accessToken is still available
     if (this.isAuthenticated()) {
+      this.scheduleRenewal();
       this._getAuth0UserProfile();
     }
   }
@@ -72,20 +75,19 @@ export class AuthService {
   async login() {
     this._lock.show();
     // hide lock when we navigate away from login page.
-    this.navSubscription = this.router.events.pipe(
+    this._navSubscription = this.router.events.pipe(
       filter((event) => event instanceof NavigationStart)
     ).subscribe((event) => {
         if (this._lock) {
           this._lock.hide();
-          this.navSubscription.unsubscribe();
+          this._navSubscription.unsubscribe();
         }
     })    
   }
 
   onAuthenticated(authResult: any) {
     // this._lock.hide();
-    this._cookieService.set('accessToken', authResult.accessToken, null, '/');
-    this._cookieService.set('idToken', authResult.idToken, null, '/');
+    this._setAuthTokens(authResult);
     this._setUserProfile(this._jwtHelper.decodeToken(authResult.idToken));
 
     // parse user role
@@ -112,6 +114,8 @@ export class AuthService {
     this._cookieService.delete('accessToken', '/');
     this._cookieService.delete('idTokne', '/');
     this._cookieService.delete('roles', '/');
+    this._expiresAt = 0;
+    this.unscheduleRenewal();
 
     this._userProfile = <UserProfile>{};
     this._lock.logout({
@@ -129,6 +133,36 @@ export class AuthService {
 
   getUserProfile() {
     return this._userProfile;
+  }
+
+  renewTokens() {
+    this._lock.checkSession({redirectUri: this._document.location.origin + '/login'}, (err, authResult) => {
+      if (err) {
+        console.log(err);
+      } else {
+        this._setAuthTokens(authResult);
+      }
+    });
+  }
+
+  scheduleRenewal() {
+    if (!this.isAuthenticated()) {
+      return;
+    }
+    this.unscheduleRenewal();
+
+    const expiresAt = this._expiresAt ? this._expiresAt - Date.now() : 0;
+    const renewDelay = Math.max(1, expiresAt);
+    // Once the delay time from above is reached, get a new JWT and schedule next fresh.
+    this._refreshTokenSubscription = timer(renewDelay).subscribe(() => {
+      this.renewTokens();
+    });
+  }
+
+  unscheduleRenewal() {
+    if (this._refreshTokenSubscription) {
+      this._refreshTokenSubscription.unsubscribe();
+    }
   }
 
   private async _getAuth0UserProfile(): Promise<void> {
@@ -158,4 +192,11 @@ export class AuthService {
     }
   }
 
+  private _setAuthTokens(authResult: any) {
+    this._cookieService.set('accessToken', authResult.accessToken, null, '/');
+    this._cookieService.set('idToken', authResult.idToken, null, '/');
+    // reset token expiration time
+    this._expiresAt = (authResult.expiresIn * 1000) + Date.now();
+    this.scheduleRenewal();
+  }
 }

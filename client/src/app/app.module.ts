@@ -16,7 +16,8 @@ import { AuthService } from './services/auth.service';
 import { AuthGuardService } from './services/auth-guard.service';
 import { RootScopeShareService } from './services/root-scope-share.service';
 
-import { HttpErrorInterceptor } from './services/http-error.interceptor';
+import { HttpErrorInterceptor } from './interceptors/http-error.interceptor';
+import { JwtInterceptor } from './interceptors/jwt.interceptor';
 
 export function initializeApp(appInitService: AppInitService) {
   return (): Promise<any> => { 
@@ -46,6 +47,11 @@ export function initializeApp(appInitService: AppInitService) {
       provide: APP_INITIALIZER,
       useFactory: initializeApp,
       deps: [AppInitService],
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: JwtInterceptor,
       multi: true
     },
     {
