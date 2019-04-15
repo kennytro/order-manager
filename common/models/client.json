@@ -112,7 +112,7 @@
     "createdDate": {
       "type": "date",
       "postgresql": {
-        "dateType": "timestamptz",
+        "dataType": "timestamptz",
         "columnName": "created_date"
       }
     }

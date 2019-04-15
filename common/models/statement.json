@@ -1,13 +1,13 @@
 {
-  "name": "Order",
-  "plural": "Orders",
+  "name": "Statement",
+  "plural": "Statements",
   "base": "PersistedModel",
   "idInjection": true,
   "options": {
     "validateUpsert": true,
     "postgresql": {
       "schema": "public",
-      "table": "order_t"
+      "table": "statement"
     }
   },
   "mixins": {
@@ -25,25 +25,38 @@
         "columnName": "client_id"
       }
     },
-    "status": {
-      "type": "string",
-      "default": "Submitted",
-      "description": "'Submitted', 'Processed', 'Completed', or 'Cancelled'"
-    },
-    "subtotal": {
-      "type": "number"
-    },
-    "fee": {
-      "type": "number"
-    },
     "totalAmount": {
       "type": "number",
       "postgresql": {
         "columnName": "total_amount"
       }
     },
+    "adjustAmount": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "adjust_amount"
+      }      
+    },
+    "paidAmount": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "paid_amount"
+      }
+    },
+    "adjustReason": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "adjust_reason"
+      }
+    },
     "note": {
       "type": "string"
+    },
+    "settings": {
+      "type": "object",
+      "postgresql": {
+        "dataType": "json"
+      }
     },
     "createdBy": {
       "type": "number",
@@ -74,10 +87,10 @@
   },
   "validations": [],
   "relations": {
-    "orderItem": {
+    "order": {
       "type": "hasMany",
-      "model": "OrderItem",
-      "foreignKey": "orderId"
+      "model": "Order",
+      "foreignKey": "statementId"
     },
     "client": {
       "type": "belongsTo",

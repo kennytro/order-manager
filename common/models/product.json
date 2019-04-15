@@ -58,13 +58,13 @@
     "settings": {
       "type": "object",
       "postgresql": {
-        "dateType": "json"
+        "dataType": "json"
       }
     },
     "createdDate": {
       "type": "date",
       "postgresql": {
-        "dateType": "timestamptz",
+        "dataType": "timestamptz",
         "columnName": "created_date"
       }
     }
