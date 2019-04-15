@@ -9,6 +9,12 @@ CREATE TABLE IF NOT EXISTS app_error
   created_date timestamptz DEFAULT now()
 );
 
+CREATE TABLE IF NOT EXISTS db_upgrade
+(
+  filepath text PRIMARY KEY,
+  last_hash text
+);
+
 CREATE TABLE IF NOT EXISTS public_page_element
 (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -25,13 +31,6 @@ CREATE TABLE IF NOT EXISTS delivery_route
   driver_name text,
   driver_phone text
 );
-
-DO $$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'fee_type') THEN
-      CREATE TYPE fee_type AS  ENUM ('Fixed', 'Rate');
-  END IF;
-END$$;
 
 CREATE SEQUENCE IF NOT EXISTS client_id_seq MINVALUE 1000;
 CREATE TABLE IF NOT EXISTS client
@@ -88,18 +87,30 @@ CREATE TABLE IF NOT EXISTS product
 );
 ALTER SEQUENCE product_id_seq OWNED BY product.id;
 
-DO $$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'order_status') THEN
-      CREATE TYPE order_status AS  ENUM ('Submitted', 'Processed', 'Shipped', 'Completed', 'Cancelled');
-  END IF;
-END$$;
+CREATE SEQUENCE IF NOT EXISTS statement_id_seq MINVALUE 10000;
+CREATE TABLE IF NOT EXISTS statement_t
+(
+  id integer PRIMARY KEY DEFAULT nextval('statement_id_seq'),
+  client_id integer REFERENCES client,
+  total_amount numeric DEFAULT 0,
+  adjust_amount numeric DEFAULT 0,
+  paid_amount numeric DEFAULT 0,
+  adjust_reason text,
+  note text,
+  settings jsonb,
+  created_by integer REFERENCES end_user,
+  created_at timestamptz DEFAULT now(),
+  updated_by integer REFERENCES end_user,
+  updated_at timestamptz DEFAULT now()
+);
+ALTER SEQUENCE statement_id_seq OWNED BY statement_t.id;
 
 CREATE SEQUENCE IF NOT EXISTS order_id_seq MINVALUE 10000;
 CREATE TABLE IF NOT EXISTS order_t
 (
   id integer PRIMARY KEY DEFAULT nextval('order_id_seq'),
   client_id integer REFERENCES client,
+  statement_id integer REFERENCES statement_t,
   status order_status DEFAULT 'Submitted',
   subtotal numeric DEFAULT 0,
   fee numeric DEFAULT 0,
