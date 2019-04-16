@@ -5,6 +5,7 @@ import * as moment from 'moment';
 
 import { EmployeeLayoutComponent } from './components/employee-layout/employee-layout.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { StatementsComponent } from './components/statements/statements/statements.component';
 import { OrderLayoutComponent } from './components/orders/order-layout/order-layout.component';
 import { TodaysOrdersComponent } from './components/orders/todays-orders/todays-orders.component';
 import { OpenOrdersComponent } from './components/orders/open-orders/open-orders.component';
@@ -25,6 +26,7 @@ import { DataResolver } from './services/data.resolver';
 import { DataArrayResolver } from './services/data-array.resolver';
 import { OrdersResolver } from './services/orders.resolver';
 import { OrderResolver } from './services/order.resolver';
+import { StatementsResolver } from './services/statements.resolver';
 
 const routes: Routes = [
   {
@@ -33,6 +35,26 @@ const routes: Routes = [
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent },
+      {
+        path: 'statements',
+        children: [
+          {
+            path: '',
+            component: StatementsComponent,
+            resolve: { statements: StatementsResolver },
+            data: {
+              filter: {
+                includes: [{
+                  relation: 'client',
+                  scope: {
+                    fields: { id: true, name: true }
+                  }
+                }]
+              }
+            }
+          }
+        ]
+      },
       {
         path: 'orders',
         children: [

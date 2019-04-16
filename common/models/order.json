@@ -25,6 +25,12 @@
         "columnName": "client_id"
       }
     },
+    "statementId": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "statement_id"
+      }
+    },
     "status": {
       "type": "string",
       "default": "Submitted",
@@ -82,6 +88,10 @@
     "client": {
       "type": "belongsTo",
       "model": "Client"
+    },
+    "statement": {
+      "type": "belongsTo",
+      "model": "Statement"
     },
     "userCreated": {
       "type": "belongsTo",
