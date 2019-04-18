@@ -107,11 +107,11 @@ module.exports = function(Statement) {
           statementData.createdBy = metadata.endUserId;
         }
         let newStatement = await Statement.create(statementData);
-        await app.models.Order.updateAll({ id: { inq: orderIds } }, { statementId: newStatement.id });
+        await Order.updateAll({ id: { inq: orderIds } }, { statementId: newStatement.id });
         result = {
           status: 200,
           message: `New statement(id: ${newStatement.id}) created.`,
-          orderId: newStatement.id
+          statementId: newStatement.id
         };
       });
     } catch (error) {
@@ -140,7 +140,7 @@ module.exports = function(Statement) {
         }
         let newStatement = await Statement.upsert(statementData);
         // update previously assigned orders
-        await app.models.Order.updateAll({
+        await Order.updateAll({
           and: [
             { statementId: statementData.id },
             { id: { nin: orderIds } }
@@ -153,7 +153,7 @@ module.exports = function(Statement) {
         result = {
           status: 200,
           message: `Statement(id: ${newStatement.id}) is updated.`,
-          orderId: newStatement.id
+          statementId: newStatement.id
         };
       });
     } catch (error) {

@@ -70,6 +70,10 @@ button {
 }
 
 /****** Text ******/
+p.thick {
+  font-weight: bold;
+}
+
 .right {
   text-align: right;
 }

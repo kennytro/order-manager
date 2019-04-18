@@ -1,2 +1,2 @@
-release: node ./database/upgrade-db.js
+release: npm run upgrade-db
 web: npm start

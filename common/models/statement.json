@@ -25,10 +25,10 @@
         "columnName": "client_id"
       }
     },
-    "totalAmount": {
+    "subtotalAmount": {
       "type": "number",
       "postgresql": {
-        "columnName": "total_amount"
+        "columnName": "subtotal_amount"
       }
     },
     "adjustAmount": {
@@ -36,6 +36,12 @@
       "postgresql": {
         "columnName": "adjust_amount"
       }      
+    },
+    "totalAmount": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "total_amount"
+      }
     },
     "paidAmount": {
       "type": "number",

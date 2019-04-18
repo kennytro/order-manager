@@ -57,11 +57,17 @@
             </ng-container>
             <ng-container matColumnDef="quantity">
               <th mat-header-cell *matHeaderCellDef> QTY. </th>
-              <td mat-cell *matCellDef="let row">
-                <mat-form-field appearance="outline" class="mat-input-qty">
-                  <input matInput type="number" min="0" placeholder="Quantity" [formControl]="row.quantity">
-                </mat-form-field>
-              </td>
+              <div *ngIf="order.status == 'Submitted'; then editable; else readonly"></div>
+              <ng-template #editable>
+                <td mat-cell *matCellDef="let row">
+                  <mat-form-field appearance="outline" class="mat-input-qty">
+                    <input matInput type="number" min="0" placeholder="Quantity" [formControl]="row.quantity">
+                  </mat-form-field>
+                </td>
+              </ng-template>
+              <ng-template #readonly>
+                <td mat-cell *matCellDef="let row">{{row.quantity.value}}</td>
+              </ng-template>
             </ng-container>
             <ng-container matColumnDef="subtotal">
               <th mat-header-cell *matHeaderCellDef> SUBTOTAL </th>

@@ -6,6 +6,7 @@ import * as moment from 'moment';
 import { EmployeeLayoutComponent } from './components/employee-layout/employee-layout.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { StatementsComponent } from './components/statements/statements/statements.component';
+import { NewStatementComponent } from './components/statements/new-statement/new-statement.component';
 import { OrderLayoutComponent } from './components/orders/order-layout/order-layout.component';
 import { TodaysOrdersComponent } from './components/orders/todays-orders/todays-orders.component';
 import { OpenOrdersComponent } from './components/orders/open-orders/open-orders.component';
@@ -27,6 +28,7 @@ import { DataArrayResolver } from './services/data-array.resolver';
 import { OrdersResolver } from './services/orders.resolver';
 import { OrderResolver } from './services/order.resolver';
 import { StatementsResolver } from './services/statements.resolver';
+import { ClientsResolver } from './services/clients.resolver';
 
 const routes: Routes = [
   {
@@ -39,12 +41,20 @@ const routes: Routes = [
         path: 'statements',
         children: [
           {
+            path: 'new',
+            component: NewStatementComponent,
+            resolve: { clients: ClientsResolver },
+            data: {
+              forStatement: true
+            }
+          },
+          {
             path: '',
             component: StatementsComponent,
             resolve: { statements: StatementsResolver },
             data: {
               filter: {
-                includes: [{
+                include: [{
                   relation: 'client',
                   scope: {
                     fields: { id: true, name: true }

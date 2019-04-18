@@ -1,7 +1,7 @@
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
   <h2>Statements</h2>
   <div class="btn-toolbar mb-2 mb-md-0">
-    <button mat-raised-button color="green" (click)="addStatement()">
+    <button mat-raised-button color="green" routerLink="new">
       <fa-icon icon="plus"></fa-icon>
        New Statement
     </button>
@@ -15,11 +15,16 @@
     <table mat-table [dataSource]="statements" matSort>
       <ng-container matColumnDef="id">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
-        <td mat-cell *matCellDef="let row"><a [routerLink]="['../', row.id]">{{row.id}}</a></td>
+        <td mat-cell *matCellDef="let row"><a [routerLink]="[row.id]">{{row.id}}</a></td>
       </ng-container>
       <ng-container matColumnDef="client">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> CLIENT </th>
-        <td mat-cell *matCellDef="let row"><a [routerLink]="['../../clients/', row.clientId]">{{row.clientName}}</a></td>
+<!-- 
+  [HACK] relative link resolution doesn't work(https://github.com/angular/angular/issues/13011)
+  Use absolute path for now.
+        <td mat-cell *matCellDef="let row"><a [routerLink]="['../clients/',  row.clientId]">{{row.clientName}}</a></td>
+ -->
+        <td mat-cell *matCellDef="let row"><a [routerLink]="['/auth/employee/clients/',  row.clientId]">{{row.clientName}}</a></td>
       </ng-container>
       <ng-container matColumnDef="totalAmount">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> TOTAL </th>

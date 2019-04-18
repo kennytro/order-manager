@@ -7,6 +7,9 @@ const app = require(appRoot + '/server/server');
 const logger = require(appRoot + '/config/winston');
 
 module.exports = function(Order) {
+  // Don't allow delete by ID. Instead cancel order if don't need.
+  Order.disableRemoteMethodByName('deleteById');
+
   Order.createNew = async function(orderData, orderItems, metadata) {
     let result = {};
     try {

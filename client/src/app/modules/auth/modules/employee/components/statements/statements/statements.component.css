@@ -1,0 +1,10 @@
+.text-box {
+  border-radius: 15px;
+  border: 1px solid lightgray;
+  padding: 5px;
+  min-height: 40px;
+}
+
+.full-width {
+  width: 100%;
+}

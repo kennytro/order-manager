@@ -92,8 +92,9 @@ CREATE TABLE IF NOT EXISTS statement_t
 (
   id integer PRIMARY KEY DEFAULT nextval('statement_id_seq'),
   client_id integer REFERENCES client,
-  total_amount numeric DEFAULT 0,
+  subtotal_amount numeric DEFAULT 0,
   adjust_amount numeric DEFAULT 0,
+  total_amount numeric DEFAULT 0,
   paid_amount numeric DEFAULT 0,
   adjust_reason text,
   note text,
