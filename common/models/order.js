@@ -106,4 +106,21 @@ module.exports = function(Order) {
     }
     return existingOrder;
   }
+
+  /*
+   * @param {number} client id
+   * @returns {Order[]} - list of statement-ready order of given client.
+   */
+  Order.findStatementReady = async function(clientId) {
+    return await Order.find({
+      where: {
+        and: [
+          { clientId: clientId },
+          { status: 'Completed' },
+          { statementId: null }
+        ]
+      },
+      include: 'orderItem'
+    });
+  };
 };

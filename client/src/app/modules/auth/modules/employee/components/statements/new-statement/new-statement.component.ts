@@ -20,7 +20,6 @@ import sortBy from 'lodash/sortBy';
 })
 export class NewStatementComponent implements OnInit {
   displayedColumns: string[] = ['select', 'id', 'totalAmount', 'createdDate', 'note'];  
-  displayedColumnsForReview: string[] = ['id', 'totalAmount', 'createdDate', 'note'];
 
   statement: any;
   candidateOrders: MatTableDataSource<OrderSummary>;
@@ -166,7 +165,7 @@ export class NewStatementComponent implements OnInit {
 
   private async _updateOrderList() {
     if (this.statement.clientId) {
-      let orders = await this._dataApi.genericMethod('Client', 'findStatementReadyOrder', this.statement.clientId).toPromise();
+      let orders = await this._dataApi.genericMethod('Order', 'findStatementReady', this.statement.clientId).toPromise();
       orders = sortBy(orders, ['id', 'createdAt']);
       this.candidateOrders = new MatTableDataSource(map(orders, order => {
         return {

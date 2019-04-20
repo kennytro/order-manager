@@ -80,20 +80,4 @@ module.exports = function(Client) {
       return !_.isEmpty(client2.orders);
     });
   };
-
-  /*
-   * @param {number} client id
-   * @returns {Order[]} - list of statement-ready order of given client.
-   */
-  Client.findStatementReadyOrder = async function(clientId) {
-    return await app.models.Order.find({
-      where: {
-        and: [
-          { clientId: clientId },
-          { status: 'Completed' },
-          { statementId: null }
-        ]
-      }
-    });
-  };
 };

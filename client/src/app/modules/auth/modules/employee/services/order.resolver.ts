@@ -45,6 +45,6 @@ export class OrderResolver implements Resolve<any> {
         throw err;
       }
     }
-    console.error(`Data resolver requires 'modelName' and 'id'`);
+    console.error(`Order resolver requires 'id'`);
   }
 }

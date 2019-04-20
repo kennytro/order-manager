@@ -12,7 +12,9 @@ export class ProductService {
    */
   getImage(dataUrl: string) {
     if (dataUrl) {
-      return this._http.get(dataUrl, {responseType: 'blob'});
+      // [HACK] bypass browser caching response without CORS header by 
+      // adding a random parameter(e.g. 'x-request=xhr')
+      return this._http.get(dataUrl + '?x-request=xhr', {responseType: 'blob'});
     }
   }
 

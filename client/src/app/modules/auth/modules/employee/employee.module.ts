@@ -30,10 +30,12 @@ import { NewOrderComponent } from './components/orders/new-order/new-order.compo
 import { StatementsComponent } from './components/statements/statements/statements.component';
 import { NewStatementComponent } from './components/statements/new-statement/new-statement.component';
 import { EditAdjustComponent } from './components/statements/edit-adjust/edit-adjust.component';
+import { StatementDetailComponent } from './components/statements/statement-detail/statement-detail.component';
 
 // Services
 import { DataResolver } from './services/data.resolver';
 import { DataArrayResolver } from './services/data-array.resolver';
+import { StatementResolver } from './services/statement.resolver';
 import { OrderResolver } from './services/order.resolver';
 import { OrdersResolver } from './services/orders.resolver';
 import { StatementsResolver } from './services/statements.resolver';
@@ -65,7 +67,7 @@ import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV,
     DeliveryRoutesComponent, DeliveryRouteDetailComponent, NewDeliveryRouteComponent,
     ProductsComponent, ProductDetailComponent, NewProductComponent,
     OrderLayoutComponent, TodaysOrdersComponent, OpenOrdersComponent, ClosedOrdersComponent, OrderDetailComponent, NewOrderComponent,
-    StatementsComponent, NewStatementComponent, EditAdjustComponent
+    StatementsComponent, NewStatementComponent, EditAdjustComponent, StatementDetailComponent
   ],
   imports: [
     AuthSharedModule,
@@ -78,6 +80,7 @@ import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV,
     DataArrayResolver,
     OrderResolver,
     OrdersResolver,
+    StatementResolver,
     StatementsResolver,
     ClientsResolver,
     AlertService,

@@ -161,4 +161,22 @@ module.exports = function(Statement) {
     }
     return result;
   };
+
+  /* Similar to built-in 'findById' except it also queries any
+   * 'candidate' orders
+   * of same client.
+   * @param {string} - statement id
+   * @returns {Object} - statement along with array of 'candidate' order
+   */
+  Statement.findByIdDetail = async function(id, filter) {
+    const statement = await Statement.findById(id, filter);
+    if (!statement) {
+      return null;
+    }
+
+    return {
+      statement: statement,
+      candidateOrders: await app.models.Order.findStatementReady(statement.clientId)
+    };
+  };
 };
