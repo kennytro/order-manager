@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { MatDialog, MatDialogConfig, MatSnackBar, MatTableDataSource } from '@angular/material';
+import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE,
+         MatDialog, MatDatepicker, MatDialogConfig, MatSnackBar, MatTableDataSource } from '@angular/material';
+import { MAT_MOMENT_DATE_FORMATS, MomentDateAdapter } from '@angular/material-moment-adapter';
 import { SelectionModel } from '@angular/cdk/collections';
 import { FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 import { Subject } from 'rxjs';
@@ -12,6 +14,7 @@ import { DataApiService } from '../../../services/data-api.service';
 
 import map from 'lodash/map';
 import sortBy from 'lodash/sortBy';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-new-statement',
@@ -29,6 +32,7 @@ export class NewStatementComponent implements OnInit {
   statementFG: FormGroup;
   private _unsubscribe = new Subject<boolean>();
 
+  @ViewChild(MatDatepicker) datepicker: MatDatepicker<Date>;
   constructor(
     private _route: ActivatedRoute,
     private _router: Router,
@@ -44,6 +48,7 @@ export class NewStatementComponent implements OnInit {
     /***** Form initialization *****/
     this.statementFG = this._formBuilder.group({
       clientId: ['', Validators.required],
+      statementDate: [moment(), Validators.required],
       orders: this._formBuilder.array([]),
       adjustReason: [''],
       note: ['']
@@ -130,6 +135,7 @@ export class NewStatementComponent implements OnInit {
     try {
       let orderIds = this.orderSelection.selected.map(order => order.id);
       this.statement.note = this.statementFG.get('note').value;
+      this.statement.statementDate = this.statementFG.get('statementDate').value;
       let status = await this._dataApi.genericMethod('Statement', 'createNew', [this.statement, orderIds]).toPromise();
       const snackBarRef = this._snackBar.open(`Statement(id: ${status.statementId}) successfully created`,
         'Close', { duration: 3000 });

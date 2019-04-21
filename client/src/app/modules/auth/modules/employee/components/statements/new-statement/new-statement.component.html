@@ -9,24 +9,41 @@
       <mat-step [stepControl]="statementFG" [completed]="false">
         <ng-template matStepLabel><fa-icon icon="store-alt"></fa-icon> Select Client</ng-template>
         <form [formGroup]="statementFG" class="form-container">
-          <div style="margin-top: 10px; margin-bottom: 10px" fxLayout="column" fxLayoutGap="20px" fxLayoutAlign="center space-between">
-            <mat-form-field appearance="outline">
-              <mat-label>Client</mat-label>
-              <mat-select placeholder="Select client" formControlName="clientId" required>
-                <mat-option *ngFor="let client of clientList" [value]="client.id">{{ client.id }} - {{client.name}}</mat-option>
-              </mat-select>
-              <mat-error>This field is required</mat-error>
-            </mat-form-field>
+          <div style="margin-top: 10px; margin-bottom: 10px" fxLayout="row wrap" fxLayoutGap="20px" fxLayoutAlign="center space-between">
+            <div fxFlex="5 0 500px">
+              <mat-form-field appearance="outline">
+                <mat-label>Client</mat-label>
+                <mat-select placeholder="Select client" formControlName="clientId" required>
+                  <mat-option *ngFor="let client of clientList" [value]="client.id">{{ client.id }} - {{client.name}}</mat-option>
+                </mat-select>
+                <mat-error>This field is required</mat-error>
+             </mat-form-field>
+           </div>
+           <div fxFlex="1 0 150px">
+              <mat-form-field>
+                <mat-label>Statement Date</mat-label>
+                <input matInput [matDatepicker]="dp" placeholder="Choose a date" formControlName="statementDate">
+                <mat-datepicker-toggle matSuffix [for]="dp"></mat-datepicker-toggle>
+                <mat-datepicker #dp></mat-datepicker>
+              </mat-form-field>
+            </div>
           </div>
         </form>
         <div fxLayout="row" fxLayoutAlign="end" fxLayoutGap="20px">
-          <button mat-raised-button routerLink="../">Cancel</button>
-          <button mat-raised-button matStepperNext type="button">Next <fa-icon icon="long-arrow-alt-right"></fa-icon></button>
+          <button mat-raised-button class="action" routerLink="../">Cancel</button>
+          <button mat-raised-button class="action" matStepperNext type="button">Next <fa-icon icon="long-arrow-alt-right"></fa-icon></button>
         </div>
       </mat-step>
       <mat-step [stepControl]="statementFG" [completed]="false">
         <ng-template matStepLabel><fa-icon icon="shopping-cart"></fa-icon> Select orders</ng-template>
-        <div *ngIf="selectedClient"><span style="font-weight: bold">Client:</span> {{selectedClient.name}} </div>
+        <div fxLayout="row wrap" fxLayoutGap="20px" fxLayoutAlign="space-around space-between">
+          <div fxFlex="nogrow" *ngIf="selectedClient">
+            <span style="font-weight: bold">Client:</span> {{selectedClient.name}}
+          </div>
+          <div fxFlex="nogrow">
+            <span style="font-weight: bold">Date:</span> {{statementFG.get('statementDate').value | date:'shortDate'}}
+          </div>
+        </div>
         <form [formGroup]="statementFG" class="form-container">
           <div class="table-responsive">
             <table mat-table [dataSource]="candidateOrders">
@@ -90,15 +107,22 @@
           </div>
         </form>
         <div fxLayout="row" fxLayoutAlign="end" fxLayoutGap="20px">
-          <button mat-raised-button routerLink="../">Cancel</button>
-          <button mat-raised-button matStepperPrevious type="button"><fa-icon icon="long-arrow-alt-left"></fa-icon> Back</button>
-          <button mat-raised-button matStepperNext type="button" [disabled]="statement.totalAmount <= 0">Review <fa-icon icon="long-arrow-alt-right"></fa-icon></button>
+          <button mat-raised-button class="action" routerLink="../">Cancel</button>
+          <button mat-raised-button class="action" matStepperPrevious type="button"><fa-icon icon="long-arrow-alt-left"></fa-icon> Back</button>
+          <button mat-raised-button class="action" matStepperNext type="button" [disabled]="statement.totalAmount <= 0">Review <fa-icon icon="long-arrow-alt-right"></fa-icon></button>
         </div>
         </mat-step>
       <mat-step [stepControl]="statementFG" [completed]="false">
         <ng-template matStepLabel><fa-icon icon="search-dollar"></fa-icon> Review your statement</ng-template>
+        <div fxLayout="row wrap" fxLayoutGap="20px" fxLayoutAlign="space-around space-between">
+          <div fxFlex="nogrow" *ngIf="selectedClient">
+            <span style="font-weight: bold">Client:</span> {{selectedClient.name}}
+          </div>
+          <div fxFlex="nogrow">
+            <span style="font-weight: bold">Date:</span> {{statementFG.get('statementDate').value | date:'shortDate'}}
+          </div>
+        </div>
         <div style="margin-top: 10px; margin-bottom: 10px" [formGroup]="statementFG" fxLayout="column" fxLayoutGap="20px" fxLayoutAlign="center space-between">
-          <div *ngIf="selectedClient"><span style="font-weight: bold">Client:</span> {{selectedClient.name}}</div>
           <div class="table-responsive">
             <table mat-table [dataSource]="getOrderTableSourceForReview()">
               <tr mat-header-row *matHeaderRowDef="displayedColumns.slice(1)"></tr>
@@ -146,9 +170,9 @@
           </div>
         </div>
         <div fxLayout="row" fxLayoutAlign="end" fxLayoutGap="20px">
-          <button mat-raised-button routerLink="../">Cancel</button>
-          <button mat-raised-button matStepperPrevious type="button"><fa-icon icon="long-arrow-alt-left"></fa-icon> Edit</button>
-          <button mat-raised-button color="green" (click)="create()">Submit</button>
+          <button mat-raised-button class="action" routerLink="../">Cancel</button>
+          <button mat-raised-button class="action" matStepperPrevious type="button"><fa-icon icon="long-arrow-alt-left"></fa-icon> Edit</button>
+          <button mat-raised-button class="action" color="green" (click)="create()">Submit</button>
         </div>
       </mat-step>
     </mat-horizontal-stepper>

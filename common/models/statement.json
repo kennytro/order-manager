@@ -25,6 +25,13 @@
         "columnName": "client_id"
       }
     },
+    "statementDate": {
+      "type": "date",
+      "defaultFn": "now",
+      "postgresql": {
+        "columnName": "statement_date"
+      }
+    },
     "subtotalAmount": {
       "type": "number",
       "postgresql": {

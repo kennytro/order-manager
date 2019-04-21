@@ -1,11 +1,13 @@
 import { NgModule } from '@angular/core';
 import { 
-  MatBadgeModule, MatButtonModule, MatCardModule, MatCheckboxModule, MatDialogModule, MatDividerModule,
+  MatBadgeModule, MatButtonModule, MatCardModule, MatCheckboxModule,
+  MatDatepickerModule, MatDialogModule, MatDividerModule,
   MatExpansionModule, MatFormFieldModule, MatInputModule, MatMenuModule,
   MatPaginatorModule,
   MatSelectModule, MatSlideToggleModule, MatSnackBarModule, MatSortModule, MatStepperModule,
   MatTableModule, MatTabsModule, MatToolbarModule, MatTooltipModule
 } from '@angular/material';
+import { MatMomentDateModule } from '@angular/material-moment-adapter';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { ReactiveFormsModule } from '@angular/forms';
 
@@ -14,12 +16,14 @@ const modules = [
   MatButtonModule,
   MatCardModule,
   MatCheckboxModule,
+  MatDatepickerModule,
   MatDialogModule,
   MatDividerModule,
   MatExpansionModule,
   MatFormFieldModule,
   MatInputModule,
   MatMenuModule,
+  MatMomentDateModule,
   MatPaginatorModule,
   MatSelectModule,
   MatSlideToggleModule,

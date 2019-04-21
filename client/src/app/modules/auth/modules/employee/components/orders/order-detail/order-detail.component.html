@@ -3,6 +3,12 @@
   <mat-card-header>
     <div mat-card-avatar><fa-icon icon="shopping-cart" size="3x"></fa-icon></div>
     <mat-card-title>Order Datails - ID: {{order.id}}</mat-card-title>
+    <mat-card-subtitle>
+      <div fxLayout="column">
+        <div><span class="thick">Created by</span> {{getEmailCreated()}} at {{order.createdAt | date:'short'}}</div>
+        <div *ngIf="getEmailUpdated()"><span class="thick">Updated by</span> {{getEmailUpdated()}} at {{order.updatedAt | date:'short'}}</div>
+      </div>
+    </mat-card-subtitle>
   </mat-card-header>
   <mat-card-content>
     <div>Status: <span [ngClass]="{
@@ -12,9 +18,6 @@
       'status-completed' : order.status == 'Completed',
       'status-cancelled' : order.status == 'Cancelled'
     }"> {{order.status | uppercase }} </span></div>
-    <div>Created by {{getEmailCreated()}} at {{order.createdAt | date:'short'}}</div>
-    <div *ngIf="getEmailUpdated()">Updated by {{getEmailUpdated()}} at {{order.updatedAt | date:'short'}}</div>
-    <!-- <div>Client: {{order.client.name}}</div> -->
     <form [formGroup]="orderFG" class="form-container">
       <div style="margin-top: 10px; margin-bottom: 10px" fxLayout="column" fxLayoutGap="20px" fxLayoutAlign="center space-between">
         <mat-form-field appearance="outline">
@@ -98,10 +101,10 @@
     </form>
   </mat-card-content>
   <mat-card-actions align="end">
-    <button mat-raised-button (click)="close()">Close</button>
-    <button mat-raised-button color="warn" (click)="cancelOrder()" [disabled]="order.status != 'Submitted' && order.status != 'Processed'">
+    <button mat-raised-button class="action" (click)="close()">Close</button>
+    <button mat-raised-button class="action" color="warn" (click)="cancelOrder()" [disabled]="order.status != 'Submitted' && order.status != 'Processed'">
       <fa-icon icon="exclamation-circle"></fa-icon> Cancel Order
     </button>
-    <button mat-raised-button color="green" (click)="save()" [disabled]="!orderFG.dirty">Save</button>
+    <button mat-raised-button class="action" color="green" (click)="save()" [disabled]="!orderFG.dirty">Save</button>
   </mat-card-actions>
 </mat-card>

@@ -2,9 +2,7 @@ declare interface StatementSummary {
   id: string,
   clientId: string,
   clientName: string,
+  statementDate: Date,
   totalAmount: number,
-  paidAmount: number,
-  createdAt: Date,
-  updatedAt: Date,
   note: string
 }

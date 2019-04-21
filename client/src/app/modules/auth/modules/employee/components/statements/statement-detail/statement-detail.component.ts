@@ -42,6 +42,7 @@ export class StatementDetailComponent implements OnInit {
   ngOnInit() {
     /***** Form initialization *****/
     this.statementFG = this._formBuilder.group({
+      statementDate: ['', Validators.required],
       adjustReason: [''],
       note: ['']
     });
@@ -117,6 +118,7 @@ export class StatementDetailComponent implements OnInit {
   async save() {
     try {
       let orderIds = this.statement.order.map(order => order.id);
+      this.statement.statementDate = this.statementFG.get('statementDate').value;
       this.statement.note = this.statementFG.get('note').value;
       let status = await this._dataApi.genericMethod('Statement', 'updateStatement', [this.statement, orderIds]).toPromise();
       const snackBarRef = this._snackBar.open(`Statement(id: ${status.statementId}) successfully updated`,
@@ -135,6 +137,7 @@ export class StatementDetailComponent implements OnInit {
   }
 
   private _updateForm() {
+    this.statementFG.get('statementDate').setValue(this.statement.statementDate);
     this.statementFG.get('adjustReason').setValue(this.statement.adjustReason);
     this.statementFG.get('note').setValue(this.statement.note);
   }

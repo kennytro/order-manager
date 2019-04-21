@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS app_error
 CREATE TABLE IF NOT EXISTS db_upgrade
 (
   filepath text PRIMARY KEY,
-  last_hash text
+  last_hash text,
+  last_run_time timestamptz DEFAULT now()
 );
 
 CREATE TABLE IF NOT EXISTS public_page_element
@@ -92,6 +93,7 @@ CREATE TABLE IF NOT EXISTS statement_t
 (
   id integer PRIMARY KEY DEFAULT nextval('statement_id_seq'),
   client_id integer REFERENCES client,
+  statement_date date NOT NULL DEFAULT CURRENT_DATE, 
   subtotal_amount numeric DEFAULT 0,
   adjust_amount numeric DEFAULT 0,
   total_amount numeric DEFAULT 0,

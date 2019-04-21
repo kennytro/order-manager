@@ -11,7 +11,7 @@ import map from 'lodash/map';
   styleUrls: ['./statements.component.css']
 })
 export class StatementsComponent implements OnInit {
-  displayedColumns: string[] = ['id', 'client', 'totalAmount', 'paidAmount', 'createdDate', 'updatedDate', 'note'];
+  displayedColumns: string[] = ['id', 'client', 'statementDate','totalAmount', 'note'];
   statements: MatTableDataSource<StatementSummary>;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -45,10 +45,8 @@ export class StatementsComponent implements OnInit {
         id: statement.id,
         clientId: client.id,
         clientName: client.name,
+        statementDate: statement.statementDate,
         totalAmount: statement.totalAmount,
-        paidAmount: statement.paidAmount,
-        createdAt: statement.createdAt,
-        updatedAt: statement.updatedAt,
         note: statement.note
       };
     }));
