@@ -5,7 +5,8 @@ const Promise = require('bluebird');
 const _ = require('lodash');
 const app = require(appRoot + '/server/server');
 const logger = require(appRoot + '/config/winston');
-
+const PdfMaker = require(appRoot + '/common/util/make-pdf');
+const fileStorage = require(appRoot + '/common/util/file-storage');
 module.exports = function(Statement) {
   /* Override 'destroyById()' on Statement to update all orders
    * that are assigned the statement that is about to be deleted.
@@ -19,6 +20,7 @@ module.exports = function(Statement) {
           let target = await Statement.findById(id);
           if (target) {
             await Order.updateAll({ statmentId: id }, { statementId: null });
+            await target.deletePdf();
             await target.destroy();
           }
         });
@@ -72,52 +74,26 @@ module.exports = function(Statement) {
         statementId: null
       };
     }
-    /* let incompleteOrders = _.filter(orders, o => o.status !== 'Completed');
-    if (!_.isEmpty(incompleteOrders)) {
-      const openOrderIds = _(incompleteOrders).map('id').join(', ');
-      return {
-        status: 400,
-        message: `Statement cannot contain order whose status is not 'Completed' - ${openOrderIds}`,
-        statementId: null
-      };
-    }
 
-    let assignedOrders = _.filter(orders, o => o.statementId);
-    if (!_.isEmpty(assignedOrders)) {
-      const assignedOrderIds = _(assignedOrders).map('id').join(', ');
-      return {
-        status: 400,
-        message: `Statement cannot contain order already assigned a statement - ${assignedOrderIds}`,
-        statementId: null
-      };
-    }
-
-    if (_.isEmpty(orders)) {
-      return {
-        status: 400,
-        message: 'Statement needs at least one completed order',
-        statementId: null
-      };
-    } */
-    let result = {};
+    let newStatement;
     try {
       await app.dataSources.OrderManager.transaction(async models => {
         const { Statement, Order } = models;
         if (_.get(metadata, ['endUserId'])) {
           statementData.createdBy = metadata.endUserId;
         }
-        let newStatement = await Statement.create(statementData);
+        newStatement = await Statement.create(statementData);
         await Order.updateAll({ id: { inq: orderIds } }, { statementId: newStatement.id });
-        result = {
-          status: 200,
-          message: `New statement(id: ${newStatement.id}) created.`,
-          statementId: newStatement.id
-        };
       });
     } catch (error) {
       throw new HttpErrors(500, `cannot create new statement - ${error.message}`);
     }
-    return result;
+    newStatement.generatePdf();  // run asynchronously
+    return {
+      status: 200,
+      message: `New statement(id: ${newStatement.id}) created.`,
+      statementId: newStatement.id
+    };
   };
 
   Statement.updateStatement = async function(statementData, orderIds, metadata) {
@@ -131,14 +107,14 @@ module.exports = function(Statement) {
       };
     }
 
-    let result = {};
+    let newStatement;
     try {
       await app.dataSources.OrderManager.transaction(async models => {
         const { Statement, Order } = models;
         if (_.get(metadata, ['endUserId'])) {
           statementData.updatedBy = metadata.endUserId;
         }
-        let newStatement = await Statement.upsert(statementData);
+        newStatement = await Statement.upsert(statementData);
         // update previously assigned orders
         await Order.updateAll({
           and: [
@@ -150,16 +126,16 @@ module.exports = function(Statement) {
         });
         // update new orders
         await app.models.Order.updateAll({ id: { inq: orderIds } }, { statementId: newStatement.id });
-        result = {
-          status: 200,
-          message: `Statement(id: ${newStatement.id}) is updated.`,
-          statementId: newStatement.id
-        };
       });
     } catch (error) {
       throw new HttpErrors(500, `cannot update statement - ${error.message}`);
     }
-    return result;
+    newStatement.generatePdf();  // run asynchronously
+    return {
+      status: 200,
+      message: `Statement(id: ${newStatement.id}) is updated.`,
+      statementId: newStatement.id
+    };
   };
 
   /* Similar to built-in 'findById' except it also queries any
@@ -178,5 +154,42 @@ module.exports = function(Statement) {
       statement: statement,
       candidateOrders: await app.models.Order.findStatementReady(statement.clientId)
     };
+  };
+
+  Statement.prototype.generatePdf = async function() {
+    const [client, orders] = await Promise.all([
+      app.models.Client.findById(this.clientId),
+      app.models.Order.find({
+        where: { statementId: this.id },
+        include: {
+          relation: 'orderItem',
+          scope: {
+            include: {
+              relation: 'product'
+            }
+          }
+        }
+      })
+    ]);
+    if (!client) {
+      throw new Error(`Statement(id: ${this.id}) is missing a client`);
+    }
+    const pdfDoc = await PdfMaker.makeStatementPdf(this, client, orders);
+    await fileStorage.uploadFile(pdfDoc, {
+      path: 'om-private',
+      fileName: `${process.env.TENANT_ID}/${client.id}/statement/${this.id}.pdf`,
+      fileType: 'pdf',
+      ACL: 'private'
+    });
+
+    logger.info(`Saved statement PDF of ${this.id}`);
+  };
+
+  Statement.prototype.deletePdf = async function() {
+    await fileStorage.deleteFile({
+      path: 'om-private',
+      fileName: `${process.env.TENANT_ID}/${this.clientId}/statement/${this.id}.pdf`
+    });
+    logger.info(`Deleted statement PDF of ${this.id}`);
   };
 };

@@ -43,6 +43,10 @@
     "dataSource": "OrderManager",
     "public": false
   },
+  "CompanyInfo": {
+    "dataSource": "OrderManager",
+    "public": true
+  },
   "DeliveryRoute": {
     "dataSource": "OrderManager",
     "public": false

@@ -5,16 +5,6 @@ const _ = require('lodash');
 const app = require(appRoot + '/server/server');
 
 module.exports = function(Client) {
-  // Client.observe('before delete', async function(ctx) {
-  //   let clientId = _.get(ctx, ['where', 'id'], null);
-  //   if (clientId) {
-  //      TO DO: perform cascade delete of owned objects
-  //     await Promise.all([
-  //       app.models.Order.destroyAll({ clientId: clientId })
-  //       ]);
-  //   }
-  // });
-
   /* Replace built-in 'destroyById' with custom function that performs
    * cascade deletion. */
   Client.on('dataSourceAttached', function(obj) {

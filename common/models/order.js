@@ -5,36 +5,38 @@ const Promise = require('bluebird');
 const _ = require('lodash');
 const app = require(appRoot + '/server/server');
 const logger = require(appRoot + '/config/winston');
+const PdfMaker = require(appRoot + '/common/util/make-pdf');
+const fileStorage = require(appRoot + '/common/util/file-storage');
 
 module.exports = function(Order) {
   // Don't allow delete by ID. Instead cancel order if don't need.
   Order.disableRemoteMethodByName('deleteById');
 
   Order.createNew = async function(orderData, orderItems, metadata) {
-    let result = {};
+    let newOrder = null;
     try {
       await app.dataSources.OrderManager.transaction(async models => {
         const { Order, OrderItem } = models;
         if (_.get(metadata, ['endUserId'])) {
           orderData.createdBy = metadata.endUserId;
         }
-        let newOrder = await Order.create(orderData);
+        newOrder = await Order.create(orderData);
         let newOrderItems = _.each(orderItems, oi =>  oi.orderId = newOrder.id);
         newOrderItems = await OrderItem.create(newOrderItems);
-        result = {
-          status: 200,
-          message: `New order(id: ${newOrder.id}) created.`,
-          orderId: newOrder.id
-        };
       });
     } catch (error) {
       throw new HttpErrors(500, `cannot create new order - ${error.message}`);
     }
-    return result;
+    newOrder.generatePdf();  // run asynchronously
+    return {
+      status: 200,
+      message: `New order(id: ${newOrder.id}) created.`,
+      orderId: newOrder.id
+    };
   };
 
   Order.updateOrder = async function(orderData, orderItems, metadata) {
-    let result = {};
+    let newOrder;
     try {
       await app.dataSources.OrderManager.transaction(async models => {
         const { Order, OrderItem } = models;
@@ -44,23 +46,23 @@ module.exports = function(Order) {
         if (_.get(metadata, ['endUserId'])) {
           orderData.updatedBy = metadata.endUserId;
         }
-        let newOrder = await Order.upsert(orderData);
+        newOrder = await Order.upsert(orderData);
         logger.debug(`Updated order(id: ${newOrder.id})`);
         logger.debug('Deleting order items...');
         await OrderItem.destroyAll({ orderId: orderData.id });
         let newOrderItems = _.each(orderItems, oi =>  oi.orderId = newOrder.id);
         newOrderItems = await OrderItem.create(newOrderItems);
         logger.debug(`  Created ${newOrderItems.length} order items`);
-        result = {
-          status: 200,
-          message: `Order(id: ${newOrder.id}) is updated.`,
-          orderId: newOrder.id
-        };
       });
     } catch (error) {
       throw new HttpErrors(500, `cannot update order - ${error.message}`);
     }
-    return result;
+    newOrder.generatePdf();  // run asynchronously
+    return {
+      status: 200,
+      message: `Order(id: ${newOrder.id}) is updated.`,
+      orderId: newOrder.id
+    };
   };
 
   Order.cancelOrder = async function(orderData, metadata) {
@@ -122,5 +124,29 @@ module.exports = function(Order) {
       },
       include: 'orderItem'
     });
+  };
+
+  Order.prototype.generatePdf = async function() {
+    const [client, orderItems] = await Promise.all([
+      app.models.Client.findById(this.clientId),
+      app.models.OrderItem.find({
+        where: { orderId: this.id },
+        include: {
+          relation: 'product'
+        }
+      })
+    ]);
+    if (!client) {
+      throw new Error(`Order(id: ${this.id}) is missing a client`);
+    }
+    const pdfDoc = await PdfMaker.makeOrderInvoicePdf(this, client, orderItems);
+    await fileStorage.uploadFile(pdfDoc, {
+      path: 'om-private',
+      fileName: `${process.env.TENANT_ID}/${client.id}/order/${this.id}.pdf`,
+      fileType: 'pdf',
+      ACL: 'private'
+    });
+
+    logger.info(`Order Invoice PDF of ${this.id} is saved`);
   };
 };

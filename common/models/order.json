@@ -90,18 +90,22 @@
       "model": "Client"
     },
     "statement": {
-      "type": "belongsTo",
-      "model": "Statement"
+      "type": "hasOne",
+      "model": "Statement",
+      "foreignKey": "id",
+      "primaryKey": "statementId"
     },
     "userCreated": {
-      "type": "belongsTo",
+      "type": "hasOne",
       "model": "EndUser",
-      "foreignKey": "createdBy"
+      "foreignKey": "id",
+      "primaryKey": "createdBy"
     },
     "userUpdated": {
-      "type": "belongsTo",
+      "type": "hasOne",
       "model": "EndUser",
-      "foreignKey": "updatedBy"
+      "foreignKey": "id",
+      "primaryKey": "updatedBy"
     }
   },
   "acls": [],

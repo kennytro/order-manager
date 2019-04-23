@@ -1,6 +1,7 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE SEQUENCE IF NOT EXISTS generic_id_seq; -- general purpose ID sequencer
 
+-- SYSTEM DATA --
 CREATE TABLE IF NOT EXISTS app_error
 (
   level text NOT NULL,
@@ -14,6 +15,13 @@ CREATE TABLE IF NOT EXISTS db_upgrade
   filepath text PRIMARY KEY,
   last_hash text,
   last_run_time timestamptz DEFAULT now()
+);
+
+-- APPLICATION DATA --
+CREATE TABLE IF NOT EXISTS company_info
+(
+  key text PRIMARY KEY,
+  value text NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS public_page_element

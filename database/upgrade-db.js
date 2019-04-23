@@ -85,6 +85,7 @@ async function setLastRunHash(client, filepath) {
 function getQueryStatementsFromFile(filepath) {
   // Extract SQL queries from file.
   return fs.readFileSync(appRoot + '/' + filepath).toString()
+    .replace(/^--.*$/gm, '')  // remove comment
     .replace(/(\r\n|\n|\r)/gm, ' ') // remove newlines
     .replace(/\s+/g, ' ') // excess white space
     .split(';') // split into all statements
