@@ -14,7 +14,19 @@ VALUES
   ('contact us', 1, '<div><p>Contact us content goes here<p></dev>')
 ;
 
-TRUNCATE TABLE delivery_route CASCADE;
 INSERT INTO delivery_route (id, description)
 VALUES ('Pick Up', 'Customer picks up orders.')
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO company_info
+VALUES
+  ('name', 'ETR Merchandise Co.'),
+  ('addressStreet', '734 South Alameda St.'),
+  ('addressCity', 'Los Angeles'),
+  ('addressState', 'CA'),
+  ('addressZip', '90021'),
+  ('phone', '213-489-4989'),
+  ('email', 'etrmax@gmail.com'),
+  ('logoUrl', 'https://s3-us-west-2.amazonaws.com/om-public/om-app-dev/favicon.png')
+ON CONFLICT (key) DO NOTHING
 ;

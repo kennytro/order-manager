@@ -5,6 +5,9 @@ import * as moment from 'moment';
 
 import { EmployeeLayoutComponent } from './components/employee-layout/employee-layout.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { StatementsComponent } from './components/statements/statements/statements.component';
+import { NewStatementComponent } from './components/statements/new-statement/new-statement.component';
+import { StatementDetailComponent } from './components/statements/statement-detail/statement-detail.component';
 import { OrderLayoutComponent } from './components/orders/order-layout/order-layout.component';
 import { TodaysOrdersComponent } from './components/orders/todays-orders/todays-orders.component';
 import { OpenOrdersComponent } from './components/orders/open-orders/open-orders.component';
@@ -25,6 +28,9 @@ import { DataResolver } from './services/data.resolver';
 import { DataArrayResolver } from './services/data-array.resolver';
 import { OrdersResolver } from './services/orders.resolver';
 import { OrderResolver } from './services/order.resolver';
+import { StatementsResolver } from './services/statements.resolver';
+import { StatementResolver } from './services/statement.resolver';
+import { ClientsResolver } from './services/clients.resolver';
 
 const routes: Routes = [
   {
@@ -33,6 +39,39 @@ const routes: Routes = [
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent },
+      {
+        path: 'statements',
+        children: [
+          {
+            path: 'new',
+            component: NewStatementComponent,
+            resolve: { clients: ClientsResolver },
+            data: {
+              forStatement: true
+            }
+          },
+          {
+            path: ':id',
+            component:StatementDetailComponent,
+            resolve: { statementInfo: StatementResolver }
+          },
+          {
+            path: '',
+            component: StatementsComponent,
+            resolve: { statements: StatementsResolver },
+            data: {
+              filter: {
+                include: [{
+                  relation: 'client',
+                  scope: {
+                    fields: { id: true, name: true }
+                  }
+                }]
+              }
+            }
+          }
+        ]
+      },
       {
         path: 'orders',
         children: [
@@ -116,13 +155,13 @@ const routes: Routes = [
             path: ':id',
             component: ProductDetailComponent,
             resolve: { product: DataResolver },
-            data: { modelName: 'Product'}
+            data: { modelName: 'Product' }
           },
           {
             path: '',
             component: ProductsComponent,
             resolve: { products: DataArrayResolver },
-            data: { arrayModelName: 'Product'}
+            data: { arrayModelName: 'Product' }
           }
         ]
       },

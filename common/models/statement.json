@@ -7,7 +7,7 @@
     "validateUpsert": true,
     "postgresql": {
       "schema": "public",
-      "table": "statement"
+      "table": "statement_t"
     }
   },
   "mixins": {
@@ -25,10 +25,17 @@
         "columnName": "client_id"
       }
     },
-    "totalAmount": {
+    "statementDate": {
+      "type": "date",
+      "defaultFn": "now",
+      "postgresql": {
+        "columnName": "statement_date"
+      }
+    },
+    "subtotalAmount": {
       "type": "number",
       "postgresql": {
-        "columnName": "total_amount"
+        "columnName": "subtotal_amount"
       }
     },
     "adjustAmount": {
@@ -36,6 +43,12 @@
       "postgresql": {
         "columnName": "adjust_amount"
       }      
+    },
+    "totalAmount": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "total_amount"
+      }
     },
     "paidAmount": {
       "type": "number",
@@ -97,14 +110,16 @@
       "model": "Client"
     },
     "userCreated": {
-      "type": "belongsTo",
+      "type": "hasOne",
       "model": "EndUser",
-      "foreignKey": "createdBy"
+      "foreignKey": "id",
+      "primaryKey": "createdBy"
     },
     "userUpdated": {
-      "type": "belongsTo",
+      "type": "hasOne",
       "model": "EndUser",
-      "foreignKey": "updatedBy"
+      "foreignKey": "id",
+      "primaryKey": "updatedBy"
     }
   },
   "acls": [],

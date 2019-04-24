@@ -157,7 +157,7 @@ export class NewOrderComponent implements OnInit {
     let newFee = 0;
     if (this._client) {
       if (this._client.feeType == 'Fixed') {
-        newFee = this._client.feeValue;
+        newFee = Number(this._client.feeValue);
       }
       if (this._client.feeType == 'Rate') {
         newFee = subtotal * this._client.feeValue / 100.0;

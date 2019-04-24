@@ -94,11 +94,11 @@
             </div>
           </div>
           <div fxLayout="row" fxLayoutAlign="end" fxLayoutGap="20px">
-            <button mat-raised-button routerLink="../">Close</button>
-            <button mat-raised-button color="warn" (click)="cancelOrder()" [disabled]="order.status != 'Submitted'">
+            <button mat-raised-button class="action" routerLink="../">Close</button>
+            <button mat-raised-button class="action" color="warn" (click)="cancelOrder()" [disabled]="order.status != 'Submitted'">
               <fa-icon icon="exclamation-circle"></fa-icon> Cancel Order
             </button>
-            <button mat-raised-button matStepperNext type="button" [disabled]="order.status != 'Submitted' || !orderFG.dirty || order.totalAmount <= 0">Review <fa-icon icon="long-arrow-alt-right"></fa-icon></button>
+            <button mat-raised-button class="action" matStepperNext type="button" [disabled]="order.status != 'Submitted' || !orderFG.dirty || order.totalAmount <= 0">Review <fa-icon icon="long-arrow-alt-right"></fa-icon></button>
           </div>
         </form>
       </mat-step>
@@ -171,9 +171,9 @@
             </div>
           </div>
           <div fxLayout="row" fxLayoutAlign="end" fxLayoutGap="20px">
-            <button mat-raised-button routerLink="../">Close</button>
-            <button mat-raised-button matStepperPrevious type="button"><fa-icon icon="long-arrow-alt-left"></fa-icon> Edit</button>
-            <button mat-raised-button color="green" (click)="save()">Update</button>
+            <button mat-raised-button class="action" routerLink="../">Close</button>
+            <button mat-raised-button class="action" matStepperPrevious type="button"><fa-icon icon="long-arrow-alt-left"></fa-icon> Edit</button>
+            <button mat-raised-button class="action" color="green" (click)="save()">Update</button>
           </div>
         </form>
       </mat-step>

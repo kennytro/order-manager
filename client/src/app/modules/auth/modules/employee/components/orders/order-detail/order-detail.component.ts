@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { Location } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatDialog, MatTableDataSource, MatSnackBar } from '@angular/material';
 import { FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
-import { Location } from '@angular/common';
 
 import { ConfirmDialogComponent, DialogData } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { DataApiService } from '../../../services/data-api.service';
@@ -86,7 +86,11 @@ export class OrderDetailComponent implements OnInit {
   }
 
   close() {
-    this._location.back();
+    if (window.history.length > 1) {
+      this._location.back();
+    } else {
+      this._router.navigate(['../'], { relativeTo: this._route });  // navigate to '/orders/'
+    }
   }
   async cancelOrder() {
     const dialogData: DialogData = {
@@ -163,7 +167,7 @@ export class OrderDetailComponent implements OnInit {
     let newFee = 0;
     if (this.order.client) {
       if (this.order.client.feeType == 'Fixed') {
-        newFee = this.order.client.feeValue;
+        newFee = Number(this.order.client.feeValue);
       }
       if (this.order.client.feeType == 'Rate') {
         newFee = subtotal * this.order.client.feeValue / 100.0;

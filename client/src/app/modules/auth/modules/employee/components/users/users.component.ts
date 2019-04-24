@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatDialog } from '@angular/material';
 import { ActivatedRoute } from '@angular/router';
-import { MatPaginator, MatSort, MatTableDataSource} from '@angular/material';
+import { MatDialog, MatPaginator, MatSort, MatTableDataSource} from '@angular/material';
 
 import { NewUserComponent } from '../new-user/new-user.component';
 import { DataApiService } from '../../services/data-api.service';

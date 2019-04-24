@@ -4,7 +4,7 @@
 </div>
 <mat-divider></mat-divider>
 <div mat-dialog-actions>
-  <button mat-raised-button [mat-dialog-close]="false">Cancel</button>
-  <button mat-raised-button [color]="data.confirmColor ? data.confirmColor : 'green'" [mat-dialog-close]="true" cdkFocusInitial>
+  <button mat-raised-button class="action" [mat-dialog-close]="false">Cancel</button>
+  <button mat-raised-button class="action" [color]="data.confirmColor ? data.confirmColor : 'green'" [mat-dialog-close]="true" cdkFocusInitial>
       <fa-icon *ngIf="data.confirmIcon" [icon]="data.confirmIcon"></fa-icon> {{data.confirmLabel}}</button>
 </div>

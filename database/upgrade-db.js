@@ -72,7 +72,7 @@ async function getLastRunHash(client, filepath) {
 async function setLastRunHash(client, filepath) {
   const fileHash = md5File.sync(appRoot + '/' + filepath);
   const insertQuery = {
-    text: 'INSERT INTO db_upgrade AS db_up (filepath, last_hash) VALUES($1, $2) ON CONFLICT (filepath) DO UPDATE SET last_hash = $2 WHERE db_up.filepath = $1',
+    text: 'INSERT INTO db_upgrade AS db_up (filepath, last_hash) VALUES($1, $2) ON CONFLICT (filepath) DO UPDATE SET last_hash = $2, last_run_time = DEFAULT WHERE db_up.filepath = $1',
     values: [filepath, fileHash]
   };
   await client.query(insertQuery);
@@ -85,6 +85,7 @@ async function setLastRunHash(client, filepath) {
 function getQueryStatementsFromFile(filepath) {
   // Extract SQL queries from file.
   return fs.readFileSync(appRoot + '/' + filepath).toString()
+    .replace(/^--.*$/gm, '')  // remove comment
     .replace(/(\r\n|\n|\r)/gm, ' ') // remove newlines
     .replace(/\s+/g, ' ') // excess white space
     .split(';') // split into all statements

@@ -4,8 +4,9 @@ const _ = require('lodash');
 const AWS = require('aws-sdk');
 const db = require(appRoot + '/common/util/database');
 const logger = require(appRoot + '/config/winston');
-const tenantSetting = require(appRoot + '/config/tenant');
 const app = require(appRoot + '/server/server');
+const fileStorage = require(appRoot + '/common/util/file-storage');
+const tenantSetting = require(appRoot + '/config/tenant');
 
 module.exports = function(Product) {
   const AWS_S3_PUBLIC_URL = 'https://s3-us-west-2.amazonaws.com/om-public/';
@@ -56,17 +57,13 @@ module.exports = function(Product) {
     if (!ctx.instance || !_.get(ctx, ['instance', 'settings', 'imageUrl'])) {
       return;    // partial update assumes image is excluded.
     }
-    if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
-      return;    // AWS credentials are not set.
-    }
-    const s3 = new AWS.S3({ apiVersion: '2006-03-01' });
-    ctx.instance.presignedImageUrl = s3.getSignedUrl('putObject',
+    ctx.instance.presignedImageUrl = await fileStorage.presignFileUrl('putObject',
       {
-        Bucket: 'om-public',
-        Key: tenantSetting.id + '/product/' + ctx.instance.id + '.png',
-        Expires: 60,
-        ACL: 'public-read',
-        ContentType: 'image/png'
+        path: 'om-public',
+        fileName: `${tenantSetting.id}/product/${ctx.instance.id}.png`,
+        fileType: 'image/png',
+        expires: 60,
+        ACL: 'public-read'
       }
     );
     logger.debug(`Presigned URL for product(id: ${ctx.instance.id}): ${ctx.instance.presignedImageUrl}`);
@@ -74,22 +71,14 @@ module.exports = function(Product) {
 
   /* Before deleting a product, remove its image file from S3.
    */
-  Product.observe('before delete', function(ctx, next) {
+  Product.observe('before delete', async function(ctx) {
     let productId = _.get(ctx, ['where', 'id']);
     if (productId) {
-      const s3 = new AWS.S3({ apiVersion: '2006-03-01' });
-      s3.deleteObject({
-        Bucket: 'om-public',
-        Key: tenantSetting.id + '/product/' + productId + '.png'
-      }, function(err, data) {
-        if (err) {
-          logger.error(`Failed to delete imange of product(id: ${productId}) from S3 - ${err.message}`);
-        } else {
-          logger.debug(`Successfully deleted image of product(id: ${productId}) from S3 - ${data}`);
-        }
+      await fileStorage.deleteFile({
+        path: 'om-public',
+        fileName: `${tenantSetting.id}/product/${productId}.png`
       });
     }
-    next();
   });
 
   /*

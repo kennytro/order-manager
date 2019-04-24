@@ -27,13 +27,22 @@ import { OpenOrdersComponent } from './components/orders/open-orders/open-orders
 import { ClosedOrdersComponent } from './components/orders/closed-orders/closed-orders.component';
 import { OrderDetailComponent } from './components/orders/order-detail/order-detail.component';
 import { NewOrderComponent } from './components/orders/new-order/new-order.component';
+import { StatementsComponent } from './components/statements/statements/statements.component';
+import { NewStatementComponent } from './components/statements/new-statement/new-statement.component';
+import { EditAdjustComponent } from './components/statements/edit-adjust/edit-adjust.component';
+import { StatementDetailComponent } from './components/statements/statement-detail/statement-detail.component';
 
 // Services
 import { DataResolver } from './services/data.resolver';
 import { DataArrayResolver } from './services/data-array.resolver';
+import { StatementResolver } from './services/statement.resolver';
 import { OrderResolver } from './services/order.resolver';
 import { OrdersResolver } from './services/orders.resolver';
+import { StatementsResolver } from './services/statements.resolver';
+import { ClientsResolver } from './services/clients.resolver';
+
 import { AlertService } from '../../shared/services/alert.service';
+import { FileService } from '../../shared/services/file.service';
 import { DataApiService } from './services/data-api.service';
 import { ProductService } from './services/product.service';
 
@@ -44,7 +53,8 @@ import { PhoneNumberPipe } from '../../shared/pipes/phone-number.pipe';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV,
         faCaretDown, faCaretUp, faCartPlus, faChartLine, faCheckCircle, faCog,
-        faExclamationCircle, faFileAlt, faFileInvoiceDollar, faFolderOpen, faKey,
+        faEdit, faExclamationCircle,
+        faFileAlt, faFileInvoiceDollar, faFilePdf, faFolderOpen, faKey,
         faLongArrowAltLeft, faLongArrowAltRight, faPlus, faQuestionCircle,
         faSearchDollar, faShoppingCart, faSignOutAlt, faStoreAlt,
         faTag, faTags, faTimesCircle, faTruck,
@@ -58,7 +68,8 @@ import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV,
     UsersComponent, UserDetailComponent, NewUserComponent,
     DeliveryRoutesComponent, DeliveryRouteDetailComponent, NewDeliveryRouteComponent,
     ProductsComponent, ProductDetailComponent, NewProductComponent,
-    OrderLayoutComponent, TodaysOrdersComponent, OpenOrdersComponent, ClosedOrdersComponent, OrderDetailComponent, NewOrderComponent
+    OrderLayoutComponent, TodaysOrdersComponent, OpenOrdersComponent, ClosedOrdersComponent, OrderDetailComponent, NewOrderComponent,
+    StatementsComponent, NewStatementComponent, EditAdjustComponent, StatementDetailComponent
   ],
   imports: [
     AuthSharedModule,
@@ -71,7 +82,11 @@ import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV,
     DataArrayResolver,
     OrderResolver,
     OrdersResolver,
+    StatementResolver,
+    StatementsResolver,
+    ClientsResolver,
     AlertService,
+    FileService,
     DataApiService,
     ProductService
   ],
@@ -79,14 +94,16 @@ import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV,
     NewClientComponent,
     NewUserComponent,
     NewDeliveryRouteComponent,
-    NewProductComponent
+    NewProductComponent,
+    EditAdjustComponent
   ]
 })
 export class EmployeeModule {
   constructor() {
     library.add(faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV,
       faCaretDown, faCaretUp, faCartPlus, faChartLine, faCheckCircle, faCog,
-      faExclamationCircle, faFileAlt, faFileInvoiceDollar, faFolderOpen, faKey,
+      faEdit, faExclamationCircle,
+      faFileAlt, faFileInvoiceDollar, faFilePdf, faFolderOpen, faKey,
       faLongArrowAltLeft, faLongArrowAltRight, faPlus, faQuestionCircle,
       faSearchDollar, faShoppingCart, faSignOutAlt, faStoreAlt,
       faTag, faTags, faTimesCircle, faTruck,

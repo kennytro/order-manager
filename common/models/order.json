@@ -25,6 +25,12 @@
         "columnName": "client_id"
       }
     },
+    "statementId": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "statement_id"
+      }
+    },
     "status": {
       "type": "string",
       "default": "Submitted",
@@ -83,15 +89,23 @@
       "type": "belongsTo",
       "model": "Client"
     },
+    "statement": {
+      "type": "hasOne",
+      "model": "Statement",
+      "foreignKey": "id",
+      "primaryKey": "statementId"
+    },
     "userCreated": {
-      "type": "belongsTo",
+      "type": "hasOne",
       "model": "EndUser",
-      "foreignKey": "createdBy"
+      "foreignKey": "id",
+      "primaryKey": "createdBy"
     },
     "userUpdated": {
-      "type": "belongsTo",
+      "type": "hasOne",
       "model": "EndUser",
-      "foreignKey": "updatedBy"
+      "foreignKey": "id",
+      "primaryKey": "updatedBy"
     }
   },
   "acls": [],
