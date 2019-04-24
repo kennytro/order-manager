@@ -14,7 +14,7 @@ import map from 'lodash/map';
   styleUrls: ['./statements.component.css']
 })
 export class StatementsComponent implements OnInit {
-  displayedColumns: string[] = ['id', 'client', 'statementDate','totalAmount', 'note', 'pdf'];
+  displayedColumns: string[] = ['id', 'statementDate','totalAmount', 'note', 'pdf'];
   statements: MatTableDataSource<StatementSummary>;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -26,13 +26,11 @@ export class StatementsComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this._route.data
-      .pipe(take(1))
-      .subscribe(routeData => {
-        if (routeData['statements']) {
-          this._setTableDataSource(routeData['statements']);
-        }
-      });
+    this._route.data.subscribe(routeData => {
+      if (routeData['statements']) {
+        this._setTableDataSource(routeData['statements']);
+      }
+    })
   }
 
   applyFilter(filterValue: string) {
@@ -66,11 +64,8 @@ export class StatementsComponent implements OnInit {
 
   private _setTableDataSource(statements: Array<any>) {
     this.statements = new MatTableDataSource(map(statements, statement => {
-      let client = statement.client;
       return {
         id: statement.id,
-        clientId: client.id,
-        clientName: client.name,
         statementDate: statement.statementDate,
         totalAmount: statement.totalAmount,
         note: statement.note
@@ -78,6 +73,5 @@ export class StatementsComponent implements OnInit {
     }));
     this.statements.paginator = this.paginator;
     this.statements.sort = this.sort;   
-  } 
-
+  }
 }

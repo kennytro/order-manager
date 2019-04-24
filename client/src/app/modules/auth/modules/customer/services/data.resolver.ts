@@ -5,7 +5,7 @@ import { Resolve, Router, ActivatedRouteSnapshot } from "@angular/router";
 
 import { DataApiService } from './data-api.service';
 import { AuthService } from '../../../../../services/auth.service';
-
+import { environment } from '../../../../../../environments/environment';
 import get from 'lodash/get';
 
 @Injectable()
@@ -21,6 +21,7 @@ export class DataResolver implements Resolve<any> {
 
   async resolve(route: ActivatedRouteSnapshot) {
     const modelName = route.data['modelName'];
+    const filter = route.data['filter'] || {};
     let id = route.paramMap.get('id');
     if (!id) {
       if (modelName == 'EndUser') {
@@ -28,11 +29,11 @@ export class DataResolver implements Resolve<any> {
       }
       if (modelName == 'Client') {
         const tokenPayload = this._jwtHelper.decodeToken(this._cookieService.get('idToken'));
-        id = get(tokenPayload, ['app_metadata', 'clientId']);
+        id = get(tokenPayload, [environment.auth0Namespace + 'app_metadata', 'clientId']);
       }
     }
     if (id && modelName) {
-      return await this._dataService.findById(modelName, id).toPromise();
+      return await this._dataService.findById(modelName, id, filter).toPromise();
     }
     console.error(`Data resolver requires 'modelName' and 'id'`);
   }

@@ -3,7 +3,6 @@ import { Location } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatDialog, MatDialogConfig, MatSnackBar, MatTableDataSource } from '@angular/material';
 import { FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
-import { Subject } from 'rxjs';
 import { take, takeUntil } from 'rxjs/operators';
 
 import { ConfirmDialogComponent, DialogData } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -27,7 +26,6 @@ export class StatementDetailComponent implements OnInit {
   orders: MatTableDataSource<OrderSummary>;
   //   products: any; not used for now.
   statementFG: FormGroup;
-  private _unsubscribe = new Subject<boolean>();
 
   constructor(
     private _route: ActivatedRoute,
@@ -73,8 +71,6 @@ export class StatementDetailComponent implements OnInit {
   }
 
   ngOnDestroy() {
-    this._unsubscribe.next(true);
-    this._unsubscribe.unsubscribe();    
   }
 
   getEmailCreated() {

@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { MatDialog, MatSnackBar } from '@angular/material';
 import { ConfirmDialogComponent, DialogData } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { take} from 'rxjs/operators';
 
 import { AWS_S3_PUBLIC_URL } from '../../../../../../shared/base.url';
 import { AuthService, UserProfile } from '../../../../../../services/auth.service';
@@ -15,9 +17,11 @@ import { DataApiService } from '../../services/data-api.service';
 })
 export class CustomerLayoutComponent implements OnInit {
   private _companyLogo: string;
-  private _storeName: string;
+  private _client: any;
 
-  constructor(private _auth: AuthService,
+  constructor(
+    private _route: ActivatedRoute,
+    private _auth: AuthService,
     private _dataShare: RootScopeShareService,
     private _dialog: MatDialog,
     private _snackBar: MatSnackBar,
@@ -26,7 +30,14 @@ export class CustomerLayoutComponent implements OnInit {
   ngOnInit() {
     const tenant = this._dataShare.getData('tenant');
     this._companyLogo = AWS_S3_PUBLIC_URL + tenant.id + '/favicon.png';   
-    this._storeName = "Store Name Here";
+
+    this._route.data
+      .pipe(take(1))
+      .subscribe(routeData => {
+        if (routeData['client']) {
+          this._client = routeData['client'];
+        }
+      })
   }
 
   settings() {
@@ -79,7 +90,7 @@ export class CustomerLayoutComponent implements OnInit {
   }
 
   getStoreName() {
-    return this._storeName;
+    return this._client.name;
   }
 
   getUserEmail() {
