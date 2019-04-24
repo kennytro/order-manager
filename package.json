@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "server/server.js",
   "engines": {
-    "node": ">=4"
+    "node": ">=4 <12"
   },
   "scripts": {
     "build:sdk": "set ONE_OFF=true && set NODE_ENV=development&& \"./node_modules/.bin/lb-sdk\" server/server client/src/app/shared/sdk -l angular2 -d ng2web -i disabled -w enabled",
