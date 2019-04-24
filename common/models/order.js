@@ -7,10 +7,38 @@ const app = require(appRoot + '/server/server');
 const logger = require(appRoot + '/config/winston');
 const PdfMaker = require(appRoot + '/common/util/make-pdf');
 const fileStorage = require(appRoot + '/common/util/file-storage');
+const tenantSetting = require(appRoot + '/config/tenant');
 
 module.exports = function(Order) {
-  // Don't allow delete by ID. Instead cancel order if don't need.
+  // Don't allow delete by ID. Instead cancel order.
   Order.disableRemoteMethodByName('deleteById');
+  /**
+   * Override 'destroyById()'.
+   *
+   * Check no statement is assigned, and perform cascade delete on
+   * its OrderItem instances.
+   */
+  Order.on('dataSourceAttached', function(obj) {
+    Order.destroyById = async function(id, callback) {
+      callback = callback || function() { };
+      try {
+        await app.dataSources.OrderManager.transaction(async models => {
+          const { Order, OrderItem } = models;
+          let target = await Order.findById(id);
+          if (target) {
+            if (target.statementId) {
+              throw new Error(`Order(id: ${id}) cannot be deleted because it belongs to a Statement(id: ${target.statementId}`);
+            }
+            await OrderItem.destroyAll({ orderId: id });
+            await target.deletePdf();
+            await target.destroy();
+          }
+        });
+      } catch (error) {
+        callback(error);
+      }
+    };
+  });
 
   Order.createNew = async function(orderData, orderItems, metadata) {
     let newOrder = null;
@@ -66,11 +94,11 @@ module.exports = function(Order) {
   };
 
   Order.cancelOrder = async function(orderData, metadata) {
-    let result = {};
+    let existingOrder;
     try {
       await app.dataSources.OrderManager.transaction(async models => {
         const { Order } = models;
-        let existingOrder = await _checkDataVersion(orderData);
+        existingOrder = await _checkDataVersion(orderData);
         // update metadata
         if (_.get(metadata, ['endUserId'])) {
           existingOrder.updatedBy = metadata.endUserId;
@@ -78,11 +106,6 @@ module.exports = function(Order) {
         existingOrder.status = 'Cancelled';
         await existingOrder.save();
         logger.info(`Cancelled order(id: ${existingOrder.id})`);
-        result = {
-          status: 200,
-          message: `Order(id: ${existingOrder.id}) is cancelled.`,
-          orderId: existingOrder.id
-        };
       });
     } catch (error) {
       if (error instanceof HttpErrors) {
@@ -90,7 +113,11 @@ module.exports = function(Order) {
       }
       throw new HttpErrors(500, `cannot cancel order(id: ${orderData.id}) - ${error.message}`);
     }
-    return result;
+    return {
+      status: 200,
+      message: `Order(id: ${existingOrder.id}) is cancelled.`,
+      orderId: existingOrder.id
+    };
   };
 
   /*
@@ -126,6 +153,20 @@ module.exports = function(Order) {
     });
   };
 
+  Order.getOrderInvoicePdfUrl = async function(orderId) {
+    const order = await Order.findById(orderId, {
+      fields: { id: true, clientId: true }
+    });
+    if (order) {
+      return await order.getPdfUrl();
+    }
+    return null;
+  };
+
+  Order.prototype.getPdfName = function() {
+    return `${tenantSetting.id}/${this.clientId}/order/${this.id}.pdf`;
+  };
+
   Order.prototype.generatePdf = async function() {
     const [client, orderItems] = await Promise.all([
       app.models.Client.findById(this.clientId),
@@ -142,11 +183,27 @@ module.exports = function(Order) {
     const pdfDoc = await PdfMaker.makeOrderInvoicePdf(this, client, orderItems);
     await fileStorage.uploadFile(pdfDoc, {
       path: 'om-private',
-      fileName: `${process.env.TENANT_ID}/${client.id}/order/${this.id}.pdf`,
+      fileName: this.getPdfName(),
       fileType: 'application/pdf',
       ACL: 'private'
     });
 
     logger.info(`Order Invoice PDF of ${this.id} is saved`);
+  };
+
+  Order.prototype.deletePdf = async function() {
+    await fileStorage.deleteFile({
+      path: 'om-private',
+      fileName: this.getPdfName()
+    });
+    logger.info(`Deleted order invoice PDF of ${this.id}`);
+  };
+
+  Order.prototype.getPdfUrl = async function() {
+    return await fileStorage.presignFileUrl('getObject', {
+      path: 'om-private',
+      fileName: this.getPdfName(),
+      expires: 30
+    });
   };
 };

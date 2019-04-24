@@ -30,6 +30,8 @@ export class DataResolver implements Resolve<any> {
       if (modelName == 'Client') {
         const tokenPayload = this._jwtHelper.decodeToken(this._cookieService.get('idToken'));
         id = get(tokenPayload, [environment.auth0Namespace + 'app_metadata', 'clientId']);
+        return await this._dataService.genericMethod(modelName, 'getMyClient', [id]).toPromise();
+
       }
     }
     if (id && modelName) {

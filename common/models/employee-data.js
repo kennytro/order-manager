@@ -43,14 +43,48 @@ module.exports = function(EmployeeData) {
     }
   }
 
-  EmployeeData.genericFind = async function(idToken, modelName, filter) {
-    if (!idToken) {
-      // TO DO: parse idToken and check user role is either manager or admin
-      // if modelName is 'EndUser', only 'admin' is allowed to call.
-      logger.info('EmployeeData.genericFind() needs to parse idToken');
-      // throwAuthError();
-    }
+  function throwAuthError() {
+    let error = new Error('User not authenticated');
+    error.status = 403;
+    throw error;
+  }
+
+  /**
+   * Decode given JWT Id token and verify the user role.
+   *
+   * User must have an employee role('manager' and/or 'admin') in order to
+   * request employee data methods.
+   *
+   * 'admin' role have full privilege but 'manager' role has restriction
+   * 'EndUser' model.
+   *
+   * @param {string} idToken -    JWT Id token
+   * @param {string} modelName
+   * @param {string} [methodName]
+   * @returns {Object}            Decoded id token
+   */
+  async function verifyIdToken(idToken, modelName, methodName) {
     try {
+      let decoded = await decodeIdToken(idToken);
+      const role = app.models.EndUser.getHighestRole(_.get(decoded, [APP_METADATA_KEY, 'roles'], []));
+      if (!_.includes(['manager', 'admin'], role)) {
+        throwAuthError();
+      }
+      if (role === 'manager') {
+        if (modelName === 'EndUser' && !_.includes(app.models.EndUser.allowedMethods(role), methodName)) {
+          throwAuthError();
+        }
+      }
+      return decoded;
+    } catch (error) {
+      logger.error(`Error while verifying idToken - ${error.message}`);
+      throw error;
+    }
+  }
+
+  EmployeeData.genericFind = async function(idToken, modelName, filter) {
+    try {
+      await verifyIdToken(idToken, modelName);
       return await app.models[modelName].find(filter || {});
     } catch (error) {
       logger.error(`Cannot find ${modelName} - ${error.message}`);
@@ -59,13 +93,8 @@ module.exports = function(EmployeeData) {
   };
 
   EmployeeData.genericFindById = async function(idToken, modelName, id, filter) {
-    if (!idToken) {
-      // TO DO: parse idToken and check user role is either manager or admin
-      // if modelName is 'EndUser', only 'admin' is allowed to call.
-      logger.info('EmployeeData.genericFindById() needs to parse idToken');
-      // throwAuthError();
-    }
     try {
+      await verifyIdToken(idToken, modelName);
       return await app.models[modelName].findById(id, filter);
     } catch (error) {
       logger.error(`Cannot find by id (model: ${modelName}, id: ${id}) - ${error.message}`);
@@ -74,13 +103,8 @@ module.exports = function(EmployeeData) {
   };
 
   EmployeeData.genericUpsert = async function(idToken, modelName, modelObj) {
-    if (!idToken) {
-      // TO DO: parse idToken and check user role is either manager or admin
-      // if modelName is 'EndUser', only 'admin' is allowed to call.
-      logger.info('EmployeeData.genericUpsert() needs to parse idToken');
-      // throwAuthError();
-    }
     try {
+      await verifyIdToken(idToken, modelName);
       if (modelName === 'EndUser' && _.isUndefined(modelObj.id)) {
         return await app.models.EndUser.createNewUser(modelObj);
       }
@@ -92,13 +116,13 @@ module.exports = function(EmployeeData) {
   };
 
   EmployeeData.genericDestroyById = async function(idToken, modelName, id) {
-    if (!idToken) {
-      // TO DO: parse idToken and check user role is either manager or admin
-      // if modelName is 'EndUser', only 'admin' is allowed to call.
-      logger.info('EmployeeData.genericDestroyById() needs to parse idToken');
-      // throwAuthError();
-    }
     try {
+      await verifyIdToken(idToken, modelName);
+      if (modelName === 'Order') {
+        let error = new Error('You cannot delete Order instance.(Tip: you can cancel order instead');
+        error.status = 405;  // Method Not Allowed
+        throw error;
+      }
       if (modelName === 'EndUser') {
         return await app.models.EndUser.deleteUser(id);
       }
@@ -111,17 +135,17 @@ module.exports = function(EmployeeData) {
 
   EmployeeData.genericMethod = async function(idToken, modelName, methodName, params) {
     try {
-      let decoded = await decodeIdToken(idToken);
-      const role = app.models.EndUser.getHighestRole(_.get(decoded, [APP_METADATA_KEY, 'roles'], []));
-      if (!_.includes(['manager', 'admin'], role)) {
-        throwAuthError();
-      }
-      if (role === 'manager') {
-        if (modelName === 'EndUser' && !_.includes(app.models.EndUser.allowedMethods(role), methodName)) {
-          throwAuthError();
-        }
-      }
-
+      // let decoded = await decodeIdToken(idToken);
+      // const role = app.models.EndUser.getHighestRole(_.get(decoded, [APP_METADATA_KEY, 'roles'], []));
+      // if (!_.includes(['manager', 'admin'], role)) {
+      //   throwAuthError();
+      // }
+      // if (role === 'manager') {
+      //   if (modelName === 'EndUser' && !_.includes(app.models.EndUser.allowedMethods(role), methodName)) {
+      //     throwAuthError();
+      //   }
+      // }
+      let decoded = await verifyIdToken(idToken, modelName, methodName);
       let metadata = {};
       let endUser = await app.models.EndUser.findOne({ where: { authId: decoded.sub } });
       if (endUser) {
@@ -141,7 +165,8 @@ module.exports = function(EmployeeData) {
 
   EmployeeData.resetPassword = async function(idToken) {
     try {
-      let decoded = await decodeIdToken(idToken);
+      // let decoded = await decodeIdToken(idToken);
+      let decoded = await verifyIdToken(idToken, 'EndUser', 'sendPasswordResetEmail');
       let endUser = await app.models.EndUser.findOne({ where: { authId: decoded.sub } });
       if (endUser) {
         await app.models.EndUser.sendPasswordResetEmail(endUser.email);
@@ -151,12 +176,6 @@ module.exports = function(EmployeeData) {
       throw error;
     }
   };
-
-  function throwAuthError() {
-    let error = new Error('User not authenticated');
-    error.status = 403;
-    throw error;
-  }
 
   EmployeeData.remoteMethod('genericFind', {
     http: { path: '/find', verb: 'get' },
