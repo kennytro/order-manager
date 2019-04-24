@@ -93,7 +93,7 @@ function getPdfDocDefinitionTemplate(companyInfo, logoImg, docInfo, client) {
   // add title elements
   docDefinition.content.push({
     columns: [
-      { width: 50, image: logoImg },
+      logoImg ? { width: 50, image: logoImg } : 'Company Logo Image Here',
       {
         width: '*',
         text: _.get(companyInfo, 'name', 'Company Name Here'),
