@@ -42,6 +42,7 @@ import { StatementsResolver } from './services/statements.resolver';
 import { ClientsResolver } from './services/clients.resolver';
 
 import { AlertService } from '../../shared/services/alert.service';
+import { FileService } from '../../shared/services/file.service';
 import { DataApiService } from './services/data-api.service';
 import { ProductService } from './services/product.service';
 
@@ -52,7 +53,8 @@ import { PhoneNumberPipe } from '../../shared/pipes/phone-number.pipe';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV,
         faCaretDown, faCaretUp, faCartPlus, faChartLine, faCheckCircle, faCog,
-        faEdit, faExclamationCircle, faFileAlt, faFileInvoiceDollar, faFolderOpen, faKey,
+        faEdit, faExclamationCircle,
+        faFileAlt, faFileInvoiceDollar, faFilePdf, faFolderOpen, faKey,
         faLongArrowAltLeft, faLongArrowAltRight, faPlus, faQuestionCircle,
         faSearchDollar, faShoppingCart, faSignOutAlt, faStoreAlt,
         faTag, faTags, faTimesCircle, faTruck,
@@ -84,6 +86,7 @@ import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV,
     StatementsResolver,
     ClientsResolver,
     AlertService,
+    FileService,
     DataApiService,
     ProductService
   ],
@@ -99,7 +102,8 @@ export class EmployeeModule {
   constructor() {
     library.add(faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV,
       faCaretDown, faCaretUp, faCartPlus, faChartLine, faCheckCircle, faCog,
-      faEdit, faExclamationCircle, faFileAlt, faFileInvoiceDollar, faFolderOpen, faKey,
+      faEdit, faExclamationCircle,
+      faFileAlt, faFileInvoiceDollar, faFilePdf, faFolderOpen, faKey,
       faLongArrowAltLeft, faLongArrowAltRight, faPlus, faQuestionCircle,
       faSearchDollar, faShoppingCart, faSignOutAlt, faStoreAlt,
       faTag, faTags, faTimesCircle, faTruck,

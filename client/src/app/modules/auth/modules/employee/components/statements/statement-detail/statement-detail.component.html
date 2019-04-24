@@ -7,7 +7,7 @@
   </mat-card-header>
   <mat-card-content>
     <form [formGroup]="statementFG" class="form-container">
-      <div fxLayout="row wrap" fxLayoutGap="20px" fxLayoutAlign="space-around space-between">
+      <div fxLayout="row wrap" fxLayoutGap="40px" fxLayoutAlign="space-between space-between">
         <div fxFlex="nogrow">
           <span class="thick">Client:</span> {{statement.client.name}}
         </div>
@@ -19,6 +19,14 @@
             <mat-datepicker #dp></mat-datepicker>
           </mat-form-field>
         </div>
+        <div fxFlex="auto">
+        </div>
+        <div fxFlex="nogrow">
+          <button mat-raised-button matTooltip="Download statement document" (click)="downloadPdf()"><fa-icon icon="file-pdf"></fa-icon> Download</button>
+        </div>
+      </div>
+      <div>
+        <span class="thick">Orders:</span>
       </div>
       <div class="table-responsive">
         <table mat-table [dataSource]="orders">

@@ -7,6 +7,8 @@ const app = require(appRoot + '/server/server');
 const logger = require(appRoot + '/config/winston');
 const PdfMaker = require(appRoot + '/common/util/make-pdf');
 const fileStorage = require(appRoot + '/common/util/file-storage');
+const tenantSetting = require(appRoot + '/config/tenant');
+
 module.exports = function(Statement) {
   /* Override 'destroyById()' on Statement to update all orders
    * that are assigned the statement that is about to be deleted.
@@ -19,7 +21,7 @@ module.exports = function(Statement) {
           const { Statement, Order } = models;
           let target = await Statement.findById(id);
           if (target) {
-            await Order.updateAll({ statmentId: id }, { statementId: null });
+            await Order.updateAll({ statementId: id }, { statementId: null });
             await target.deletePdf();
             await target.destroy();
           }
@@ -156,6 +158,20 @@ module.exports = function(Statement) {
     };
   };
 
+  Statement.getStatementPdfUrl = async function(statementId) {
+    const statement = await Statement.findById(statementId, {
+      fields: { id: true, clientId: true }
+    });
+    if (statement) {
+      return await statement.getPdfUrl();
+    }
+    return null;
+  };
+
+  Statement.prototype.getPdfName = function() {
+    return `${tenantSetting.id}/${this.clientId}/statement/${this.id}.pdf`;
+  };
+
   Statement.prototype.generatePdf = async function() {
     const [client, orders] = await Promise.all([
       app.models.Client.findById(this.clientId),
@@ -177,8 +193,8 @@ module.exports = function(Statement) {
     const pdfDoc = await PdfMaker.makeStatementPdf(this, client, orders);
     await fileStorage.uploadFile(pdfDoc, {
       path: 'om-private',
-      fileName: `${process.env.TENANT_ID}/${client.id}/statement/${this.id}.pdf`,
-      fileType: 'pdf',
+      fileName: this.getPdfName(),
+      fileType: 'application/pdf',
       ACL: 'private'
     });
 
@@ -188,8 +204,16 @@ module.exports = function(Statement) {
   Statement.prototype.deletePdf = async function() {
     await fileStorage.deleteFile({
       path: 'om-private',
-      fileName: `${process.env.TENANT_ID}/${this.clientId}/statement/${this.id}.pdf`
+      fileName: this.getPdfName()
     });
     logger.info(`Deleted statement PDF of ${this.id}`);
+  };
+
+  Statement.prototype.getPdfUrl = async function() {
+    return await fileStorage.presignFileUrl('getObject', {
+      path: 'om-private',
+      fileName: this.getPdfName(),
+      expires: 30
+    });
   };
 };

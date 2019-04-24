@@ -8,6 +8,7 @@ import { take, takeUntil } from 'rxjs/operators';
 
 import { ConfirmDialogComponent, DialogData } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { AlertService } from '../../../../../shared/services/alert.service';
+import { FileService } from '../../../../../shared/services/file.service';
 import { DataApiService } from '../../../services/data-api.service';
 
 import { EditAdjustComponent } from '../edit-adjust/edit-adjust.component';
@@ -36,6 +37,7 @@ export class StatementDetailComponent implements OnInit {
     private _editAdjustDialog: MatDialog,
     private _alertSvc: AlertService,
     private _snackBar: MatSnackBar,
+    private _fs: FileService,
     private _dataApi: DataApiService
   ) { }
 
@@ -95,6 +97,27 @@ export class StatementDetailComponent implements OnInit {
         this._updateTotalAmount();
       }
     })
+  }
+
+  downloadPdf() {
+    this._dataApi.genericMethod('Statement', 'getStatementPdfUrl', [this.statement.id])
+      .pipe(take(1))    // maybe not necessary?
+      .subscribe(url => {
+        console.debug(`file url: ${url}`);
+        this._fs.downloadPDF(url)
+          .subscribe(res => {
+            console.debug('download is done.');
+            const element = document.createElement('a');
+            element.href = URL.createObjectURL(res);
+            element.download =  `statement_${this.statement.id}.pdf`;
+            // Firefox requires the element to be in the body
+            document.body.appendChild(element);
+            //simulate click
+            element.click();
+            //remove the element when done
+            document.body.removeChild(element);
+          });
+      });    
   }
 
   close() {

@@ -111,7 +111,7 @@ export class ProductDetailComponent implements OnInit {
       };
       let product = await this._dataApi.upsert('Product', this.product).toPromise();
       if (product && this.imageChanged && get(product, ['presignedImageUrl'])) {
-        this._productSvc.putImageToS3(this.croppedImage, get(product, ['presignedImageUrl']));
+        await this._productSvc.putImageToS3(this.croppedImage, get(product, ['presignedImageUrl']));
       }
       const snackBarRef = this._snackBar.open(`Product(id: ${this.product.id}) successfully saved`, 'Close');
       snackBarRef.onAction().subscribe(() => {

@@ -143,7 +143,7 @@ module.exports = function(Order) {
     await fileStorage.uploadFile(pdfDoc, {
       path: 'om-private',
       fileName: `${process.env.TENANT_ID}/${client.id}/order/${this.id}.pdf`,
-      fileType: 'pdf',
+      fileType: 'application/pdf',
       ACL: 'private'
     });
 

@@ -2,6 +2,10 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 
 import { ActivatedRoute } from '@angular/router';
 import { MatPaginator, MatSort, MatTableDataSource} from '@angular/material';
+import { take} from 'rxjs/operators';
+
+import { FileService } from '../../../../../shared/services/file.service';
+import { DataApiService } from '../../../services/data-api.service';
 
 import map from 'lodash/map';
 
@@ -11,12 +15,16 @@ import map from 'lodash/map';
   styleUrls: ['./statements.component.css']
 })
 export class StatementsComponent implements OnInit {
-  displayedColumns: string[] = ['id', 'client', 'statementDate','totalAmount', 'note'];
+  displayedColumns: string[] = ['id', 'client', 'statementDate','totalAmount', 'note', 'pdf'];
   statements: MatTableDataSource<StatementSummary>;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
-  constructor(private _route: ActivatedRoute) { }
+  constructor(
+    private _route: ActivatedRoute,
+    private _fs: FileService,
+    private _dataApi: DataApiService
+  ) { }
 
   ngOnInit() {
     this._route.data.subscribe(routeData => {
@@ -34,8 +42,25 @@ export class StatementsComponent implements OnInit {
     }
   }
 
-  addStatement() {
-    console.log('Clicked add statement');
+  downloadPdf(statementId: string) {
+    this._dataApi.genericMethod('Statement', 'getStatementPdfUrl', [statementId])
+      .pipe(take(1))    // maybe not necessary?
+      .subscribe(url => {
+        console.debug(`file url: ${url}`);
+        this._fs.downloadPDF(url)
+          .subscribe(res => {
+            console.debug('download is done.');
+            const element = document.createElement('a');
+            element.href = URL.createObjectURL(res);
+            element.download =  `statement_${statementId}.pdf`;
+            // Firefox requires the element to be in the body
+            document.body.appendChild(element);
+            //simulate click
+            element.click();
+            //remove the element when done
+            document.body.removeChild(element);
+          });
+      });
   }
 
   private _setTableDataSource(statements: Array<any>) {

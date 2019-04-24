@@ -2,6 +2,8 @@ declare function require(path: string);
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
+/* TODO: merge this file to file.service.ts
+ */
 @Injectable()
 export class ProductService {
 
@@ -29,7 +31,7 @@ export class ProductService {
    * @param {string} dataUri - base64 encoded string of image
    * @param {string} presignedUrl - S3 URL to upload image to.
    */
-  putImageToS3(dataUri: string, presignedUrl: string) {
+  async putImageToS3(dataUri: string, presignedUrl: string) {
     if (presignedUrl && dataUri.length > 0) {
       const httpOptions = {
         headers: new HttpHeaders({
@@ -39,13 +41,7 @@ export class ProductService {
       };
       const fileName = presignedUrl.split('/').pop();  // extract file name
       const imageFile = new File([this._dataUriToBlob(dataUri)], fileName, { type: 'image/png'});
-      return this._http.put(presignedUrl, imageFile, httpOptions)
-      .subscribe(response => {
-        console.log('Put request is successful ' + response);
-      },
-      error => {
-        console.log('Error: ' + error);
-      });
+      return await this._http.put(presignedUrl, imageFile, httpOptions).toPromise();
     }
   }
 

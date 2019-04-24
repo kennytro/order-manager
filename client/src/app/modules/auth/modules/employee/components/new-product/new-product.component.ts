@@ -87,7 +87,7 @@ export class NewProductComponent implements OnInit {
       product.settings = { hasImage: this.hasImage };    // inform back-end to prepare pre-signed URL
       product = await this._dataApi.upsert('Product', product).toPromise();
       if (this.hasImage) {
-        this._productSvc.putImageToS3(this.croppedImage, get(product, ['presignedImageUrl']));
+        await this._productSvc.putImageToS3(this.croppedImage, get(product, ['presignedImageUrl']));
       }
       const snackBarRef = this._snackBar.open(`Product(name: ${product.name}) successfully created`,
         'Close', { duration: 3000 });
