@@ -29,7 +29,7 @@ module.exports = function(CompanyInfo) {
     if (!logoUrl) {
       const logoInfo = await CompanyInfo.findById(LOGO_URL_KEY);
       if (!logoInfo) {
-        return '';
+        return null;
       }
       logoUrl = logoInfo.value;
     }
