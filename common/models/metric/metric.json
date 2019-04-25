@@ -1,0 +1,73 @@
+{
+  "name": "Metric",
+  "plural": "Metrics",
+  "base": "PersistedModel",
+  "idInjection": false,
+  "options": {
+    "validateUpsert": true,
+    "postgresql": {
+      "schema": "public",
+      "table": "metric"
+    }
+  },
+  "properties": {
+    "id": {
+      "type": "string",
+      "id": true,
+      "required": true,
+      "defaultFn": "uuid"
+    },
+    "parentId": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "parent_id"
+      }
+    },
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "string"
+    },
+    "displayName": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "display_name"
+      }
+    },
+    "shortName": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "short_name"
+      }
+    },
+    "unit": {
+      "type": "string",
+      "required": true,
+      "description": "One of 'Days', 'Number', 'Currency', 'Percent', 'Integer'"
+    },
+    "aggregationType": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "aggregation_type"
+      }      
+    },
+    "modelName": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "model_name"
+      }
+    }
+  },
+  "validations": [],
+  "relations": {
+    "metricData": {
+      "type": "hasMany",
+      "model": "MetricData",
+      "foreignKey": "metricId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}  

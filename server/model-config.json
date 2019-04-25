@@ -4,6 +4,7 @@
       "loopback/common/models",
       "loopback/server/models",
       "../common/models",
+      "../common/models/metric",
       "./models"
     ],
     "mixins": [
@@ -74,6 +75,14 @@
   "Statement": {
     "dataSource": "OrderManager",
     "public": false
+  },
+  "Metric": {
+    "dataSource": "OrderManager",
+    "public": false    
+  },
+  "MetricData": {
+    "dataSource": "OrderManager",
+    "public": false    
   },
   "EmployeeData": {
     "dataSource": "db",

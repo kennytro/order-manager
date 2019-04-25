@@ -35,7 +35,8 @@ CREATE TABLE IF NOT EXISTS public_page_element
 
 CREATE TABLE IF NOT EXISTS delivery_route
 (
-  id text PRIMARY KEY,
+  id integer PRIMARY KEY DEFAULT nextval('generic_id_seq'),
+  name text NOT NULL UNIQUE,
   description text,
   driver_name text,
   driver_phone text
@@ -142,4 +143,26 @@ CREATE TABLE IF NOT EXISTS order_item
   quantity numeric DEFAULT 0,
   unit_price numeric DEFAULT 0,
   UNIQUE(order_id, product_id)
+);
+
+CREATE TABLE IF NOT EXISTS metric
+(
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  parent_id uuid,
+  name text NOT NULL UNIQUE,
+  description text,
+  display_name text,
+  short_name text,
+  unit unit_of_measure,
+  aggregation_type metric_aggregation_type DEFAULT 'None',
+  model_name text
+);
+
+CREATE TABLE IF NOT EXISTS metric_data
+(
+  id integer PRIMARY KEY DEFAULT nextval('generic_id_seq'),
+  metric_id uuid NOT NULL REFERENCES metric,
+  instance_id integer,
+  value numeric,
+  metric_date date DEFAULT CURRENT_DATE
 );
