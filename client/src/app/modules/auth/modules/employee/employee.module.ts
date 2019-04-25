@@ -57,7 +57,7 @@ import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV,
         faFileAlt, faFileInvoiceDollar, faFilePdf, faFolderOpen, faKey,
         faLongArrowAltLeft, faLongArrowAltRight, faPlus, faQuestionCircle,
         faSearchDollar, faShoppingCart, faSignOutAlt, faStoreAlt,
-        faTag, faTags, faTimesCircle, faTruck,
+        faTag, faTags, faTimesCircle, faTrashAlt, faTruck,
         faUndoAlt, faUser, faUserPlus, faUsers } from '@fortawesome/free-solid-svg-icons';
 
 @NgModule({
@@ -106,7 +106,7 @@ export class EmployeeModule {
       faFileAlt, faFileInvoiceDollar, faFilePdf, faFolderOpen, faKey,
       faLongArrowAltLeft, faLongArrowAltRight, faPlus, faQuestionCircle,
       faSearchDollar, faShoppingCart, faSignOutAlt, faStoreAlt,
-      faTag, faTags, faTimesCircle, faTruck,
+      faTag, faTags, faTimesCircle, faTrashAlt, faTruck,
       faUndoAlt, faUser, faUserPlus, faUsers);
   }
 }

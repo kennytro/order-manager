@@ -113,7 +113,7 @@ export class StatementDetailComponent implements OnInit {
             //remove the element when done
             document.body.removeChild(element);
           });
-      });    
+      });
   }
 
   close() {

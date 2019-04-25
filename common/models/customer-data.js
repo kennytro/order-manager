@@ -9,7 +9,7 @@ const logger = require(appRoot + '/config/winston');
 
 module.exports = function(CustomerData) {
   const APP_METADATA_KEY = 'https://om.com/app_metadata';
-  const CLIENT_MODELS = ['Order', 'Statement', 'EndUser'];
+  const CLIENT_MODELS = ['Order', 'Statement', 'EndUser', 'Client'];
   const client = jwksClient({
     cache: true,
     rateLimit: true,
@@ -44,9 +44,45 @@ module.exports = function(CustomerData) {
     }
   }
 
-  CustomerData.genericFind = async function(idToken, modelName, filter) {
+  function throwAuthError() {
+    let error = new Error('User not authenticated');
+    error.status = 403;
+    throw error;
+  }
+
+  /**
+   * Decode given JWT Id token and verify the user role.
+   *
+   * Check if user has a role and verify if user can execute given method.
+   *
+   * 'admin' role have full privilege but 'manager' role has restriction
+   * 'EndUser' model.
+   *
+   * @param {string} idToken -    JWT Id token
+   * @param {string} modelName
+   * @param {string} [methodName]
+   * @returns {Object}            Decoded id token
+   */
+  async function verifyIdToken(idToken, modelName, methodName) {
     try {
       let decoded = await decodeIdToken(idToken);
+      const role = app.models.EndUser.getHighestRole(_.get(decoded, [APP_METADATA_KEY, 'roles'], []));
+      if ((modelName === 'EndUser' || modelName === 'Client')) {
+        // EndUser and Client requires additional access checking
+        if (!_.includes(app.models[modelName].allowedMethods(role), methodName)) {
+          throwAuthError();
+        }
+      }
+      return decoded;
+    } catch (error) {
+      logger.error(`Error while verifying idToken(model: ${modelName}${methodName ? ', method: ' + methodName : ''}) - ${error.message}`);
+      throw error;
+    }
+  }
+
+  CustomerData.genericFind = async function(idToken, modelName, filter) {
+    try {
+      let decoded = await verifyIdToken(idToken, modelName);
       if (!filter) {
         filter = {};
       }
@@ -64,7 +100,7 @@ module.exports = function(CustomerData) {
 
   CustomerData.genericFindById = async function(idToken, modelName, id, filter) {
     try {
-      let decoded = await decodeIdToken(idToken);
+      let decoded = await verifyIdToken(idToken, modelName);
       if (!filter) {
         filter = {};
       }
@@ -80,16 +116,8 @@ module.exports = function(CustomerData) {
   };
 
   CustomerData.genericUpsert = async function(idToken, modelName, modelObj) {
-    if (!idToken) {
-      // TO DO: parse idToken to obtain user's client id. Ensure user only accesses
-      // data of matching client id
-      logger.info('CustomerData.genericUpsert() needs to parse idToken');
-      // throwAuthError();
-    }
     try {
-      if (modelName === 'EndUser' && _.isUndefined(modelObj.id)) {
-        throwAuthError();
-      }
+      await verifyIdToken(idToken, modelName);
       return await app.models[modelName].upsert(modelObj);
     } catch (error) {
       logger.error(`Cannot upsert ${modelName} - ${error.message}`);
@@ -98,32 +126,15 @@ module.exports = function(CustomerData) {
   };
 
   CustomerData.genericDestroyById = async function(idToken, modelName, id) {
-    if (!idToken) {
-      // TO DO: parse idToken to obtain user's client id. Ensure user only accesses
-      // data of matching client id
-      logger.info('CustomerData.genericDestroyById() needs to parse idToken');
-      // throwAuthError();
-    }
-    try {
-      if (modelName === 'EndUser') {
-        throwAuthError();
-      }
-      return await app.models[modelName].destroyById(id);
-    } catch (error) {
-      logger.error(`Cannot destroy by id (model: ${modelName}, id: ${id}) - ${error.message}`);
-      throw error;
-    }
+    let error = new Error('Method \'destroyById\' is disabled in customer module.');
+    error.status = 405;  // Method Not Allowed
+    throw error;
   };
 
   CustomerData.genericMethod = async function(idToken, modelName, methodName, params) {
     try {
-      let decoded = await decodeIdToken(idToken);
-      const role = app.models.EndUser.getHighestRole(_.get(decoded, [APP_METADATA_KEY, 'roles'], []));
+      let decoded = await verifyIdToken(idToken, modelName, methodName);
       if ((modelName === 'EndUser' || modelName === 'Client')) {
-        // EndUser and Client requires additional access checking
-        if (!_.includes(app.models[modelName].allowedMethods(role), methodName)) {
-          throwAuthError();
-        }
         // EndUser methods must have 'authId' as the first argument.
         if (modelName === 'EndUser' && decoded.sub !== _.get(params, '0')) {
           throwAuthError();
@@ -151,7 +162,7 @@ module.exports = function(CustomerData) {
   // TO DO: replace this function with genericMethod.
   CustomerData.resetPassword = async function(idToken) {
     try {
-      let decoded = await decodeIdToken(idToken);
+      let decoded = await verifyIdToken(idToken, 'EndUser', 'sendPasswordResetEmail');
       let endUser = await app.models.EndUser.findOne({ where: { authId: decoded.sub } });
       if (endUser) {
         await app.models.EndUser.sendPasswordResetEmail(endUser.email);
@@ -161,12 +172,6 @@ module.exports = function(CustomerData) {
       throw error;
     }
   };
-
-  function throwAuthError() {
-    let error = new Error('User not authenticated');
-    error.status = 403;
-    throw error;
-  }
 
   CustomerData.remoteMethod('genericFind', {
     http: { path: '/find', verb: 'get' },

@@ -173,7 +173,7 @@ When back end server starts up for the first time, it needs to create an adminis
 |DATABASE_URL|Y||Database URL|
 
 ### Seed data
-For minimum functionality, you may want to seed data into the following tables(See database/seed_data.sql for suggestion):
+For minimal functionality, you may want to seed data into the following tables(See database/seed_data.sql for suggestion):
 - public_page_element: Content of public Angular module.
 - delivery_route: Default entry 'Pick Up'.
 - company_info: Company profile used in PDF generation such as invoice and statement.

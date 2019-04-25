@@ -15,10 +15,13 @@ module.exports = function(Client) {
           const { Client, EndUser, Order, Statement } = models;
           let target = await Client.findById(id);
           if (target) {
+            // NOTE: we must delete statement first, so that orders can be
+            // deleted without referential intergrity issue.
+            await Statement.destroyAll({ clientId: id });
+
             await Promise.all([
               EndUser.destroyAll({ clientId: id }),
-              Order.destroyAll({ clientId: id }),
-              Statement.destroyAll({ clientId: id })
+              Order.destroyAll({ clientId: id })
             ]);
             await target.destroy();
           }

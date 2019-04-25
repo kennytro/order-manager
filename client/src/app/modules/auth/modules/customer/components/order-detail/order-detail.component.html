@@ -1,24 +1,40 @@
 <mat-card>
   <mat-card-header>
     <div mat-card-avatar><fa-icon icon="shopping-cart" size="3x"></fa-icon></div>
-    <mat-card-title>Order</mat-card-title>
-    <mat-card-subtitle>ID: {{order.id}}</mat-card-subtitle>
+    <mat-card-title>Order Datails - ID: {{order.id}}</mat-card-title>
+    <mat-card-subtitle>
+      <div fxLayout="column">
+        <div><span class="thick">Created by</span> {{getEmailCreated()}} at {{order.createdAt | date:'short'}}</div>
+        <div *ngIf="getEmailUpdated()"><span class="thick">Updated by</span> {{getEmailUpdated()}} at {{order.updatedAt | date:'short'}}</div>
+      </div>
+    </mat-card-subtitle>    
   </mat-card-header>
   <mat-card-content>
-    <div>Status: <span [ngClass]="{
-      'status-submitted' : order.status == 'Submitted',
-      'status-processed' : order.status == 'Processed',
-      'status-shipped' : order.status == 'Shipped',
-      'status-completed' : order.status == 'Completed',
-      'status-cancelled' : order.status == 'Cancelled'
-    }"> {{order.status | uppercase }} </span><fa-icon icon="question-circle" matTooltip="You can change this order as long as it has not been processed." matTooltipPosition="right"></fa-icon></div>
-    <div>Created by {{getEmailCreated()}} at {{order.createdAt | date:'short'}}</div>
-    <div *ngIf="getEmailUpdated()">Updated by {{getEmailUpdated()}} at {{order.updatedAt | date:'short'}}</div>    
+    <div style="margin-bottom: 10px" fxLayout="row wrap" fxLayoutGap="40px" fxLayoutAlign="space-between center">
+      <div fxFlex="nogrow"> <span class="thick">Status:</span>
+        <span [ngClass]="{
+          'status-submitted' : order.status == 'Submitted',
+          'status-processed' : order.status == 'Processed',
+          'status-shipped' : order.status == 'Shipped',
+          'status-completed' : order.status == 'Completed',
+          'status-cancelled' : order.status == 'Cancelled'
+        }"> {{order.status | uppercase }} 
+        </span>
+      </div>
+      <div fxFlex="auto">
+      </div>
+      <div fxFlex="nogrow">
+        <button mat-raised-button matTooltip="Download invoice document" (click)="downloadPdf()"><fa-icon icon="file-pdf"></fa-icon> Download</button>
+      </div>
+    </div>   
     <mat-horizontal-stepper linear #stepper>
     <!-- HACK: set 'completed' to false in order to suppress 'Create' label -->
       <mat-step [stepControl]="orderFG" label="Fill out order items" [completed]="false">
         <form [formGroup]="orderFG" class="form-container">
           <div style="margin-top: 10px; margin-bottom: 10px" fxLayout="column" fxLayoutGap="20px" fxLayoutAlign="center space-between">
+          <div>
+            <span class="thick">Order Items:</span>
+          </div> 
             <div class="table-responsive">
               <table mat-table [dataSource]="orderItems">
                 <!-- Row definitions -->

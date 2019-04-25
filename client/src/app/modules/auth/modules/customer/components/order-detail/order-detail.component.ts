@@ -2,7 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatDialog, MatTableDataSource, MatSnackBar /* , MatStepper*/ } from '@angular/material';
 import { FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { take, takeUntil } from 'rxjs/operators';
+
 import { ConfirmDialogComponent, DialogData } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { FileService } from '../../../../shared/services/file.service';
 import { DataApiService } from '../../services/data-api.service';
 
 import get from 'lodash/get';
@@ -18,6 +22,7 @@ export class OrderDetailComponent implements OnInit {
   orderItems: MatTableDataSource<any>;
   order: any;
   orderFG: FormGroup;
+  private _unsubscribe = new Subject<boolean>();  
 
   constructor(
     private _route: ActivatedRoute,
@@ -25,6 +30,7 @@ export class OrderDetailComponent implements OnInit {
     private _formBuilder: FormBuilder,
     private _dialog: MatDialog,
     private _snackBar: MatSnackBar,
+    private _fs: FileService,
     private _dataApi: DataApiService
   ) { }
 
@@ -37,39 +43,46 @@ export class OrderDetailComponent implements OnInit {
     });
 
     /***** Data initialization: order and product list *****/
-    this._route.data.subscribe(routeData => {
-      if (routeData['orderInfo']) {
-        let orderInfo = routeData['orderInfo'];
-        this._setOrderObject(orderInfo.order);
+    this._route.data
+      .pipe(take(1))
+      .subscribe(routeData => {
+        if (routeData['orderInfo']) {
+          let orderInfo = routeData['orderInfo'];
+          this._setOrderObject(orderInfo.order);
 
-        let existingOrderItems = this.order.orderItem;
-        let products = orderInfo.products;
-        let productExclusionList = orderInfo.productExclusionList;
+          let existingOrderItems = this.order.orderItem;
+          let products = orderInfo.products;
+          let productExclusionList = orderInfo.productExclusionList;
 
-        // build array of order item.
-        let orderItems = new Array() as Array<OrderItem>;
-        let quantitiesControl = <FormArray>this.orderFG.get('orderItemQuantities');
-        for (let product of sortBy(products, ['category', 'name'])) {
-          // include existing order item
-          let existingOrderItem = existingOrderItems.find((oi) => oi.productId == product.id);
-          if (existingOrderItem) {
-            let orderItem = this._createItem(product, existingOrderItem);
-            orderItems.push(orderItem);
-            quantitiesControl.push(orderItem.quantity);
-          } else {
-            // add additional item if order can be changed and
-            // item is not in exclusion list.
-            if (this.order.status == 'Submitted' &&
-                !productExclusionList.includes(product.id)) {
-              let orderItem = this._createItem(product);
+          // build array of order item.
+          let orderItems = new Array() as Array<OrderItem>;
+          let quantitiesControl = <FormArray>this.orderFG.get('orderItemQuantities');
+          for (let product of sortBy(products, ['category', 'name'])) {
+            // include existing order item
+            let existingOrderItem = existingOrderItems.find((oi) => oi.productId == product.id);
+            if (existingOrderItem) {
+              let orderItem = this._createItem(product, existingOrderItem);
               orderItems.push(orderItem);
               quantitiesControl.push(orderItem.quantity);
+            } else {
+              // add additional item if order can be changed and
+              // item is not in exclusion list.
+              if (this.order.status == 'Submitted' &&
+                  !productExclusionList.includes(product.id)) {
+                let orderItem = this._createItem(product);
+                orderItems.push(orderItem);
+                quantitiesControl.push(orderItem.quantity);
+              }
             }
           }
+          this.orderItems = new MatTableDataSource(orderItems);
         }
-        this.orderItems = new MatTableDataSource(orderItems);
-      }
-    });
+      });
+  }
+
+  ngOnDestroy() {
+    this._unsubscribe.next(true);
+    this._unsubscribe.unsubscribe();
   }
 
   getReviewItemTableSource() {
@@ -98,6 +111,27 @@ export class OrderDetailComponent implements OnInit {
     return this.order.userUpdated ? this.order.userUpdated.email : null;
   }
 
+  downloadPdf() {
+    this._dataApi.genericMethod('Order', 'getOrderInvoicePdfUrl', [this.order.id])
+      .pipe(take(1))    // maybe not necessary?
+      .subscribe(url => {
+        console.debug(`file url: ${url}`);
+        this._fs.downloadPDF(url)
+          .subscribe(res => {
+            console.debug('download is done.');
+            const element = document.createElement('a');
+            element.href = URL.createObjectURL(res);
+            element.download =  `order_invoice_${this.order.id}.pdf`;
+            // Firefox requires the element to be in the body
+            document.body.appendChild(element);
+            //simulate click
+            element.click();
+            //remove the element when done
+            document.body.removeChild(element);
+          });
+      });
+  }
+
   async cancelOrder() {
     const dialogData: DialogData = {
       title: `Do you want to cancel this order(id: ${this.order.id})`,
@@ -108,18 +142,22 @@ export class OrderDetailComponent implements OnInit {
     const dialogRef = this._dialog.open(ConfirmDialogComponent, {
       data: dialogData
     });
-    dialogRef.afterClosed().subscribe(async result => {
-      if (result) {
-        await this._dataApi.genericMethod('Order', 'cancelOrder', [this.order]).toPromise();
-        const snackBarRef = this._snackBar.open(`Successfully cancelled the order(id: ${this.order.id}) `, 'Close', {
-          duration: 3000
-        });
-        snackBarRef.onAction().subscribe(() => {
-          snackBarRef.dismiss();
-        });
-        this._router.navigate(['../'], { relativeTo: this._route });
-      }
-    })    
+    dialogRef.afterClosed()
+      .pipe(take(1))
+      .subscribe(async result => {
+        if (result) {
+          await this._dataApi.genericMethod('Order', 'cancelOrder', [this.order]).toPromise();
+          const snackBarRef = this._snackBar.open(`Successfully cancelled the order(id: ${this.order.id}) `, 'Close', {
+            duration: 3000
+          });
+          snackBarRef.onAction()
+            .pipe(take(1))
+            .subscribe(() => {
+              snackBarRef.dismiss();
+            });
+          this._router.navigate(['../'], { relativeTo: this._route });
+        }
+      })
   }
 
   async save() {
@@ -139,9 +177,11 @@ export class OrderDetailComponent implements OnInit {
         [this.order, newOrderItems2]).toPromise();
       const snackBarRef = this._snackBar.open(`Order(id: ${this.order.id}) successfully updated`,
         'Close', { duration: 3000 });
-      snackBarRef.onAction().subscribe(() => {
-        snackBarRef.dismiss();
-      });
+      snackBarRef.onAction()
+        .pipe(take(1))
+        .subscribe(() => {
+          snackBarRef.dismiss();
+        });
       this._router.navigate(['../'], { relativeTo: this._route});
     } catch (err) {
       console.log(`error: failed to update an order - ${err.message}`);
@@ -167,10 +207,12 @@ export class OrderDetailComponent implements OnInit {
       oItem.subtotal = orderItem.unitPrice * orderItem.quantity;
     }
     // update subtotal of item and order
-    oItem.quantity.valueChanges.subscribe(val => {
-      oItem.subtotal = oItem.unitPrice * val;
-      this._updateTotalAmount();
-    });
+    oItem.quantity.valueChanges
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe(val => {
+        oItem.subtotal = oItem.unitPrice * val;
+        this._updateTotalAmount();
+      });
     return oItem;
   }
 
