@@ -9,7 +9,7 @@ const logger = require(appRoot + '/config/winston');
 /* During boot-up, initialize Auth0 tenant.
 */
 module.exports = async function(app) {
-  if (process.env.ONE_OFF) {
+  if (process.env.ONE_OFF || process.env.IS_WORKER) {
     return;  // skip initialization for one off process.
   }
 

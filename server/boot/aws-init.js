@@ -20,7 +20,7 @@ const logger = require(appRoot + '/config/winston');
 * During boot up time, we create a tenant folder in each bucket if not exist already.
 */
 module.exports = async function(app) {
-  if (process.env.ONE_OFF) {
+  if (process.env.ONE_OFF || process.env.IS_WORKER) {
     return;  // skip initialization for one off process.
   }
   const accessKey = process.env.AWS_ACCESS_KEY_ID;

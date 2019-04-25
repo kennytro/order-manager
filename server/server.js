@@ -4,6 +4,8 @@ const loopback = require('loopback');
 const boot = require('loopback-boot');
 const path = require('path');
 const morgan = require('morgan');
+const cluster = require('cluster');
+const yn = require('yn');
 
 // read .env before requiring other app files.
 require('dotenv').config();
@@ -11,6 +13,25 @@ const logger = require(appRoot + '/config/winston.js');
 const tenantSettings = require(appRoot + '/config/tenant');
 const getPublicContent = require('./middleware/public-content');
 const checkJwt = require('./middleware/check-jwt');
+
+if (!yn(process.env.DISABLE_CLUSTER)) {
+  // start a worker
+  if (cluster.isMaster) {
+    logger.info(`Master ${process.pid} started.`);
+    cluster.fork({
+      IS_WORKER: true
+    });
+    cluster.on('exit', (worker, code, signal) => {
+      logger.info(`worker ${worker.process.pid} died.`);
+      var newWorker = cluster.fork({
+        IS_WORKER: true
+      });
+      logger.info(`Starting replacement worker ${newWorker.process.pid}.`);
+    });
+  } else {
+    logger.info(`Worker ${process.pid} started.`);
+  }
+}
 
 const app = module.exports = loopback();
 const ENV = process.env.NODE_ENV || 'production';
@@ -75,6 +96,6 @@ boot(app, __dirname, function(err) {
   if (err) throw err;
 
   // start the server if `$ node server.js`
-  if (require.main === module)
+  if (cluster.isMaster && require.main === module)
     app.start();
 });
