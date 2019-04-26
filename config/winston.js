@@ -42,7 +42,7 @@ class Postgres extends Transport {
 };
 
 // define the custom settings for each transport (file, console)
-const options = {
+const tpOptions = {
   file: {
     level: 'info',
     filename: `${appRoot}/logs/app.log`,
@@ -68,12 +68,22 @@ const options = {
   }
 };
 
+// customize log to include process id.
+const { combine, timestamp, printf } = winston.format;
+const myFormat = printf(({ level, message, timestamp }) => {
+  return `${timestamp} <${process.pid}>[${level}]: ${message}`;
+});
+
 // instantiate a new Winston Logger with the settings defined above
 const logger = winston.createLogger({
+  format: combine(
+    timestamp(),
+    myFormat
+  ),
   transports: [
-    new winston.transports.File(options.file),
-    new winston.transports.Console(options.console),
-    new Postgres(options.pg)
+    new winston.transports.File(tpOptions.file),
+    new winston.transports.Console(tpOptions.console),
+    new Postgres(tpOptions.pg)
   ],
   exitOnError: false, // do not exit on handled exceptions
   silent: process.env.NODE_ENV === 'test'  // suppress logger during test run
@@ -87,4 +97,8 @@ logger.stream = {
   }
 };
 
+// function formatLog(options) {
+//   return `${options.timestamp()}: [${process.env.pid} - ${winston.config.colorize(options.level, options.level.toUpperCase())}] - ` +
+//     options.message;
+// }
 module.exports = logger;
