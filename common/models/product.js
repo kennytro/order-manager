@@ -11,6 +11,10 @@ const tenantSetting = require(appRoot + '/config/tenant');
 module.exports = function(Product) {
   const AWS_S3_PUBLIC_URL = 'https://s3-us-west-2.amazonaws.com/om-public/';
 
+  // Don't allow delete by ID. Instead set 'isAvailable' property.
+  Product.disableRemoteMethodByName('deleteById');
+  Product.disableRemoteMethodByName('deleteAll');
+
   /* Before saving a new product, we assign id because it is part of
    * image URL.
    */
@@ -69,11 +73,19 @@ module.exports = function(Product) {
     logger.debug(`Presigned URL for product(id: ${ctx.instance.id}): ${ctx.instance.presignedImageUrl}`);
   });
 
-  /* Before deleting a product, remove its image file from S3.
+  /**
+   * Before deleting a product, check the order is not in use.
+   * If not in use, remove its image file from S3.
    */
   Product.observe('before delete', async function(ctx) {
     let productId = _.get(ctx, ['where', 'id']);
     if (productId) {
+      let orderItem = await app.models.OrderItem.findOne({ where: { productId: productId } });
+      if (orderItem) {
+        let error = new Error('Cannot delete product in use(Tip: set "isAvailable" to false instead)');
+        error.status = 409;
+        throw error;
+      }
       await fileStorage.deleteFile({
         path: 'om-public',
         fileName: `${tenantSetting.id}/product/${productId}.png`

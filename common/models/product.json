@@ -2,7 +2,7 @@
   "name": "Product",
   "plural": "Products",
   "base": "PersistedModel",
-  "idInjection": true,
+  "idInjection": false,
   "options": {
     "validateUpsert": true,
     "postgresql": {
@@ -11,6 +11,10 @@
     }
   },
   "properties": {
+    "id": {
+      "type": "number",
+      "id": true
+    },    
     "name": {
       "type": "string",
       "required": true
