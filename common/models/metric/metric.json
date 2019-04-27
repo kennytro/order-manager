@@ -23,6 +23,10 @@
         "columnName": "parent_id"
       }
     },
+    "level": {
+      "type": "number",
+      "description": "0 - child, 1 - parent, 2 - grandparent, etc."
+    },
     "name": {
       "type": "string",
       "required": true
@@ -49,14 +53,28 @@
     },
     "aggregationType": {
       "type": "string",
+      "description": "One of 'None', 'Sum', 'Product', 'Average'",
       "postgresql": {
         "columnName": "aggregation_type"
-      }      
+      }
+    },
+    "timeRange": {
+      "type": "string",
+      "description": "One of 'None', 'Daily', 'Monthly', 'Yearly'",
+      "postgresql": {
+        "columnName": "time_range"
+      }
     },
     "modelName": {
       "type": "string",
       "postgresql": {
         "columnName": "model_name"
+      }
+    },
+    "groupByKey": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "group_by_key"
       }
     }
   },

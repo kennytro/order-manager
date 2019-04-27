@@ -1,5 +1,7 @@
 'use strict';
+const _ = require('lodash');
 const appRoot = require('app-root-path');
+const Promise = require('bluebird');
 const loopback = require('loopback');
 const boot = require('loopback-boot');
 const path = require('path');
@@ -14,25 +16,6 @@ const tenantSettings = require(appRoot + '/config/tenant');
 const getPublicContent = require('./middleware/public-content');
 const checkJwt = require('./middleware/check-jwt');
 
-if (!yn(process.env.DISABLE_CLUSTER)) {
-  // start a worker
-  if (cluster.isMaster) {
-    logger.info(`Master ${process.pid} started.`);
-    cluster.fork({
-      IS_WORKER: true
-    });
-    cluster.on('exit', (worker, code, signal) => {
-      logger.info(`worker ${worker.process.pid} died.`);
-      var newWorker = cluster.fork({
-        IS_WORKER: true
-      });
-      logger.info(`Starting replacement worker ${newWorker.process.pid}.`);
-    });
-  } else {
-    logger.info(`Worker ${process.pid} started.`);
-  }
-}
-
 const app = module.exports = loopback();
 const ENV = process.env.NODE_ENV || 'production';
 
@@ -40,6 +23,53 @@ if (ENV === 'production') {
   process.on('unhandledRejection', (reason, p) => {
     logger.error(`Unhandled Rejection at: Promise ${p} reason: ${reason}`);
   });
+}
+
+// Shutdown procedures
+let shutdownInProgress = false;
+async function shutdown(signal) {
+  logger.info(`Shutting down application(signal = ${signal})...`);
+  if (shutdownInProgress) {
+    logger.info('Shutdown already in progress');
+    return;
+  }
+  shutdownInProgress = true;
+  if (app.redis) {
+    const quitRedis = Promise.promisify(app.redis.quit).bind(app.redis);
+    try {
+      await quitRedis().timeout(3000);
+    } catch (error) {
+      if (error instanceof Promise.TimeoutError) {
+        logger.warn('Could not quit redis connection within 3 seconds');
+      }
+      logger.error(`Error while quitting Redis - ${error.message}`);
+    }
+  }
+  process.exit();
+}
+process.on('SIGINT', _.partial(shutdown, 'SIGINT'));
+process.on('SIGTERM', _.partial(shutdown, 'SIGTERM'));
+
+// Start worker process
+if (!yn(process.env.DISABLE_CLUSTER)) {
+  // start a worker
+  if (cluster.isMaster) {
+    logger.info('Master process started.');
+    cluster.fork({
+      IS_WORKER: true
+    });
+    cluster.on('exit', (worker, code, signal) => {
+      logger.info(`worker ${worker.process.pid} died.`);
+      if (!shutdownInProgress) {
+        let newWorker = cluster.fork({
+          IS_WORKER: true
+        });
+        logger.info(`Starting replacement worker ${newWorker.process.pid}.`);
+      }
+    });
+  } else {
+    logger.info('Worker process started.');
+  }
 }
 
 app.start = function() {

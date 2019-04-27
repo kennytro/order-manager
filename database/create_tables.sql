@@ -145,17 +145,21 @@ CREATE TABLE IF NOT EXISTS order_item
   UNIQUE(order_id, product_id)
 );
 
+-- metric.level: 0 - child, 1 - parent, 2 - grandparent, etc.
 CREATE TABLE IF NOT EXISTS metric
 (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   parent_id uuid,
+  level smallint DEFAULT 0,
   name text NOT NULL UNIQUE,
   description text,
   display_name text,
   short_name text,
   unit unit_of_measure,
   aggregation_type metric_aggregation_type DEFAULT 'None',
-  model_name text
+  time_range metric_time_range_type DEFAULT 'None',
+  model_name text,
+  group_by_key text
 );
 
 CREATE TABLE IF NOT EXISTS metric_data
@@ -164,5 +168,6 @@ CREATE TABLE IF NOT EXISTS metric_data
   metric_id uuid NOT NULL REFERENCES metric,
   instance_id integer,
   value numeric,
-  metric_date date DEFAULT CURRENT_DATE
+  metric_date date DEFAULT CURRENT_DATE,
+  group_by_value text
 );

@@ -12,4 +12,7 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'metric_aggregation_type') THEN
     CREATE TYPE metric_aggregation_type as ENUM('None', 'Sum', 'Product', 'Average');
   END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'metric_time_range_type') THEN
+    CREATE TYPE metric_time_range_type as ENUM('None', 'Daily', 'Monthly', 'Yearly');
+  END IF;
 END$$;

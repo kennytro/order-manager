@@ -34,6 +34,12 @@
       "postgresql": {
         "columnName": "metric_date"
       }
+    },
+    "groupByValue": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "group_by_value"
+      }
     }
   },
   "validations": [],
