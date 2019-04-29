@@ -112,9 +112,9 @@ module.exports = function(Metric) {
 
     // update aggregation data value.
     await Promise.map(aggrMDArray, async (aggrMD) => {
-      debugBatch(`<${aggrMetric.name}>: Updating aggregate metric data(id: ${aggrMD.id}) -`);
       // find all data of child metric.
       const [beginDate, endDate] = aggrMetric.getTimeRange(aggrMD.metricDate);
+      debugBatch(`<${aggrMetric.name}>: Updating aggregate metric data(id: ${aggrMD.id}, begin: ${beginDate}, end: ${endDate}) -`);
       let filter = {
         where: { and: [
           { metricId: metric.id }, { metricDate: { between: [beginDate, endDate] } }
@@ -180,7 +180,7 @@ module.exports = function(Metric) {
             metricDate: order.createdAt,
             groupByValue: leafMetric.groupByKey ? order[leafMetric.groupByKey] : null
           });
-          debugBatch(`<${leafMetric.name}>: Created new metric data(${newMetricData.id} with value ${newMetricData.value}.`);
+          debugBatch(`<${leafMetric.name}>: Created new metric data(${newMetricData.id}) with value ${newMetricData.value}.`);
         }
       }, {
         concurrency: CONCURRENCY_LIMIT
