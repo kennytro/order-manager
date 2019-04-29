@@ -139,6 +139,11 @@ In order to restrict an IAM user to access other IAM user's private folder, assi
 }
 ``` 
 ***
+# Redis Configuration on Heroku
+Redis provided by Heroku has default idel 'timeout' set to 5 minutes. To prevent connection lose, run the following command to set 'timeout' to indefinite. 
+```
+heroku redis:timeout <app name> --seconds 0
+```
 
 # Server Configuration
 ## Auth0 settings
@@ -171,6 +176,7 @@ When back end server starts up for the first time, it needs to create an adminis
 |NAME|REQUIRED?|DEFAULT|DESCRIPTION|
 |----|---------|-------|-----------|
 |DATABASE_URL|Y||Database URL|
+|REDIS_URL|Y||Redis URL. Redis is used for inter-process communication.|
 
 ### Seed data
 For minimal functionality, you may want to seed data into the following tables(See database/seed_data.sql for suggestion):
