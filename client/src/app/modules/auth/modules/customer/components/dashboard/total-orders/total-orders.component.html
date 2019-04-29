@@ -1,0 +1,18 @@
+<div fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="center">
+  <h3>Total Orders</h3>
+  <div fxLayout="row wrap" fxLayoutGap="20px">
+    <div fxFlex="nogrow">
+      <mat-form-field>
+        <mat-label>Time Interval</mat-label>
+        <mat-select [formControl]="intervalSelection">
+          <mat-option *ngFor="let interval of intervalList" [value]="interval.label">
+            {{interval.label}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
+  <div>
+    <google-chart [data]="orderChart"></google-chart>
+  </div>
+</div>

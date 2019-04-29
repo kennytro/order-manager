@@ -7,7 +7,7 @@
   },
   "scripts": {
     "build:sdk": "set ONE_OFF=true && set NODE_ENV=development&& \"./node_modules/.bin/lb-sdk\" server/server client/src/app/shared/sdk -l angular2 -d ng2web -i disabled -w enabled",
-    "build:ng": "cd client && \"../node_modules/.bin/ng\" build",
+    "build:ng": "cd client && \"../node_modules/.bin/ng\" build --aot",
     "heroku-postbuild": "cd client && \"../node_modules/.bin/ng\" build --aot -c=$NODE_ENV",
     "lint": "ng lint",
     "start": "node .",
@@ -64,6 +64,7 @@
     "md5-file": "^4.0.0",
     "moment": "^2.24.0",
     "morgan": "^1.9.1",
+    "ng2-google-charts": "^4.0.0",
     "ngx-cookie-service": "^2.1.0",
     "ngx-image-cropper": "^1.3.8",
     "ngx-material-file-input": "^1.1.1",

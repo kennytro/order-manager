@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { Ng2GoogleChartsModule } from 'ng2-google-charts';
 
 import { AuthSharedModule } from '../../shared/auth-shared.module';
 import { CustomerRoutingModule } from './customer-routing.module';
@@ -24,12 +25,15 @@ import { faBars, faCartPlus, faChartLine, faCog, faExclamationCircle,
   faSignOutAlt, faShoppingCart, faTrashAlt, faUsers } from '@fortawesome/free-solid-svg-icons';
 import { StatementsComponent } from './components/statements/statements/statements.component';
 import { StatementDetailComponent } from './components/statements/statement-detail/statement-detail.component';
+import { TotalOrdersComponent } from './components/dashboard/total-orders/total-orders.component';
+import { TodaysSnapshotsComponent } from './components/dashboard/todays-snapshots/todays-snapshots.component';
 
 @NgModule({
-  declarations: [CustomerLayoutComponent, DashboardComponent, OrdersComponent, NewOrderComponent, OrderDetailComponent, StatementsComponent, StatementDetailComponent, /* ConfirmDialogComponent */ ],
+  declarations: [CustomerLayoutComponent, DashboardComponent, OrdersComponent, NewOrderComponent, OrderDetailComponent, StatementsComponent, StatementDetailComponent, TotalOrdersComponent, TodaysSnapshotsComponent, /* ConfirmDialogComponent */ ],
   imports: [
     AuthSharedModule,
-    CustomerRoutingModule
+    CustomerRoutingModule,
+    Ng2GoogleChartsModule
   ],
   providers: [
     FileService,

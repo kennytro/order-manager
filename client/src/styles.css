@@ -74,6 +74,10 @@ span.thick {
   font-weight: bold;
 }
 
+span.key {
+  font-family: Arial Black, Gadget, sans-serif;
+}
+
 p.thick {
   font-weight: bold;
 }

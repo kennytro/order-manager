@@ -97,10 +97,15 @@ export class AuthService {
     const roles = get(appMetadata, 'roles', []);
     this._cookieService.set('roles', JSON.stringify(roles), null, '/');
 
-    // TODO: parse customer's store id
-    // this.dataShare.setData('storeId', appMetadata.storeId);
     // navigate based on user roles.
     if (roles.includes('customer')) {
+      // For customer login, save client id.
+      const clientId = get(appMetadata, 'clientId');
+      if (clientId) {
+        this._cookieService.set('clientId', clientId, null, '/');
+      } else {
+        console.warn('Customer user has no client id');
+      }
       this.router.navigate(['auth/customer']);
     }
     if (roles.includes('manager') || roles.includes('admin')) {
@@ -114,6 +119,7 @@ export class AuthService {
     this._cookieService.delete('accessToken', '/');
     this._cookieService.delete('idTokne', '/');
     this._cookieService.delete('roles', '/');
+    this._cookieService.delete('clientId', '/');
     this._expiresAt = 0;
     this.unscheduleRenewal();
 

@@ -200,6 +200,47 @@ module.exports = function(Metric) {
     // TO DO: remove old metric data
   };
 
+  /**
+   * Find metric data of given metric names.
+   * @param {string[]} names - array of metric name
+   * @param {object} where - where filter on MetricData
+   * @returns {object[]} data - array of metric data
+   */
+  Metric.findMetricDataByName = async function(names, whereFilter) {
+    const metricIds = _.map(names, name => {
+      return {
+        name: name,
+        id: uuidv5(name, METRIC_NS_UUID)
+      };
+    });
+    let metricIdClause;
+    if (metricIds.length === 1) {
+      metricIdClause = { metricId: metricIds[0].id };      // single metric query
+    } else {
+      metricIdClause = { metricId: { inq: _.map(metricIds, 'id') } }; // multiple metric query
+    }
+    if (whereFilter) {      // combine with user filter
+      let andArray = [metricIdClause];
+      if (whereFilter.and) {
+        andArray = _.cat(andArray, whereFilter.add);
+      } else {
+        andArray.push(whereFilter);
+      }
+      whereFilter = { and: andArray };
+    } else {
+      whereFilter = metricIdClause;
+    }
+    let metricdataArray = await app.models.MetricData.find({
+      where: whereFilter,
+      fields: { instanceId: false }
+    });
+
+    // replace 'metricId' with name
+    return _.each(metricdataArray, md => {
+      md.metricId = _.find(metricIds, { id: md.metricId }).name;
+    });
+  };
+
   Metric.prototype.getTimeRange = function(date) {
     if (this.timeRange === 'Daily') {
       return [moment(date).startOf('day').toDate(), moment(date).endOf('day').toDate()];

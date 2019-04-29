@@ -1,0 +1,16 @@
+<div fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="center">
+  <h3>Today's Snapshots</h3>
+  <div fxLayout="row wrap" fxLayoutGap="20px">
+    <div fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="center">
+      <div fxFlex="nogrow">
+        <span class="thick key">Total Orders:</span> {{getOrderCount()}}
+      </div>
+      <div fxFlex="nogrow">
+        <span class="thick key">Total Amount:</span> {{getOrderAmount() | currency}}
+      </div>
+    </div>
+    <div>
+      <google-chart [data]="pieChart"></google-chart>
+    </div>
+  </div>
+</div>
