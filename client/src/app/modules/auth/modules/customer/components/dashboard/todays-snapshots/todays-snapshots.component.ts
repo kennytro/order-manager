@@ -17,22 +17,12 @@ import { DataApiService } from '../../../services/data-api.service';
 export class TodaysSnapshotsComponent implements OnInit {
   private _orders: Array<OrderSummary> = [];
   private _unsubscribe = new Subject<boolean>();
-  pieChart: GoogleChartInterface = {
-    chartType: 'PieChart',
-    dataTable: [
-      ['Status', 'Count'],
-      ['Submitted', 0],
-      ['Processed', 0],
-      ['Shipped', 0],
-      ['Completed', 0],
-      ['Cancelled', 0]
-    ],
-    options: {'title': 'Today\'s Orders'},
-  };
+  pieChart: GoogleChartInterface;
+
   constructor(private _dataApi: DataApiService) { }
 
   ngOnInit() {
-    timer(100, 60000)
+    timer(10, 60000)  // refresh chart every minute.
       .pipe(takeUntil(this._unsubscribe))
       .subscribe(() => {
         this._getOrders();
@@ -63,24 +53,26 @@ export class TodaysSnapshotsComponent implements OnInit {
       });
   }
   private _updateChart() {
-    let ccComponent = this.pieChart.component;
-    let ccWrapper = ccComponent.wrapper;    
     let grouped = groupBy(this._orders, 'status');
     let statuses = keys(grouped);
-    let redrawFlag = false;
-    statuses.forEach(status => {
-      let dataElement = this.pieChart.dataTable.find(function(element) {
-        return element[0] === status;
-      });
-      if (dataElement[1] !== grouped[status].length) {
-        dataElement[1] = grouped[status].length;
-        redrawFlag = true;
-      }
-    });
-
-    //force a redraw
-    if (redrawFlag && ccWrapper) {
-      ccWrapper.draw();
+    // build data table.    
+    let tableHeader = [['Status', 'Count']];
+    let newData = statuses.map(status => [status, grouped[status].length]);
+    let newDataTable = tableHeader.concat(newData);    
+    // update chart
+    if (this.pieChart) {
+      this.pieChart.dataTable = newDataTable;
+      this.pieChart.component.draw();
+    } else {
+      this._initializePieChart(newDataTable);
     }
   }
+
+  private _initializePieChart(dataTable) {
+    this.pieChart = {
+      chartType: 'PieChart',
+      dataTable: dataTable,
+      options: {'title': 'Today\'s Orders'},
+    };
+  }   
 }
