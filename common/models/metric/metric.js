@@ -37,7 +37,7 @@ module.exports = function(Metric) {
 
     const orderIds = await spopAsync(REDIS_ORDER_CHANGED_KEY, idCount);
     if (debugBatch.enabled) {
-      debugBatch(`Order IDs in ${REDIS_ORDER_CHANGED_KEY}(count: ${orderIds.length}): JSON.stringify(orderIds).`);
+      debugBatch(`Order IDs in ${REDIS_ORDER_CHANGED_KEY}(count: ${orderIds.length}): ${JSON.stringify(orderIds)}.`);
     }
     return orderIds;
   }
@@ -52,7 +52,7 @@ module.exports = function(Metric) {
     }
     // find aggregation metric definition (TODO: refactor code)
     const aggrMetric = await Metric.findById(metric.parentId);
-    debugBatch(`Updating aggregate metric(id: ${aggrMetric.id}, name: ${aggrMetric.name}, groupByKey: ${_.get(aggrMetric, 'groupByKey', 'null')}`);
+    debugBatch(`Updating aggregate metric(id: ${aggrMetric.id}, name: ${aggrMetric.name}, groupByKey: ${_.get(aggrMetric, 'groupByKey', 'null')})`);
     let aggrMDArray = [];
     if (aggrMetric.groupByKey) {
       const groupByOrders = _.groupBy(orders, aggrMetric.groupByKey);
@@ -102,7 +102,7 @@ module.exports = function(Metric) {
           });
           debugBatch(`<${aggrMetric.name}>: Created new metric data(id: ${aggrMD.id}.`);
         } else {
-          debugBatch(`<${aggrMetric.name}>: Found metric data(id: ${aggrMD.id}.`);
+          debugBatch(`<${aggrMetric.name}>: Found metric data(id: ${aggrMD.id}).`);
         }
         return aggrMD;
       }, {
@@ -159,7 +159,7 @@ module.exports = function(Metric) {
         { metricId: leafMetric.id },
         { instanceId: { inq: _.map(cancelled, 'id') } }
       ] });
-      debugBatch(`Removed metric data of ${JSON.stringify(_.map(cancelled, 'id'))}.`);
+      debugBatch(`<${leafMetric.name}>: Removed metric data of ${JSON.stringify(_.map(cancelled, 'id'))}.`);
     }
 
     // upsert data of changed order
@@ -171,7 +171,7 @@ module.exports = function(Metric) {
         });
         if (metricData) {
           await metricData.updateAttribute('value', leafMetric.getValue(order));
-          debugBatch(`Updated metric data(${metricData.id}) value to ${metricData.value}.`);
+          debugBatch(`<${leafMetric.name}>: Updated metric data(${metricData.id}) value to ${metricData.value}.`);
         } else {
           const newMetricData = await app.models.MetricData.create({
             metricId: leafMetric.id,
@@ -180,7 +180,7 @@ module.exports = function(Metric) {
             metricDate: order.createdAt,
             groupByValue: leafMetric.groupByKey ? order[leafMetric.groupByKey] : null
           });
-          debugBatch(`Created new metric data(${newMetricData.id} with value ${newMetricData.value}.`);
+          debugBatch(`<${leafMetric.name}>: Created new metric data(${newMetricData.id} with value ${newMetricData.value}.`);
         }
       }, {
         concurrency: CONCURRENCY_LIMIT
