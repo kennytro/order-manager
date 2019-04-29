@@ -13,7 +13,7 @@ module.exports = function(app) {
     return;
   }
   app.redis = redis.createClient(process.env.REDIS_URL, {
-    prefix: tenantSetting.id,
+    prefix: tenantSetting.id + ':',
     retry_unfulfilled_commands: true,
     retry_strategy: retryStrategy
   });

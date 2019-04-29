@@ -22,31 +22,8 @@ export class TotalOrdersComponent implements OnInit {
     { label: 'Yearly', unit: 'Year', format: 'YYYY', amountMetricName: 'total_sale_yearly', countMetricName: 'total_orders_yearly' }
   ];
   intervalSelection: FormControl;
-  orderChart: GoogleChartInterface = {
-    chartType: 'ComboChart',
-    dataTable: [
-      ['Date', 'Amount', 'Count'],
-      ['1st', 0, 0]
-    ],
-    options: {
-      title: 'Total Orders Over Time',
-      min: 0,
-      vAxes: {
-        0: { title: 'Amount', format:'$#,###.##' },
-        1: { title: '# or Orders'}
-      },
-      series: {
-        0: {
-          type: 'bars',
-          targetAxisIndex: 0
-        },
-        1: {
-          type: 'line',
-          targetAxisIndex: 1
-        }
-      }
-    }
-  };
+  orderChart: GoogleChartInterface;
+
   private _orderMetricDataArray = [];
   private _unsubscribe = new Subject<boolean>();
 
@@ -59,9 +36,10 @@ export class TotalOrdersComponent implements OnInit {
       .subscribe(label => {
         this._getMetricData(label);
       });
-    timer(100)
-      .pipe(take(1))
-      .subscribe(()=> {
+
+    timer(10, 60000)  // refresh chart every minute.
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe(() => {
         this._getMetricData('Daily');
       });
   }
@@ -81,9 +59,7 @@ export class TotalOrdersComponent implements OnInit {
   }
 
   private _updateChart(dataArray, intervalLabel) {
-    let ccComponent = this.orderChart.component;
-    let ccWrapper = ccComponent.wrapper;     
-    const intervalInfo = this.intervalList.find(function(element) {
+       const intervalInfo = this.intervalList.find(function(element) {
       return element.label === intervalLabel;
     })
 
@@ -92,8 +68,8 @@ export class TotalOrdersComponent implements OnInit {
     dateKeys.sort();
 
     // build data table.
-    this.orderChart.dataTable = [[intervalInfo.unit, 'Total Amount', 'Order Count']];  // header
-    dateKeys.forEach((dateKey) => {
+    let tableHeader = [[intervalInfo.unit, 'Total Amount', 'Order Count']];  // header
+    let newData = dateKeys.map((dateKey) => {
       let dataArray = grouped[dateKey];
       const hAxis = moment(dateKey).format(intervalInfo.format);
       const amount = dataArray.find(function(element) {
@@ -102,10 +78,40 @@ export class TotalOrdersComponent implements OnInit {
       const count = dataArray.find(function(element) {
         return element.metricId === intervalInfo.countMetricName;
       })
-      this.orderChart.dataTable.push([hAxis, Number(amount.value), Number(count.value)]);
+      return [hAxis, Number(amount.value), Number(count.value)];
     })
-    if (ccWrapper) {
-      ccWrapper.draw();  // redraw chart
+    let newDataTable = tableHeader.concat(newData);
+    // update chart
+    if (this.orderChart) {
+      this.orderChart.dataTable = newDataTable;
+      this.orderChart.component.draw();
+    } else {
+      this._initializeOrderChart(newDataTable); 
     }
+  }
+
+  private _initializeOrderChart(dataTable) {
+    this.orderChart = {
+      chartType: 'ComboChart',
+      dataTable: dataTable,
+      options: {
+        title: 'Total Orders Over Time',
+        min: 0,
+        vAxes: {
+          0: { title: 'Amount', format:'$#,###.##' },
+          1: { title: 'Order Count'}
+        },
+        series: {
+          0: {
+            type: 'bars',
+            targetAxisIndex: 0
+          },
+          1: {
+            type: 'line',
+            targetAxisIndex: 1
+          }
+        }
+      }
+    };
   }
 }

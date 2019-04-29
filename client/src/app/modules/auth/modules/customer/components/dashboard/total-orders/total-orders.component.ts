@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { GoogleChartInterface } from 'ng2-google-charts/google-charts-interfaces';
 import { FormControl } from '@angular/forms';
 import { CookieService } from 'ngx-cookie-service';
-import { Subject, timer } from 'rxjs';
+import { Subject } from 'rxjs';
 import { take, takeUntil } from 'rxjs/operators';
 
 import * as moment from 'moment';
@@ -23,18 +23,7 @@ export class TotalOrdersComponent implements OnInit {
     { label: 'Yearly', unit: 'Year', format: 'YYYY', amountMetricName: 'client_sale_yearly' }
   ];
   intervalSelection: FormControl;
-  orderChart: GoogleChartInterface = {
-    chartType: 'Bar',
-    dataTable: [
-      ['Date', 'Amount'],
-      ['1st', 0]
-    ],
-    options: {
-      // title: 'Total Orders Over Time',
-      min: 0,
-      vAxes: { 0: { format: '$#,###.##' } }
-    }
-  };
+  orderChart: GoogleChartInterface;
   clientId = '';
   private _orderMetricDataArray = [];
   private _unsubscribe = new Subject<boolean>();
@@ -49,11 +38,13 @@ export class TotalOrdersComponent implements OnInit {
       .subscribe(label => {
         this._getMetricData(label);
       });
-    timer(100)
-      .pipe(take(1))
-      .subscribe(()=> {
-        this._getMetricData('Daily');
-      });
+
+    this._getMetricData('Daily');
+    // [HACK]: For some reason, chart format doesn't work first time.
+    // To get around this problem, force redraw after 1 sec.
+    setTimeout(() => {
+      this._getMetricData('Daily');
+    }, 1000);
   }
 
   ngOnDestroy() {
@@ -70,17 +61,32 @@ export class TotalOrdersComponent implements OnInit {
   }
 
   private _updateChart(dataArray, intervalLabel) {
-    let ccComponent = this.orderChart.component;
-    let ccWrapper = ccComponent.wrapper;     
     const intervalInfo = this.intervalList.find(function(element) {
       return element.label === intervalLabel;
     })
-    this.orderChart.dataTable = [[intervalInfo.unit, 'Total Amount']];  // header
-    dataArray.forEach((element) => {
-      this.orderChart.dataTable.push([moment(element.metricDate).format(intervalInfo.format), Number(element.value)]);
+    // build data table.
+    let tableHeader = [[intervalInfo.unit, 'Total Amount']];
+    let newData = dataArray.map((element) => {
+      return [moment(element.metricDate).format(intervalInfo.format), Number(element.value)];
     });
-    if (ccWrapper) {
-      ccWrapper.draw();  // redraw chart
+    let newDataTable = tableHeader.concat(newData);
+    // update chart
+    if (this.orderChart) { 
+      this.orderChart.dataTable = newDataTable;
+      this.orderChart.component.draw();  // redraw chart
+    } else {
+      this._initializeOrderChart(newDataTable);
     }
   }
+
+  private _initializeOrderChart(dataTable) {
+    this.orderChart = {
+      chartType: 'Bar',
+      dataTable: dataTable,
+      options: {
+        min: 0,
+        vAxes: { 0: { format: '$#,###.##' } }
+      }
+    };
+  }  
 }
