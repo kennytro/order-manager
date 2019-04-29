@@ -12,7 +12,7 @@ module.exports = function(Metric) {
   const TS_METRIC_ID = uuidv5('total_sale', METRIC_NS_UUID);
   const TO_METRIC_ID = uuidv5('total_orders', METRIC_NS_UUID);
   const CS_METRIC_ID = uuidv5('client_sale', METRIC_NS_UUID);
-  const CONCURRENCY_LIMIT = 3;  // avoid connection exhaustion
+  const CONCURRENCY_LIMIT = process.env.CONCURRENCY_LIMIT ? parseInt(process.env.CONCURRENCY_LIMIT) : 3;  // avoid connection exhaustion
   /**
    * Get a list of id of orders that have changed since last update.
    *
@@ -73,6 +73,8 @@ module.exports = function(Metric) {
         }, {
           concurrency: CONCURRENCY_LIMIT
         });
+      }, {
+        concurrency: CONCURRENCY_LIMIT
       });
       aggrMDArray = _.flatten(aggrMDArray);
     } else {
@@ -87,7 +89,6 @@ module.exports = function(Metric) {
             value: 0,
             metricDate: date
           });
-        } else {
         }
         return aggrMD;
       }, {
@@ -114,6 +115,8 @@ module.exports = function(Metric) {
         const newValue = aggrMetric.aggregateData(childrendMD);
         await aggrMD.updateAttribute('value', newValue);
       }
+    }, {
+      concurrency: CONCURRENCY_LIMIT
     });
 
     // recursively update parent.
