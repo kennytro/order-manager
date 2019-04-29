@@ -168,6 +168,6 @@ CREATE TABLE IF NOT EXISTS metric_data
   metric_id uuid NOT NULL REFERENCES metric,
   instance_id integer,
   value numeric,
-  metric_date date DEFAULT CURRENT_DATE,
+  metric_date timestamptz DEFAULT now(),
   group_by_value text
 );

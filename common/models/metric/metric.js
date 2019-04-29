@@ -100,7 +100,7 @@ module.exports = function(Metric) {
             value: 0,
             metricDate: date
           });
-          debugBatch(`<${aggrMetric.name}>: Created new metric data(id: ${aggrMD.id}.`);
+          debugBatch(`<${aggrMetric.name}>: Created new metric data(id: ${aggrMD.id}).`);
         } else {
           debugBatch(`<${aggrMetric.name}>: Found metric data(id: ${aggrMD.id}).`);
         }
