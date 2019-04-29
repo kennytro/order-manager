@@ -1,6 +1,7 @@
 'use strict';
 const _ = require('lodash');
 const appRoot = require('app-root-path');
+const debugBatch = require('debug')('Metric:batch');
 const Promise = require('bluebird');
 const moment = require('moment');
 const uuidv5 = require('uuid/v5');
@@ -31,10 +32,14 @@ module.exports = function(Metric) {
     if (idCount === 0) {
       return [];
     }
-    logger.debug(`${idCount} order(s) created.`);
+    debugBatch(`${idCount} order(s) created.`);
     idCount = Math.min(idCount, MAX_ORDER_ID_COUNT);
 
-    return await spopAsync(REDIS_ORDER_CHANGED_KEY, idCount);
+    const orderIds = await spopAsync(REDIS_ORDER_CHANGED_KEY, idCount);
+    if (debugBatch.enabled) {
+      debugBatch(`Order IDs in ${REDIS_ORDER_CHANGED_KEY}(count: ${orderIds.length}): ${JSON.stringify(orderIds)}.`);
+    }
+    return orderIds;
   }
 
   /**
@@ -47,14 +52,16 @@ module.exports = function(Metric) {
     }
     // find aggregation metric definition (TODO: refactor code)
     const aggrMetric = await Metric.findById(metric.parentId);
-
+    debugBatch(`Updating aggregate metric(id: ${aggrMetric.id}, name: ${aggrMetric.name}, groupByKey: ${_.get(aggrMetric, 'groupByKey', 'null')})`);
     let aggrMDArray = [];
     if (aggrMetric.groupByKey) {
       const groupByOrders = _.groupBy(orders, aggrMetric.groupByKey);
       aggrMDArray = await Promise.map(_.keys(groupByOrders), async (key) => {
+        debugBatch(`<${aggrMetric.name}>: Group by key: ${key} -`);
         let grouped = groupByOrders[key];
         let dateArray = aggrMetric.getDateArray(_.map(grouped, 'createdAt'));
         return await Promise.map(dateArray, async (date) => {
+          debugBatch(`<${aggrMetric.name}>: Metric date: ${date} -`);
           let aggrMD = await app.models.MetricData.findOne({
             where: { and: [
               { metricId: aggrMetric.id },
@@ -68,6 +75,9 @@ module.exports = function(Metric) {
               metricDate: date,
               groupByValue: key
             });
+            debugBatch(`<${aggrMetric.name}>: Created new metric data(id: ${aggrMD.id}).`);
+          } else {
+            debugBatch(`<${aggrMetric.name}>: Found metric data(id: ${aggrMD.id}).`);
           }
           return aggrMD;
         }, {
@@ -80,6 +90,7 @@ module.exports = function(Metric) {
     } else {
       let dateArray = aggrMetric.getDateArray(_.map(orders, 'createdAt'));
       aggrMDArray = await Promise.map(dateArray, async (date) => {
+        debugBatch(`<${aggrMetric.name}>: Metric date: ${date} -`);
         let aggrMD = await app.models.MetricData.findOne({
           where: { and: [{ metricId: aggrMetric.id }, { metricDate: date }] }
         });
@@ -89,6 +100,9 @@ module.exports = function(Metric) {
             value: 0,
             metricDate: date
           });
+          debugBatch(`<${aggrMetric.name}>: Created new metric data(id: ${aggrMD.id}.`);
+        } else {
+          debugBatch(`<${aggrMetric.name}>: Found metric data(id: ${aggrMD.id}).`);
         }
         return aggrMD;
       }, {
@@ -98,6 +112,7 @@ module.exports = function(Metric) {
 
     // update aggregation data value.
     await Promise.map(aggrMDArray, async (aggrMD) => {
+      debugBatch(`<${aggrMetric.name}>: Updating aggregate metric data(id: ${aggrMD.id}) -`);
       // find all data of child metric.
       const [beginDate, endDate] = aggrMetric.getTimeRange(aggrMD.metricDate);
       let filter = {
@@ -110,10 +125,12 @@ module.exports = function(Metric) {
       }
       const childrendMD = await app.models.MetricData.find(filter);
       if (_.isEmpty(childrendMD)) {
+        debugBatch(`<${aggrMetric.name}>: Destroying metric data(id: ${aggrMD.id}).`);
         await aggrMD.destroy();  // delete aggretation data with no child.
       } else {
         const newValue = aggrMetric.aggregateData(childrendMD);
         await aggrMD.updateAttribute('value', newValue);
+        debugBatch(`<${aggrMetric.name}>: Updated metric data(id: ${aggrMD.id}, value: ${aggrMD.value}).`);
       }
     }, {
       concurrency: CONCURRENCY_LIMIT
@@ -133,7 +150,7 @@ module.exports = function(Metric) {
       return;
     }
     const leafMetric = await Metric.findById(leafMetricId);
-    logger.debug(`updateOrderMetrics(${leafMetric.name}, ${orders.length}) - Begins.`);
+    debugBatch(`updateOrderMetrics(${leafMetric.name}) - Begins.`);
 
     // remove data of cancelled order
     const cancelled = _.filter(orders, { status: 'Cancelled' });
@@ -142,6 +159,7 @@ module.exports = function(Metric) {
         { metricId: leafMetric.id },
         { instanceId: { inq: _.map(cancelled, 'id') } }
       ] });
+      debugBatch(`<${leafMetric.name}>: Removed metric data of ${JSON.stringify(_.map(cancelled, 'id'))}.`);
     }
 
     // upsert data of changed order
@@ -153,14 +171,16 @@ module.exports = function(Metric) {
         });
         if (metricData) {
           await metricData.updateAttribute('value', leafMetric.getValue(order));
+          debugBatch(`<${leafMetric.name}>: Updated metric data(${metricData.id}) value to ${metricData.value}.`);
         } else {
-          await app.models.MetricData.create({
+          const newMetricData = await app.models.MetricData.create({
             metricId: leafMetric.id,
             instanceId: order.id,
             value: leafMetric.getValue(order),
             metricDate: order.createdAt,
             groupByValue: leafMetric.groupByKey ? order[leafMetric.groupByKey] : null
           });
+          debugBatch(`<${leafMetric.name}>: Created new metric data(${newMetricData.id} with value ${newMetricData.value}.`);
         }
       }, {
         concurrency: CONCURRENCY_LIMIT
@@ -168,7 +188,7 @@ module.exports = function(Metric) {
     }
 
     await updateAggregationMetric(leafMetric, orders);
-    logger.debug(`updateOrderMetrics(${leafMetric.name}, ${orders.length}) - Ends.`);
+    debugBatch(`updateOrderMetrics(${leafMetric.name}) - Ends.`);
   }
 
   Metric.batchUpdateOnOrder = async function() {
@@ -176,8 +196,19 @@ module.exports = function(Metric) {
     if (_.isEmpty(orderIds)) {
       return;
     }
+
     try {
       let orders = await app.models.Order.find({ where: { id: { inq: orderIds } } });
+      if (debugBatch.enabled) {
+        orders.forEach(function(order) {
+          const id = order.id;
+          const cDate = order.createdAt;
+          const cId = order.clientId;
+          const amount = order.totalAmount;
+          const status = order.status;
+          debugBatch(`Order ${id} - date: ${cDate}, client: ${cId}, amount: ${amount}, status: ${status}`);
+        });
+      }
       await Promise.all([
         updateOrderMetrics(TS_METRIC_ID, orders),
         updateOrderMetrics(TO_METRIC_ID, orders),
@@ -193,13 +224,13 @@ module.exports = function(Metric) {
    * Wrapper of all functions updating metric data.
    */
   Metric.batchUpdate = async function(fireDate) {
-    logger.debug(`${moment(fireDate).format()}: Running Metric.batchUpdate()`);
+    debugBatch(`${moment(fireDate).format()}: Running Metric.batchUpdate()`);
     await Metric.batchUpdateOnOrder();
     // [Note] any batch update on model other than 'Order' should come here.
   };
 
   Metric.removeOldData = async function(fireDate) {
-    logger.debug(`${moment(fireDate).format()}: Running Metric.removeOldData()`);
+    debugBatch(`${moment(fireDate).format()}: Running Metric.removeOldData()`);
     // TO DO: remove old metric data
   };
 
