@@ -8,8 +8,11 @@ const logger = require(appRoot + '/config/winston');
 const PdfMaker = require(appRoot + '/common/util/make-pdf');
 const fileStorage = require(appRoot + '/common/util/file-storage');
 const tenantSetting = require(appRoot + '/config/tenant');
+const metricSetting = require(appRoot + '/config/metric');
 
 module.exports = function(Order) {
+  const REDIS_ORDER_CHANGED_KEY = metricSetting.redisOrderChangedSetKey;
+
   // Don't allow delete by ID. Instead cancel order.
   Order.disableRemoteMethodByName('deleteById');
   /**
@@ -55,7 +58,9 @@ module.exports = function(Order) {
     } catch (error) {
       throw new HttpErrors(500, `cannot create new order - ${error.message}`);
     }
-    newOrder.generatePdf();  // run asynchronously
+    // run the following commands asynchronously
+    newOrder.generatePdf();
+    newOrder.addToRedisSet();
     return {
       status: 200,
       message: `New order(id: ${newOrder.id}) created.`,
@@ -85,7 +90,9 @@ module.exports = function(Order) {
     } catch (error) {
       throw new HttpErrors(500, `cannot update order - ${error.message}`);
     }
-    newOrder.generatePdf();  // run asynchronously
+    // run the following commands asynchronously
+    newOrder.generatePdf();
+    newOrder.addToRedisSet();
     return {
       status: 200,
       message: `Order(id: ${newOrder.id}) is updated.`,
@@ -113,6 +120,8 @@ module.exports = function(Order) {
       }
       throw new HttpErrors(500, `cannot cancel order(id: ${orderData.id}) - ${error.message}`);
     }
+    // run the following commands asynchronously
+    existingOrder.addToRedisSet();
     return {
       status: 200,
       message: `Order(id: ${existingOrder.id}) is cancelled.`,
@@ -205,5 +214,18 @@ module.exports = function(Order) {
       fileName: this.getPdfName(),
       expires: 30
     });
+  };
+
+  /**
+   * Add order id to the 'change' set in Redis.
+   *
+   * Any change in an order(except for status change) is added
+   * to a designated set in Redis to notify worker process to
+   * update metrics as a result of this change.
+   */
+  Order.prototype.addToRedisSet = function() {
+    if (app.redis) {
+      app.redis.sadd(REDIS_ORDER_CHANGED_KEY, this.id);
+    }
   };
 };

@@ -127,10 +127,19 @@ export class ProductDetailComponent implements OnInit {
 
   async delete() {
     this._alertSvc.confirm('Are you sure?', 'Deleting this product cannot be undone and will invalidate existing orders. You may want to make unavailable instead? ', async () => {
-      await this._dataApi.destroyById('Product', this.product.id.toString()).toPromise();
-      this._alertSvc.alertSuccess('Success', `Successfully deleted product(id: ${this.product.id})`, () => {
-        this._router.navigate(['../'], { relativeTo: this._route });
-      });
+      try {
+        await this._dataApi.destroyById('Product', this.product.id.toString()).toPromise();
+        this._alertSvc.alertSuccess('Success', `Successfully deleted product(id: ${this.product.id})`, () => {
+          this._router.navigate(['../'], { relativeTo: this._route });
+        });
+      } catch (error) {
+        if (error.status === 409) {
+          const snackBarRef = this._snackBar.open(`Product(id: ${this.product.id}) cannot be deleted - ${error.message}`, 'Close');
+          snackBarRef.onAction().subscribe(() => {
+            snackBarRef.dismiss();
+          });
+        }
+      }
     });
   }
 }

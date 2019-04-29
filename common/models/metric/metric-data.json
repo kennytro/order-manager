@@ -1,0 +1,56 @@
+{
+  "name": "MetricData",
+  "plural": "MetricData",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true,
+    "postgresql": {
+      "schema": "public",
+      "table": "metric_data"
+    }
+  },
+  "properties": {
+    "metricId": {
+      "type": "string",
+      "required": true,
+      "postgresql": {
+        "columnName": "metric_id"
+      }
+    },
+    "instanceId": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "instance_id"
+      }
+    },
+    "value": {
+      "type": "number",
+      "required": true
+    },
+    "metricDate": {
+      "type": "date",
+      "defaultFn": "now",
+      "postgresql": {
+        "columnName": "metric_date"
+      }
+    },
+    "groupByValue": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "group_by_value"
+      }
+    }
+  },
+  "validations": [],
+  "relations": {
+    "metric": {
+      "type": "hasOne",
+      "model": "Metric",
+      "foreignKey": "id",
+      "primaryKey": "metricId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

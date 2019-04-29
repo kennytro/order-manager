@@ -3,8 +3,10 @@ const appRoot = require('app-root-path');
 const Promise = require('bluebird');
 const _ = require('lodash');
 const app = require(appRoot + '/server/server');
-
+const metricSetting = require(appRoot + '/config/metric');
 module.exports = function(Client) {
+  const REDIS_CLIENT_DELETED_KEY = metricSetting.redisClientDeletedSetKey;
+
   /* Replace built-in 'destroyById' with custom function that performs
    * cascade deletion. */
   Client.on('dataSourceAttached', function(obj) {
@@ -24,6 +26,7 @@ module.exports = function(Client) {
               Order.destroyAll({ clientId: id })
             ]);
             await target.destroy();
+            target.addToRedisSet();    // run asynchronously
           }
         });
       } catch (error) {
@@ -72,5 +75,19 @@ module.exports = function(Client) {
       const client2 = client.toJSON();
       return !_.isEmpty(client2.orders);
     });
+  };
+
+  /**
+   * Add client id to the 'delete' set in Redis.
+   *
+   * When a client is deleted, we add its id to a designated set in Redis
+   * to notify worker process to update metrics as a result of this change.
+   */
+  Client.prototype.addToRedisSet = function() {
+    /* Commented out for now because there isn't a metric for client, yet.
+    if (app.redis) {
+      app.redis.sadd(REDIS_CLIENT_DELETED_KEY, this.id);
+    }
+    */
   };
 };

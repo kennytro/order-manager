@@ -118,6 +118,9 @@ async function executeSqlFile(client, filepath, force) {
       await client.query('BEGIN');
       await Promise.mapSeries(sqlCmds, async (cmd) => {
         try {
+          if (process.env.DEBUG) {
+            console.log(`Running ${cmd.slice(0, 120)}...`);
+          }
           await client.query(cmd);
         } catch (error) {
           console.error(`Error while running ${cmd.slice(0, 120)}...`);

@@ -1,6 +1,7 @@
 // Modules
 import { NgModule } from '@angular/core';
 import { ImageCropperModule } from 'ngx-image-cropper';
+import { Ng2GoogleChartsModule } from 'ng2-google-charts';
 
 import { AuthSharedModule } from '../../shared/auth-shared.module';
 import { SharedModule } from '../../../../shared/shared.module';
@@ -10,6 +11,7 @@ import { EmployeeRoutingModule } from './employee-routing.module';
 import { EmployeeLayoutComponent } from './components/employee-layout/employee-layout.component';
 import { ClientsComponent } from './components/clients/clients.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { TodaysSnapshotsComponent } from './components/dashboard/todays-snapshots/todays-snapshots.component';
 import { NewClientComponent } from './components/new-client/new-client.component';
 import { ClientDetailComponent } from './components/client-detail/client-detail.component';
 import { UsersComponent } from './components/users/users.component';
@@ -59,6 +61,7 @@ import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV,
         faSearchDollar, faShoppingCart, faSignOutAlt, faStoreAlt,
         faTag, faTags, faTimesCircle, faTrashAlt, faTruck,
         faUndoAlt, faUser, faUserPlus, faUsers } from '@fortawesome/free-solid-svg-icons';
+import { TotalOrdersComponent } from './components/dashboard/total-orders/total-orders.component';
 
 @NgModule({
   declarations: [
@@ -69,13 +72,14 @@ import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV,
     DeliveryRoutesComponent, DeliveryRouteDetailComponent, NewDeliveryRouteComponent,
     ProductsComponent, ProductDetailComponent, NewProductComponent,
     OrderLayoutComponent, TodaysOrdersComponent, OpenOrdersComponent, ClosedOrdersComponent, OrderDetailComponent, NewOrderComponent,
-    StatementsComponent, NewStatementComponent, EditAdjustComponent, StatementDetailComponent
+    StatementsComponent, NewStatementComponent, EditAdjustComponent, StatementDetailComponent, TodaysSnapshotsComponent, TotalOrdersComponent
   ],
   imports: [
     AuthSharedModule,
     ImageCropperModule,
     SharedModule,
-    EmployeeRoutingModule
+    EmployeeRoutingModule,
+    Ng2GoogleChartsModule
   ],
   providers: [
     DataResolver,

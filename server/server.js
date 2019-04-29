@@ -1,9 +1,13 @@
 'use strict';
+const _ = require('lodash');
 const appRoot = require('app-root-path');
+const Promise = require('bluebird');
 const loopback = require('loopback');
 const boot = require('loopback-boot');
 const path = require('path');
 const morgan = require('morgan');
+const cluster = require('cluster');
+const yn = require('yn');
 
 // read .env before requiring other app files.
 require('dotenv').config();
@@ -19,6 +23,53 @@ if (ENV === 'production') {
   process.on('unhandledRejection', (reason, p) => {
     logger.error(`Unhandled Rejection at: Promise ${p} reason: ${reason}`);
   });
+}
+
+// Shutdown procedures
+let shutdownInProgress = false;
+async function shutdown(signal) {
+  logger.info(`Shutting down application(signal = ${signal})...`);
+  if (shutdownInProgress) {
+    logger.info('Shutdown already in progress');
+    return;
+  }
+  shutdownInProgress = true;
+  if (app.redis) {
+    const quitRedis = Promise.promisify(app.redis.quit).bind(app.redis);
+    try {
+      await quitRedis().timeout(3000);
+    } catch (error) {
+      if (error instanceof Promise.TimeoutError) {
+        logger.warn('Could not quit redis connection within 3 seconds');
+      }
+      logger.error(`Error while quitting Redis - ${error.message}`);
+    }
+  }
+  process.exit();
+}
+process.on('SIGINT', _.partial(shutdown, 'SIGINT'));
+process.on('SIGTERM', _.partial(shutdown, 'SIGTERM'));
+
+// Start worker process
+if (!yn(process.env.DISABLE_CLUSTER)) {
+  // start a worker
+  if (cluster.isMaster) {
+    logger.info('Master process started.');
+    cluster.fork({
+      IS_WORKER: true
+    });
+    cluster.on('exit', (worker, code, signal) => {
+      logger.info(`worker ${worker.process.pid} died.`);
+      if (!shutdownInProgress) {
+        let newWorker = cluster.fork({
+          IS_WORKER: true
+        });
+        logger.info(`Starting replacement worker ${newWorker.process.pid}.`);
+      }
+    });
+  } else {
+    logger.info('Worker process started.');
+  }
 }
 
 app.start = function() {
@@ -75,6 +126,6 @@ boot(app, __dirname, function(err) {
   if (err) throw err;
 
   // start the server if `$ node server.js`
-  if (require.main === module)
+  if (cluster.isMaster && require.main === module)
     app.start();
 });
