@@ -13,7 +13,7 @@ module.exports = function(EndUser) {
   const DEFAULT_PW = process.env.DEFAULT_PW;
 
   const AllowedMethodsByRole = {
-    customer: ['sendMeResetPasswordEmail', 'getMyUser'],
+    customer: ['sendMeResetPasswordEmail', 'getMyUser', 'saveProductExclusionList'],
     manager: ['sendMeResetPasswordEmail'],
     admin: ['sendMeResetPasswordEmail']
   };
@@ -163,6 +163,13 @@ module.exports = function(EndUser) {
       });
     });
     return { status: response };
+  };
+
+  /**
+   * @param {string[]} exList -  list of products to exclude from order page.
+   */
+  EndUser.saveProductExclusionList = async function(exList) {
+    // TODO: CODE HERE
   };
 
   /**
