@@ -1,1 +1,39 @@
-<div [innerHtml]="getContent()"></div>
+<div><h1>Contact Us</h1></div>
+<form [formGroup]="contactFG" class="form-container">
+  <div fxLayout="column" fxLayoutGap="10px">
+    <div style="width: 300px">
+      <mat-form-field appearance="outline">
+        <mat-label>First Name</mat-label>
+        <input matInput formControlName="firstName">
+      </mat-form-field>
+    </div>
+    <div style="width: 300px">
+      <mat-form-field appearance="outline">
+        <mat-label>Last Name</mat-label>
+        <input matInput formControlName="lastName">
+      </mat-form-field>
+    </div>
+    <div style="width: 300px">
+      <mat-form-field appearance="outline">
+        <mat-label>Phone</mat-label>
+        <input matInput formControlName="phone" [textMask]="{mask: phoneMask}">
+      </mat-form-field>  
+    </div>
+    <div style="width: 300px">
+      <mat-form-field appearance="outline">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email">
+        <mat-error> Please, enter a valid email address </mat-error>
+      </mat-form-field>
+    </div>
+    <div>
+      <mat-form-field class="full-width">
+        <mat-label>Note</mat-label>
+        <textarea matInput placeholder="Note/Comment" formControlName="note"></textarea>
+      </mat-form-field>
+    </div>
+  </div>
+  <div>
+    <button mat-raised-button class="action" color="green" [disabled]="contactFG.invalid" (click)="submit()">Submit</button>
+  </div>
+</form>
