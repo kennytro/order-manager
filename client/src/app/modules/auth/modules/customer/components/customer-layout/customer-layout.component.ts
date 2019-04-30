@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { MatDialog, MatSnackBar } from '@angular/material';
-import { ConfirmDialogComponent, DialogData } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { take} from 'rxjs/operators';
+
+import { SettingsComponent } from './settings/settings.component';
+import { ConfirmDialogComponent, DialogData } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 import { AWS_S3_PUBLIC_URL } from '../../../../../../shared/base.url';
 import { AuthService, UserProfile } from '../../../../../../services/auth.service';
@@ -41,7 +43,7 @@ export class CustomerLayoutComponent implements OnInit {
   }
 
   settings() {
-    console.log('clicked settings ');
+    const diaglogRef = this._dialog.open(SettingsComponent);
   }
 
   changePassword() {
