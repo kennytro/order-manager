@@ -140,7 +140,7 @@ module.exports = function(CustomerData) {
           throwAuthError();
         }
         // Client method must have 'clientId' as the first argument.
-        if (modelName === 'Client' && _.get(decoded, [APP_METADATA_KEY, 'clientId']).toString() !== _.get(params, '0')) {
+        if (modelName === 'Client' && _.get(decoded, [APP_METADATA_KEY, 'clientId']) !== _.get(params, '0')) {
           throwAuthError();
         }
       }
