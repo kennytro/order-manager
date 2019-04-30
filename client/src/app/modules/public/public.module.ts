@@ -21,6 +21,7 @@ import { ContactUsResolver } from './services/contact-us.resolver';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faMobile, faSignInAlt, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import { SafePipe } from './pipes/safe.pipe';
 
 @NgModule({
   declarations: [
@@ -31,7 +32,8 @@ import { faMobile, faSignInAlt, faInfoCircle } from '@fortawesome/free-solid-svg
     ProductComponent,
     ProcessComponent,
     LoginComponent,
-    ContactUsComponent  	
+    ContactUsComponent,
+    SafePipe  	
   ],
   imports: [
     CommonModule,
