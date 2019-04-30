@@ -1,6 +1,9 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { MatButtonModule, MatFormFieldModule, MatInputModule, MatSnackBarModule } from '@angular/material';
+import { ReactiveFormsModule } from '@angular/forms';
+import { TextMaskModule } from 'angular2-text-mask';
 
 import { PublicRoutingModule } from './public-routing.module';
 import { LoginComponent } from './components/login/login.component';
@@ -36,6 +39,9 @@ import { SafePipe } from './pipes/safe.pipe';
     SafePipe  	
   ],
   imports: [
+    MatButtonModule, MatFormFieldModule, MatInputModule, MatSnackBarModule,
+    ReactiveFormsModule,
+    TextMaskModule,
     CommonModule,
     FontAwesomeModule,
     PublicRoutingModule

@@ -24,7 +24,7 @@ const routes: Routes = [
       { path: 'client', component: ClientComponent, resolve: { content: ClientResolver } },
       { path: 'product', component: ProductComponent, resolve: { content: ProductResolver } },
       { path: 'process', component: ProcessComponent , resolve: { content: ProcessResolver }},
-      { path: 'contactus', component: ContactUsComponent, resolve: { content: ContactUsResolver } },
+      { path: 'contactus', component: ContactUsComponent/*, resolve: { content: ContactUsResolver }*/ },
       { path: 'login', component: LoginComponent }
     ]
   }
