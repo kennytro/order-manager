@@ -9,9 +9,11 @@ import { EmployeeRoutingModule } from './employee-routing.module';
 
 // Components
 import { EmployeeLayoutComponent } from './components/employee-layout/employee-layout.component';
+import { SettingsComponent } from './components/employee-layout/settings/settings.component';
 import { ClientsComponent } from './components/clients/clients.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { TodaysSnapshotsComponent } from './components/dashboard/todays-snapshots/todays-snapshots.component';
+import { TotalOrdersComponent } from './components/dashboard/total-orders/total-orders.component';
 import { NewClientComponent } from './components/new-client/new-client.component';
 import { ClientDetailComponent } from './components/client-detail/client-detail.component';
 import { UsersComponent } from './components/users/users.component';
@@ -61,18 +63,18 @@ import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV,
         faSearchDollar, faShoppingCart, faSignOutAlt, faStoreAlt,
         faTag, faTags, faTimesCircle, faTrashAlt, faTruck,
         faUndoAlt, faUser, faUserPlus, faUsers } from '@fortawesome/free-solid-svg-icons';
-import { TotalOrdersComponent } from './components/dashboard/total-orders/total-orders.component';
 
 @NgModule({
   declarations: [
-    EmployeeLayoutComponent, DashboardComponent,
+    EmployeeLayoutComponent, SettingsComponent,
+    DashboardComponent, TodaysSnapshotsComponent, TotalOrdersComponent,
     ClientsComponent, ClientDetailComponent, NewClientComponent,
-    PhoneNumberPipe,
     UsersComponent, UserDetailComponent, NewUserComponent,
     DeliveryRoutesComponent, DeliveryRouteDetailComponent, NewDeliveryRouteComponent,
     ProductsComponent, ProductDetailComponent, NewProductComponent,
     OrderLayoutComponent, TodaysOrdersComponent, OpenOrdersComponent, ClosedOrdersComponent, OrderDetailComponent, NewOrderComponent,
-    StatementsComponent, NewStatementComponent, EditAdjustComponent, StatementDetailComponent, TodaysSnapshotsComponent, TotalOrdersComponent
+    StatementsComponent, NewStatementComponent, EditAdjustComponent, StatementDetailComponent,
+    PhoneNumberPipe
   ],
   imports: [
     AuthSharedModule,
@@ -95,6 +97,7 @@ import { TotalOrdersComponent } from './components/dashboard/total-orders/total-
     ProductService
   ],
   entryComponents: [
+    SettingsComponent,
     NewClientComponent,
     NewUserComponent,
     NewDeliveryRouteComponent,

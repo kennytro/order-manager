@@ -58,8 +58,9 @@
              </mat-form-field>
           </div>
         </div>
-        <div>
-          <button mat-button matStepperNext type="button">Next <fa-icon icon="long-arrow-alt-right"></fa-icon></button>
+        <div fxLayout="row" fxLayoutAlign="end" fxLayoutGap="20px">
+          <button mat-raised-button class="action" [mat-dialog-close]="false">Cancel</button>
+          <button mat-raised-button class="action" matStepperNext type="button">Next <fa-icon icon="long-arrow-alt-right"></fa-icon></button>
         </div>
       </mat-step>
       <mat-step formGroupName="1" [stepControl]="contactFormGroup" [completed]="false">
@@ -110,10 +111,11 @@
             </div>
           </div>
         </div>
-        <div>
-          <button mat-button matStepperPrevious type="button"><fa-icon icon="long-arrow-alt-left"></fa-icon> Back</button>
-          <button mat-button matStepperNext type="button">Next <fa-icon icon="long-arrow-alt-right"></fa-icon></button>
-        </div>
+        <div fxLayout="row" fxLayoutAlign="end" fxLayoutGap="20px">
+          <button mat-raised-button class="action" [mat-dialog-close]="false">Cancel</button>
+          <button mat-raised-button class="action" matStepperPrevious type="button"><fa-icon icon="long-arrow-alt-left"></fa-icon> Back</button>
+          <button mat-raised-button class="action" matStepperNext type="button">Next<fa-icon icon="long-arrow-alt-right"></fa-icon></button>
+        </div>        
       </mat-step>
       <mat-step formGroupName="2" [stepControl]="orderFormGroup" [completed]="false">
         <ng-template matStepLabel><fa-icon icon="shopping-cart"></fa-icon> Order processing detail</ng-template>
@@ -148,16 +150,12 @@
             </div>
           </div>
         </div>
-        <div>
-          <button mat-button matStepperPrevious type="button"><fa-icon icon="long-arrow-alt-left"></fa-icon> Back</button>
+        <div fxLayout="row" fxLayoutAlign="end" fxLayoutGap="20px">
+          <button mat-raised-button class="action" [mat-dialog-close]="false">Cancel</button>
+          <button mat-raised-button class="action" matStepperPrevious type="button"><fa-icon icon="long-arrow-alt-left"></fa-icon> Back</button>
+          <button mat-raised-button class="action" color="green" [disabled]="clientFG.invalid" (click)="create()">Create</button>
         </div>
       </mat-step>
     </mat-horizontal-stepper>
   </form>
-</div>
-<mat-divider></mat-divider>
-<div mat-dialog-actions fxLayout="row" fxLayoutAlign="end">
-  <button mat-raised-button [mat-dialog-close]="false">Cancel</button>
-  <button mat-raised-button [disabled]="clientFG.invalid" (click)="create()" color="green">Create</button>
-
 </div>

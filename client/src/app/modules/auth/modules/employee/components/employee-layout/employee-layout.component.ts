@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog, MatSnackBar } from '@angular/material';
+
+import { SettingsComponent } from './settings/settings.component';
 import { ConfirmDialogComponent, DialogData } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 import { AWS_S3_PUBLIC_URL } from '../../../../../../shared/base.url';
@@ -18,6 +20,7 @@ export class EmployeeLayoutComponent implements OnInit {
   private _companyName: string;
   constructor(private _auth: AuthService,
     private _dataShare: RootScopeShareService,
+    private _settingsDialog: MatDialog,
     private _dialog: MatDialog,
     private _snackBar: MatSnackBar,
     private _dataApi: DataApiService) { }
@@ -29,7 +32,7 @@ export class EmployeeLayoutComponent implements OnInit {
   }
 
   settings() {
-    console.log('clicked settings ');
+    const diaglogRef = this._settingsDialog.open(SettingsComponent);
   }
 
   changePassword() {

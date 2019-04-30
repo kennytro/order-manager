@@ -1,7 +1,9 @@
 'use strict';
 const appRoot = require('app-root-path');
+const HttpErrors = require('http-errors');
 const _ = require('lodash');
 const https = require('https');
+const app = require(appRoot + '/server/server');
 const logger = require(appRoot + '/config/winston');
 
 module.exports = function(CompanyInfo) {
@@ -19,6 +21,29 @@ module.exports = function(CompanyInfo) {
       logger.error(`Error in CompanyInfo.getCompanyInfo() - ${error.message}`);
       throw error;
     }
+  };
+
+  CompanyInfo.setCompanyInfo = async function(companyInfo) {
+    const keys = _.keys(companyInfo);
+    let newInfoArray = keys.map((key) => {
+      return {
+        key: key,
+        value: companyInfo[key]
+      };
+    });
+    try {
+      await app.dataSources.OrderManager.transaction(async models => {
+        const { CompanyInfo } = models;
+        await CompanyInfo.destroyAll({ key: { inq: keys } });
+        await CompanyInfo.create(newInfoArray);
+      });
+    } catch (error) {
+      throw new HttpErrors(500, `cannot save company information - ${error.message}`);
+    }
+    return {
+      status: 200,
+      keyCount: keys.length
+    };
   };
 
   /*
