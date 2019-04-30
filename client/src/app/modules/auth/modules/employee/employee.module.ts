@@ -9,7 +9,7 @@ import { EmployeeRoutingModule } from './employee-routing.module';
 
 // Components
 import { EmployeeLayoutComponent } from './components/employee-layout/employee-layout.component';
-import { SettingsComponent } from './components/settings/settings.component';
+import { SettingsComponent } from './components/employee-layout/settings/settings.component';
 import { ClientsComponent } from './components/clients/clients.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { TodaysSnapshotsComponent } from './components/dashboard/todays-snapshots/todays-snapshots.component';

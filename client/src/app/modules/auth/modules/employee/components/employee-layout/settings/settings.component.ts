@@ -4,7 +4,7 @@ import { AbstractControl, FormBuilder, FormGroup, FormArray, Validators } from '
 import { take } from 'rxjs/operators';
 import get from 'lodash/get';
 
-import { DataApiService } from '../../services/data-api.service';
+import { DataApiService } from '../../../services/data-api.service';
 
 @Component({
   selector: 'app-settings',

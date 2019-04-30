@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog, MatSnackBar } from '@angular/material';
 
-import { SettingsComponent } from '../settings/settings.component';
+import { SettingsComponent } from './settings/settings.component';
 import { ConfirmDialogComponent, DialogData } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 import { AWS_S3_PUBLIC_URL } from '../../../../../../shared/base.url';
