@@ -1,1 +1,1 @@
-<div [innerHtml]="getContent()"></div>
+<div [innerHtml]="getContent() | safe: 'html'"></div>
