@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog, MatSnackBar } from '@angular/material';
+import { take } from 'rxjs/operators';
 
 import { SettingsComponent } from './settings/settings.component';
 import { ConfirmDialogComponent, DialogData } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -36,6 +37,15 @@ export class EmployeeLayoutComponent implements OnInit {
   }
 
   changePassword() {
+    if (this._auth.isDemoUser()) {
+      const snackBarRef = this._snackBar.open('This service is not available to demo user.', 'Close');
+      snackBarRef.onAction()
+        .pipe(take(1))
+        .subscribe(() => {
+          snackBarRef.dismiss();
+        });
+      return;
+    }    
     const dialogData: DialogData = {
       title: 'Change Password',
       content: 'We will send an email with a link to change password.',

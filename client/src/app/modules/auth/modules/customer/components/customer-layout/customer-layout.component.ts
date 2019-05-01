@@ -46,7 +46,20 @@ export class CustomerLayoutComponent implements OnInit {
     const diaglogRef = this._dialog.open(SettingsComponent);
   }
 
+  isDemoUser() {
+    return this._auth.isDemoUser();
+  }
+
   changePassword() {
+    if (this._auth.isDemoUser()) {
+      const snackBarRef = this._snackBar.open('This service is not available to demo user.', 'Close');
+      snackBarRef.onAction()
+        .pipe(take(1))
+        .subscribe(() => {
+          snackBarRef.dismiss();
+        });
+      return;
+    }
     const dialogData: DialogData = {
       title: 'Change Password',
       content: 'We will send an email with a link to change password.',

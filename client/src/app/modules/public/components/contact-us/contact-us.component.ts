@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 @Component({
@@ -13,7 +12,6 @@ export class ContactUsComponent implements OnInit {
 
   constructor(
     private _formBuilder: FormBuilder, 
-    private route: ActivatedRoute,
     private _snackBar: MatSnackBar
   ) { }
 
@@ -25,12 +23,6 @@ export class ContactUsComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       note: ['']
     });
-    // this.route.data.subscribe(routeData => {
-    //   let content = routeData['content'];
-    //   if (content) {
-    //     this._content = content;
-    //   }
-    // });
   }
 
   submit() {
@@ -40,7 +32,4 @@ export class ContactUsComponent implements OnInit {
       snackBarRef.dismiss();
     });
   }
-  // getContent() {
-  //   return this._content;
-  // }
 }
