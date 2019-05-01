@@ -20,7 +20,6 @@ import { PublicHomeResolver } from './services/public-home.resolver';
 import { ClientResolver } from './services/client.resolver';
 import { ProductResolver } from './services/product.resolver';
 import { ProcessResolver } from './services/process.resolver';
-import { ContactUsResolver } from './services/contact-us.resolver';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faMobile, faSignInAlt, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
@@ -52,8 +51,7 @@ import { SafePipe } from './pipes/safe.pipe';
     PublicHomeResolver,
     ClientResolver,
     ProductResolver,
-    ProcessResolver,
-    ContactUsResolver
+    ProcessResolver
   ]
 })
 export class PublicModule {

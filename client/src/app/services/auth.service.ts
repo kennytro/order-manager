@@ -137,6 +137,10 @@ export class AuthService {
     return false;
   }
 
+  isDemoUser() {
+    return ['demoadmin@etr.com', 'democlient@etr.com'].includes(this._userProfile.email.toLowerCase());
+  }
+
   getUserProfile() {
     return this._userProfile;
   }

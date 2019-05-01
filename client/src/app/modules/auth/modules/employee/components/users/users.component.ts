@@ -1,8 +1,10 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { MatDialog, MatPaginator, MatSort, MatTableDataSource} from '@angular/material';
+import { MatDialog, MatPaginator, MatSort, MatTableDataSource, MatSnackBar } from '@angular/material';
+import { take } from 'rxjs/operators';
 
 import { NewUserComponent } from '../new-user/new-user.component';
+import { AuthService } from '../../../../../../services/auth.service';
 import { DataApiService } from '../../services/data-api.service';
 
 @Component({
@@ -20,7 +22,10 @@ export class UsersComponent implements OnInit {
 
   constructor(private _route: ActivatedRoute,
     private _newUserDialog: MatDialog,
-    private _dataApi: DataApiService) { }
+    private _dataApi: DataApiService,
+    private _auth: AuthService,
+    private _snackBar: MatSnackBar
+  ) { }
 
   ngOnInit() {
     this._route.data.subscribe(routeData => {
@@ -47,6 +52,15 @@ export class UsersComponent implements OnInit {
   }
 
   addUser() {
+    if (this._auth.isDemoUser()) {
+      const snackBarRef = this._snackBar.open('This service is not available to demo user.', 'Close');
+      snackBarRef.onAction()
+        .pipe(take(1))
+        .subscribe(() => {
+          snackBarRef.dismiss();
+        });
+      return;
+    }
     const dialogRef = this._newUserDialog.open(NewUserComponent);
     dialogRef.afterClosed().subscribe(async result => {
       if (result) {

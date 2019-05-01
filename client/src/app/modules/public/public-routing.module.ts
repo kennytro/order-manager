@@ -11,7 +11,6 @@ import { ProductResolver } from './services/product.resolver';
 import { ProcessComponent } from './components/process/process.component';
 import { ProcessResolver } from './services/process.resolver';
 import { ContactUsComponent } from './components/contact-us/contact-us.component';
-import { ContactUsResolver } from './services/contact-us.resolver';
 import { LoginComponent } from './components/login/login.component';
 
 const routes: Routes = [
@@ -23,8 +22,8 @@ const routes: Routes = [
       { path: 'home', component: PublicHomeComponent, resolve: { content: PublicHomeResolver } },
       { path: 'client', component: ClientComponent, resolve: { content: ClientResolver } },
       { path: 'product', component: ProductComponent, resolve: { content: ProductResolver } },
-      { path: 'process', component: ProcessComponent , resolve: { content: ProcessResolver }},
-      { path: 'contactus', component: ContactUsComponent/*, resolve: { content: ContactUsResolver }*/ },
+      { path: 'process', component: ProcessComponent , resolve: { content: ProcessResolver } },
+      { path: 'contactus', component: ContactUsComponent },
       { path: 'login', component: LoginComponent }
     ]
   }
