@@ -135,16 +135,6 @@ module.exports = function(EmployeeData) {
 
   EmployeeData.genericMethod = async function(idToken, modelName, methodName, params) {
     try {
-      // let decoded = await decodeIdToken(idToken);
-      // const role = app.models.EndUser.getHighestRole(_.get(decoded, [APP_METADATA_KEY, 'roles'], []));
-      // if (!_.includes(['manager', 'admin'], role)) {
-      //   throwAuthError();
-      // }
-      // if (role === 'manager') {
-      //   if (modelName === 'EndUser' && !_.includes(app.models.EndUser.allowedMethods(role), methodName)) {
-      //     throwAuthError();
-      //   }
-      // }
       let decoded = await verifyIdToken(idToken, modelName, methodName);
       let metadata = {};
       let endUser = await app.models.EndUser.findOne({ where: { authId: decoded.sub } });
@@ -165,7 +155,6 @@ module.exports = function(EmployeeData) {
 
   EmployeeData.resetPassword = async function(idToken) {
     try {
-      // let decoded = await decodeIdToken(idToken);
       let decoded = await verifyIdToken(idToken, 'EndUser', 'sendPasswordResetEmail');
       let endUser = await app.models.EndUser.findOne({ where: { authId: decoded.sub } });
       if (endUser) {

@@ -172,6 +172,37 @@ module.exports = function(Order) {
     return null;
   };
 
+  Order.getInventoryList = async function(orderIds) {
+    if (_.isEmpty(orderIds)) {
+      return [];
+    }
+    const [orders, products] = await Promise.all([
+      Order.find({
+        where: { id: { inq: orderIds } },
+        include: 'orderItem',
+        fields: { id: true }
+      }),
+      app.models.Product.find()
+    ]);
+    let groupedOItems = _(orders)
+      .map(function(order) {
+        order = order.toJSON();
+        return order.orderItem;
+      })
+      .flatten()
+      .groupBy('productId')
+      .value();
+
+    return _.map(_.keys(groupedOItems), key => {
+      const intKey = parseInt(key);
+      let product = _.find(products, { id: intKey });
+      const items = groupedOItems[key];
+      product.totalOrderQty = _.reduce(items, (sum, n) => sum + parseInt(n.quantity), 0);
+      console.log(`Product(${product.name}) - order count: ${product.totalOrderQty}`);
+      return product;
+    });
+  };
+
   Order.prototype.getPdfName = function() {
     return `${tenantSetting.id}/${this.clientId}/order/${this.id}.pdf`;
   };
