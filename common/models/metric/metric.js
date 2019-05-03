@@ -1,7 +1,7 @@
 'use strict';
 const _ = require('lodash');
 const appRoot = require('app-root-path');
-const debugBatch = require('debug')('Metric:batch');
+const debugBatch = require('debug')('order-manager:Metric:batch');
 const Promise = require('bluebird');
 const moment = require('moment');
 const uuidv5 = require('uuid/v5');

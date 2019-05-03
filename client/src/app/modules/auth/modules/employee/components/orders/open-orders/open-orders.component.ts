@@ -1,8 +1,10 @@
 import { Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { MatSort, MatTableDataSource } from '@angular/material';
+import { MatDialog, MatSort, MatTableDataSource, MatSnackBar } from '@angular/material';
 import { SelectionModel } from '@angular/cdk/collections';
+import { take } from 'rxjs/operators';
 
+import { CheckInventoryDialogData, CheckInventoryComponent } from './check-inventory/check-inventory.component';
 import { DataApiService } from '../../../services/data-api.service';
 
 import remove from 'lodash/remove';
@@ -23,12 +25,17 @@ export class OpenOrdersComponent implements OnInit {
   shippedOrders: MatTableDataSource<OrderSummary>;
   shippedOrderSelection: SelectionModel<OrderSummary>;
 
-  constructor(private _route: ActivatedRoute, private _dataApi: DataApiService
-) { }
-
   @ViewChild(MatSort) sortSubmitted: MatSort;
   @ViewChild(MatSort) sortProcessed: MatSort;
   @ViewChild(MatSort) sortShipped: MatSort;
+
+  constructor(
+    private _route: ActivatedRoute,
+    private _checkInventoryDialog: MatDialog,
+    private _snackBar: MatSnackBar,    
+    private _dataApi: DataApiService
+) { }
+
   ngOnInit() {
     this._route.data.subscribe(routeData => {
       if (routeData['orders']) {
@@ -82,7 +89,24 @@ export class OpenOrdersComponent implements OnInit {
   }
 
   showInventoryDialog() {
-    console.log('show inventory dialog');
+    if (this.submittedOrders.data.length === 0) {
+      const snackBarRef = this._snackBar.open('There is no order submitted.', 'Close');
+      snackBarRef.onAction()
+        .pipe(take(1))
+        .subscribe(() => {
+          snackBarRef.dismiss();
+        });
+      return;      
+    }
+
+    const dialogData: CheckInventoryDialogData = {
+      orderIds: this.submittedOrders.data.map(function(order) {
+        return order.id
+      })
+    };
+    const dialogRef = this._checkInventoryDialog.open(CheckInventoryComponent, {
+      data: dialogData
+    });
   }
 
   /*********  Processed Order Functions **********/

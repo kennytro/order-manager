@@ -1,0 +1,22 @@
+table{
+ width: 100%;
+}
+
+td, th {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.mat-column-description {
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  min-width: 400px !important;
+  overflow-wrap: break-word;
+  word-break: break-word;
+
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+

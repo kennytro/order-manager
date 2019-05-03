@@ -40,6 +40,13 @@ export class DataApiService {
     return this._dataApi.genericMethod(this._getIdToken(), modelName, methodName, param || []);
   }
 
+  /*
+   * This code is commented out because of response type not a json issue(See pdf.service.ts for detail)
+  genericGetFile(modelName: string, methodName: string, param?: Array<any>): Observable<any> {
+    return this._dataApi.genericGetFile(this._getIdToken(), modelName, methodName, param || []);
+  }
+  */
+
   private _getIdToken() {
     return this._cookieService.get('idToken');
   }  

@@ -137,6 +137,12 @@ p.thick {
   border-color: rgba(255, 255, 255, .1);  
 }
 
+/****** Spinner ******/
+.mat-spinner {
+  position: relative;
+  margin-left: 50%;
+}
+
 /****** Misc ******/
 .companyName {
   font-size: 150%;

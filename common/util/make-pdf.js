@@ -105,34 +105,45 @@ function getPdfDocDefinitionTemplate(companyInfo, logoImg, docInfo, client) {
   });
 
   // add company info
-  docDefinition.content.push({
+  let companyInfoTable = {
     table: {
       widths: ['*', 80, 60],
       body: [
         [_.get(companyInfo, 'addressStreet', 'Street Address Here'),
          { text: 'Date', bold: true, alignment: 'right' }, docInfo.date],
         [_.get(companyInfo, 'addressCity', 'City Here') + ', ' + _.get(companyInfo, 'addressState', 'State Here') + ' ' + _.get(companyInfo, 'addressZip', 'Zip Here'),
-         { text: _.capitalize(docInfo.title) + ' #', bold: true, alignment: 'right' }, docInfo.number],
-        [_.get(companyInfo, 'phone', '') + '\t' + _.get(companyInfo, 'email', ''),
-         { text: 'Customer ID', bold: true, alignment: 'right' }, client.id]
+         { text: _.capitalize(docInfo.title) + ' #', bold: true, alignment: 'right' }, docInfo.number]
       ]
     },
     layout: 'noBorders'
-  });
+  };
+  // last row depends on 'client' argument
+  if (client) {
+    companyInfoTable.table.body.push([_.get(companyInfo, 'phone', '') + '\t' + _.get(companyInfo, 'email', ''),
+        { text: 'Customer ID', bold: true, alignment: 'right' }, client.id]);
+  } else {
+    companyInfoTable.table.body.push([_.get(companyInfo, 'phone', '') + '\t' + _.get(companyInfo, 'email', ''), '', '']);
+  }
+
+  docDefinition.content.push(companyInfoTable);
   // add client info
-  docDefinition.content.push({
-    table: {
-      widths: ['auto', '*'],
-      body: [
-        [{ text: 'Bill To:', bold: true, alignment: 'right', color: 'gray' }, client.name],
-        ['', _.get(client, 'addressStreet', 'Client Street Address Here')],
-        ['', _.get(client, 'addressCity', 'Client City Here') + ', ' + _.get(client, 'addressState', 'Client State Here') + ' ' + _.get(client, 'addressZip', 'Client Zip Here')],
-        ['', _.get(client, 'phone', 'Client Phone Here')]
-      ]
-    },
-    layout: 'noBorders',
-    margin: 10
-  });
+  if (client) {
+    docDefinition.content.push({
+      table: {
+        widths: ['auto', '*'],
+        body: [
+          [{ text: 'Bill To:', bold: true, alignment: 'right', color: 'gray' }, client.name],
+          ['', _.get(client, 'addressStreet', 'Client Street Address Here')],
+          ['', _.get(client, 'addressCity', 'Client City Here') + ', ' + _.get(client, 'addressState', 'Client State Here') + ' ' + _.get(client, 'addressZip', 'Client Zip Here')],
+          ['', _.get(client, 'phone', 'Client Phone Here')]
+        ]
+      },
+      layout: 'noBorders',
+      margin: 10
+    });
+  } else {
+    docDefinition.content.push('\n');  // for spacing
+  }
   return docDefinition;
 }
 
@@ -365,7 +376,60 @@ module.exports = {
     // make PDF document
     const printer = new PdfPrinter(PDF_FONTS);
     const pdfDoc = printer.createPdfKitDocument(docDefinition);
+    pdfDoc.end();
+    return pdfDoc;
+  },
+  /*
+   * @param {Object[]} productList  - Array of product with 'totalOrderCount' additional property
+   * @returns {Buffer}              - PDF document.
+  */
+  makeInventoryList: async function(productList) {
+    const companyInfo = await app.models.CompanyInfo.getCompanyInfo();
+    const companyLogo = await app.models.CompanyInfo.getLogoImageBase64(companyInfo.logoUrl);
+    let docDefinition = getPdfDocDefinitionTemplate(companyInfo, companyLogo, {
+      title: 'Inventory List',
+      date: moment().format('MM/DD/YYYY - HH:mm:ss'),
+      number: 'N/A'
+    }, null);
 
+    // add product inventory table
+    const invTableHeader = [
+      { text: 'No.', style: 'tableHeader' },
+      { text: 'ID', style: 'tableHeader' },
+      { text: 'NAME', style: 'tableHeader' },
+      { text: 'DESCRIPTION', style: 'tableHeader' },
+      { text: 'ORDER QTY.', style: 'tableHeader' },
+      { text: 'INVENTORY QTY.', style: 'tableHeader' }
+    ];
+    docDefinition.content.push({ text: 'Product Inventory List', bold: true });
+    let invTable = {
+      table: {
+        widths: ['auto', 'auto', 'auto', '*', 'auto', 'auto'],
+        headerRows: 1,
+        body: [invTableHeader]
+      },
+      layout: {
+        fillColor: function(rowIndex, node, columnIndex) {
+          return (rowIndex % 2 === 1) ? '#DCDCDC' : null;
+        }
+      }
+    };
+    // add table rows
+    invTable.table.body = invTable.table.body.concat(_.map(productList, function(product, index) {
+      return [
+        index + 1,
+        product.id,
+        product.name,
+        product.description,
+        product.totalOrderCount,
+        product.inventoryCount
+      ];
+    }));
+    docDefinition.content.push(invTable);
+
+    // make PDF document
+    const printer = new PdfPrinter(PDF_FONTS);
+    const pdfDoc = printer.createPdfKitDocument(docDefinition);
     pdfDoc.end();
     return pdfDoc;
   }

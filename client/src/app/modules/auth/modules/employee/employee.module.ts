@@ -28,6 +28,7 @@ import { NewProductComponent } from './components/new-product/new-product.compon
 import { OrderLayoutComponent } from './components/orders/order-layout/order-layout.component';
 import { TodaysOrdersComponent } from './components/orders/todays-orders/todays-orders.component';
 import { OpenOrdersComponent } from './components/orders/open-orders/open-orders.component';
+import { CheckInventoryComponent } from './components/orders/open-orders/check-inventory/check-inventory.component';
 import { ClosedOrdersComponent } from './components/orders/closed-orders/closed-orders.component';
 import { OrderDetailComponent } from './components/orders/order-detail/order-detail.component';
 import { NewOrderComponent } from './components/orders/new-order/new-order.component';
@@ -44,6 +45,7 @@ import { OrderResolver } from './services/order.resolver';
 import { OrdersResolver } from './services/orders.resolver';
 import { StatementsResolver } from './services/statements.resolver';
 import { ClientsResolver } from './services/clients.resolver';
+import { PdfService } from './services/pdf.service';
 
 import { AlertService } from '../../shared/services/alert.service';
 import { FileService } from '../../shared/services/file.service';
@@ -72,7 +74,9 @@ import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV,
     UsersComponent, UserDetailComponent, NewUserComponent,
     DeliveryRoutesComponent, DeliveryRouteDetailComponent, NewDeliveryRouteComponent,
     ProductsComponent, ProductDetailComponent, NewProductComponent,
-    OrderLayoutComponent, TodaysOrdersComponent, OpenOrdersComponent, ClosedOrdersComponent, OrderDetailComponent, NewOrderComponent,
+    OrderLayoutComponent, TodaysOrdersComponent,
+    OpenOrdersComponent, CheckInventoryComponent,
+    ClosedOrdersComponent, OrderDetailComponent, NewOrderComponent,
     StatementsComponent, NewStatementComponent, EditAdjustComponent, StatementDetailComponent,
     PhoneNumberPipe
   ],
@@ -94,7 +98,8 @@ import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV,
     AlertService,
     FileService,
     DataApiService,
-    ProductService
+    ProductService,
+    PdfService
   ],
   entryComponents: [
     SettingsComponent,
@@ -102,7 +107,8 @@ import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV,
     NewUserComponent,
     NewDeliveryRouteComponent,
     NewProductComponent,
-    EditAdjustComponent
+    EditAdjustComponent,
+    CheckInventoryComponent
   ]
 })
 export class EmployeeModule {

@@ -3,7 +3,7 @@ import {
   MatBadgeModule, MatButtonModule, MatCardModule, MatCheckboxModule,
   MatDatepickerModule, MatDialogModule, MatDividerModule,
   MatExpansionModule, MatFormFieldModule, MatInputModule, MatMenuModule,
-  MatPaginatorModule,
+  MatPaginatorModule, MatProgressSpinnerModule,
   MatSelectModule, MatSlideToggleModule, MatSnackBarModule, MatSortModule, MatStepperModule,
   MatTableModule, MatTabsModule, MatToolbarModule, MatTooltipModule
 } from '@angular/material';
@@ -25,6 +25,7 @@ const modules = [
   MatMenuModule,
   MatMomentDateModule,
   MatPaginatorModule,
+  MatProgressSpinnerModule,
   MatSelectModule,
   MatSlideToggleModule,
   MatSnackBarModule,
