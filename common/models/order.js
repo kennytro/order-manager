@@ -197,10 +197,28 @@ module.exports = function(Order) {
       const intKey = parseInt(key);
       let product = _.find(products, { id: intKey });
       const items = groupedOItems[key];
-      product.totalOrderQty = _.reduce(items, (sum, n) => sum + parseInt(n.quantity), 0);
-      console.log(`Product(${product.name}) - order count: ${product.totalOrderQty}`);
+      product.totalOrderCount = _.reduce(items, (sum, n) => sum + parseInt(n.quantity), 0);
       return product;
     });
+  };
+
+  /**
+   * Generate a PDF file of inventory list of given orders.
+   * @param {string[]} - array of order id.
+   * @returns {Object} - JSON object containing content type and file object.
+   */
+  Order.getInventoryListInPdf = async function(orderIds) {
+    try {
+      const productList = await Order.getInventoryList(orderIds);
+      const pdfDoc = await PdfMaker.makeInventoryList(productList);
+      return {
+        contentType: 'application/pdf',
+        document: pdfDoc
+      };
+    } catch (error) {
+      logger.error(`Error while generating inventory list pdf file - ${error.message}`);
+      throw error;
+    }
   };
 
   Order.prototype.getPdfName = function() {

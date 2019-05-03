@@ -45,6 +45,7 @@ import { OrderResolver } from './services/order.resolver';
 import { OrdersResolver } from './services/orders.resolver';
 import { StatementsResolver } from './services/statements.resolver';
 import { ClientsResolver } from './services/clients.resolver';
+import { PdfService } from './services/pdf.service';
 
 import { AlertService } from '../../shared/services/alert.service';
 import { FileService } from '../../shared/services/file.service';
@@ -97,7 +98,8 @@ import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV,
     AlertService,
     FileService,
     DataApiService,
-    ProductService
+    ProductService,
+    PdfService
   ],
   entryComponents: [
     SettingsComponent,

@@ -153,6 +153,24 @@ module.exports = function(EmployeeData) {
     }
   };
 
+  EmployeeData.genericGetFile = async function(idToken, modelName, methodName, params, res) {
+    try {
+      await verifyIdToken(idToken, modelName, methodName);
+      let newParams = [].concat(params || []);
+      let fileInfo = await app.models[modelName][methodName].apply(app.models[modelName], newParams);
+      await new Promise((resolve, reject) => {
+        res.setHeader('Content-Type', fileInfo.contentType);
+        fileInfo.document
+          .on('end', resolve)
+          .on('error', reject);
+        fileInfo.document.pipe(res);
+      });
+    } catch (error) {
+      logger.error(`Cannot execute ${modelName}.${methodName}(${JSON.stringify(params)}) - ${error.message}`);
+      throw error;
+    }
+  };
+
   EmployeeData.resetPassword = async function(idToken) {
     try {
       let decoded = await verifyIdToken(idToken, 'EndUser', 'sendPasswordResetEmail');
@@ -169,7 +187,6 @@ module.exports = function(EmployeeData) {
   EmployeeData.remoteMethod('genericFind', {
     http: { path: '/find', verb: 'get' },
     accepts: [
-      // { arg: 'req', type: 'object', http: { source: 'req' } },
       { arg: 'idToken', type: 'string', required: true },
       { arg: 'modelName', type: 'string', required: true },
       { arg: 'filter', type: 'object' }
@@ -179,7 +196,6 @@ module.exports = function(EmployeeData) {
   EmployeeData.remoteMethod('genericFindById', {
     http: { path: '/findById/:id', verb: 'get' },
     accepts: [
-      // { arg: 'req', type: 'object', http: { source: 'req' } },
       { arg: 'idToken', type: 'string', required: true },
       { arg: 'modelName', type: 'string', required: true },
       { arg: 'id', type: 'string', required: true },
@@ -190,7 +206,6 @@ module.exports = function(EmployeeData) {
   EmployeeData.remoteMethod('genericUpsert', {
     http: { path: '/upsert', verb: 'put' },
     accepts: [
-      // { arg: 'req', type: 'object', http: { source: 'req' } },
       { arg: 'idToken', type: 'string', required: true },
       { arg: 'modelName', type: 'string', required: true },
       { arg: 'modelObj', type: 'object', required: true }
@@ -200,7 +215,6 @@ module.exports = function(EmployeeData) {
   EmployeeData.remoteMethod('genericDestroyById', {
     http: { path: '/delete/:id', verb: 'delete' },
     accepts: [
-      // { arg: 'req', type: 'object', http: { source: 'req' } },
       { arg: 'idToken', type: 'string', required: true },
       { arg: 'modelName', type: 'string', required: true },
       { arg: 'id', type: 'string', required: true }
@@ -215,6 +229,16 @@ module.exports = function(EmployeeData) {
       { arg: 'params', type: 'array', default: '[]' }
     ],
     returns: { type: 'object', root: true }
+  });
+  EmployeeData.remoteMethod('genericGetFile', {
+    http: { path: '/file', verb: 'get' },
+    accepts: [
+      { arg: 'idToken', type: 'string', required: true },
+      { arg: 'modelName', type: 'string', required: true },
+      { arg: 'methodName', type: 'string', required: true },
+      { arg: 'params', type: 'array', default: '[]' },
+      { arg: 'res', type: 'object', 'http': { source: 'res' } }
+    ]
   });
   EmployeeData.remoteMethod('resetPassword', {
     http: { path: '/resetPassword', verb: 'post' },
