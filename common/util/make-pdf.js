@@ -141,6 +141,8 @@ function getPdfDocDefinitionTemplate(companyInfo, logoImg, docInfo, client) {
       layout: 'noBorders',
       margin: 10
     });
+  } else {
+    docDefinition.content.push('\n');  // for spacing
   }
   return docDefinition;
 }
