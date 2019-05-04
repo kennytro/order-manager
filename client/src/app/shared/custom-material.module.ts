@@ -4,6 +4,7 @@ import {
   MatDatepickerModule, MatDialogModule, MatDividerModule,
   MatExpansionModule, MatFormFieldModule, MatInputModule, MatMenuModule,
   MatPaginatorModule, MatProgressSpinnerModule,
+  MatRadioModule,
   MatSelectModule, MatSlideToggleModule, MatSnackBarModule, MatSortModule, MatStepperModule,
   MatTableModule, MatTabsModule, MatToolbarModule, MatTooltipModule
 } from '@angular/material';
@@ -26,6 +27,7 @@ const modules = [
   MatMomentDateModule,
   MatPaginatorModule,
   MatProgressSpinnerModule,
+  MatRadioModule,
   MatSelectModule,
   MatSlideToggleModule,
   MatSnackBarModule,

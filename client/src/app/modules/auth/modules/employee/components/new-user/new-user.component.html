@@ -1,22 +1,31 @@
-<h3 mat-dialog-title>New User</h3>
+<h3 mat-dialog-title><fa-icon icon="user-plus" size="2x"></fa-icon>New User</h3>
 <div mat-dialog-content>
   <form [formGroup]="userFG" class="form-container">
-    <mat-form-field appearance="outline">
-      <mat-label>Client</mat-label>
-      <mat-select placeholder="Select client" formControlName="clientId" required>
-        <mat-option *ngFor="let client of clientList" [value]="client">{{ client }}</mat-option>
-      </mat-select>
-      <mat-error>This field is required</mat-error>
-    </mat-form-field>
-    <mat-form-field appearance="outline">
-      <mat-label>Email</mat-label>
-      <input matInput placeholder="Business email address" formControlName="email">
-      <mat-error> Please, enter a valid email address </mat-error>
-    </mat-form-field>
+    <div fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="center">
+      <div style="margin-top: 10px;" fxLayout="row wrap" fxLayoutGap="10px">
+        <span class="thick">Role: </span>
+        <mat-radio-group formControlName="role">
+          <mat-radio-button value="customer"> Client</mat-radio-button>
+          <mat-radio-button value="admin"> Employee</mat-radio-button>
+        </mat-radio-group>
+      </div>
+      <mat-form-field appearance="outline">
+        <mat-label>Client</mat-label>
+        <mat-select placeholder="Select client" formControlName="clientId" [disabled]="userFG.get('role').value!=='customer'" [required]="userFG.get('role').value==='customer'">
+          <mat-option *ngFor="let client of clientList" [value]="client.id">{{ client.id}} - {{client.name}}</mat-option>
+        </mat-select>
+        <mat-error>This field is required</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Email</mat-label>
+        <input matInput placeholder="Business email address" formControlName="email" required>
+        <mat-error> Please, enter a valid email address </mat-error>
+      </mat-form-field>
+    </div>
   </form>
 </div>
 <mat-divider></mat-divider>
 <div mat-dialog-actions fxLayout="row" fxLayoutAlign="end">
-  <button mat-raised-button [mat-dialog-close]="false">Cancel</button>
-  <button mat-raised-button [disabled]="userFG.invalid" (click)="create()" color="green">Create</button>
+  <button mat-raised-button class="action" [mat-dialog-close]="false">Cancel</button>
+  <button mat-raised-button class="action" [disabled]="userFG.invalid" (click)="create()" color="green">Create</button>
 </div>

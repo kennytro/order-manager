@@ -12,6 +12,17 @@ module.exports = function(EndUser) {
   const CLIENT_SECRET = process.env.AUTH0_API_CLIENT_SECRET;
   const DEFAULT_PW = process.env.DEFAULT_PW;
 
+  /* clientId is required is user role is customer.
+   */
+  EndUser.validate('clientId', function(err) {
+    if (_.get(this, ['userSettings', 'roles'], []).includes('customer') && !this.clientId) {
+      err();
+    }
+  }, {
+    message: 'Client ID is required for \'customer\' role.'
+  });
+  EndUser.validatesPresenceOf('email', { message: 'Cannot be blank' });
+
   const AllowedMethodsByRole = {
     customer: ['sendMeResetPasswordEmail', 'getMyUser', 'saveProductExclusionList'],
     manager: ['sendMeResetPasswordEmail'],
@@ -53,11 +64,6 @@ module.exports = function(EndUser) {
   ** @returns {EndUser} newUser
   */
   EndUser.createNewUser = async function(userObject) {
-    if (!_.get(userObject, ['clientId']) ||
-      !_.get(userObject, ['email'])) {
-      throw new Error('New EndUser is missing required property.');
-    }
-
     const management = new auth0ManagementClient({
       domain: tenantSettings.domainId,
       clientId: CLIENT_ID,
@@ -72,7 +78,7 @@ module.exports = function(EndUser) {
         password: DEFAULT_PW,
         app_metadata: {
           clientId: userObject.clientId,
-          roles: ['customer']
+          roles: _.get(userObject, ['userSettings', 'roles'], [])
         }
       });
     } catch (error) {
@@ -89,7 +95,6 @@ module.exports = function(EndUser) {
       }
 
       userObject.authId = auth0User.user_id;
-      _.set(userObject, ['userSettings', 'roles'], ['customer']);
       return await EndUser.upsertWithWhere({ email: userObject.email }, userObject);
     } catch (error) {
       logger.error(`error while creating user(email: ${userObject.email}, clientId: ${userObject.clientId}) - ${error.message}`);
