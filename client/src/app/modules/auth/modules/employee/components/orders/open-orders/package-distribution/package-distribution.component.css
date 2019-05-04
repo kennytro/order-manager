@@ -1,9 +1,13 @@
 td, th {
-  padding-left: 5px;
-  padding-right: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
-.mat-column-description {
+span.id {
+  color: blue;
+}
+
+.mat-column-product-description {
   word-wrap: break-word !important;
   white-space: unset !important;
   min-width: 400px !important;
@@ -15,4 +19,3 @@ td, th {
   -webkit-hyphens: auto;
   hyphens: auto;
 }
-

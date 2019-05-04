@@ -172,6 +172,12 @@ module.exports = function(Order) {
     return null;
   };
 
+  /**
+   * Create a list of product order item of given orders.
+   *
+   * @param {string[]} - list of order id.
+   * @returns {Object[]} - list of product with order count.
+   */
   Order.getInventoryList = async function(orderIds) {
     if (_.isEmpty(orderIds)) {
       return [];
@@ -217,6 +223,66 @@ module.exports = function(Order) {
       };
     } catch (error) {
       logger.error(`Error while generating inventory list pdf file - ${error.message}`);
+      throw error;
+    }
+  };
+
+  /**
+   * Create a list of product order items along with delivery route and client.
+   *
+   * @param {string[]} - list of order id.
+   * @returns {object[]} - list of product order item along with route and client.
+   */
+  Order.getPackageDistributionList = async function(orderIds) {
+    if (_.isEmpty(orderIds)) {
+      return [];
+    }
+    const [orders, products, routes] = await Promise.all([
+      Order.find({
+        where: { id: { inq: orderIds } },
+        fields: { id: true, clientId: true },
+        include: ['orderItem', 'client']
+      }),
+      app.models.Product.find(),
+      app.models.DeliveryRoute.find()
+    ]);
+    return _.flatMap(orders, function(order) {
+      order = order.toJSON();
+      let client = order.client;
+      let route = _.find(routes, { id: client.deliveryRouteId });
+      return _.map(order.orderItem, function(orderItem) {
+        const product = _.find(products, { id: orderItem.productId });
+        return {
+          deliveryRouteId: route.id,
+          orderId: order.id,
+          clientId: client.id,
+          clientName: client.name,
+          productId: product.id,
+          productName: product.name,
+          productImageUrl: product.settings.imageUrl,
+          productDescription: product.description,
+          productCategory: product.category,
+          productOrderCount: orderItem.quantity
+        };
+      });
+    });
+  };
+
+  /**
+   * Generate a PDF file of package distribution of given orders.
+   * @param {string[]} - array of order id.
+   * @returns {Object} - JSON object containing content type and file object.
+   */
+  Order.getPackageDistributionListInPdf = async function(orderIds) {
+    try {
+      const distributionList = await Order.getPackageDistributionList(orderIds);
+      const pdfDoc = await PdfMaker.makePackageDistributionList(distributionList);
+      return {
+        contentType: 'application/pdf',
+        document: pdfDoc
+      };
+    } catch (error) {
+      logger.error(`Error while generating package distribution list pdf file - ${error.message}`);
       throw error;
     }
   };

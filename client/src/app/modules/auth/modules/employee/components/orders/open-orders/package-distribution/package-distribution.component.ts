@@ -1,36 +1,40 @@
 import { Component, OnInit, ViewChild, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatSort, MatTableDataSource, MatDialogRef } from '@angular/material';
 import { take } from 'rxjs/operators';
+
 import { DataApiService } from '../../../../services/data-api.service';
 import { PdfService } from '../../../../services/pdf.service';
 
-export interface CheckInventoryDialogData {
+export interface PackageDistributionDialogData {
   orderIds: Array<string>
 }
 
 @Component({
-  selector: 'app-check-inventory',
-  templateUrl: './check-inventory.component.html',
-  styleUrls: ['./check-inventory.component.css']
+  selector: 'app-package-distribution',
+  templateUrl: './package-distribution.component.html',
+  styleUrls: ['./package-distribution.component.css']
 })
-export class CheckInventoryComponent implements OnInit {
-  displayedColumns: string[] = ['id', 'name', 'description', 'category', 'totalOrderCount', 'inventoryCount'];
-  productList: MatTableDataSource<any> = new MatTableDataSource([]);
+export class PackageDistributionComponent implements OnInit {
+  displayedColumns: string[] = [
+    'deliveryRouteId', 'orderId', 'clientId', 'productName',
+    'productDescription', 'productCategory', 'productOrderCount'];
+  distributionList: MatTableDataSource<any> = new MatTableDataSource([]);
   @ViewChild(MatSort) sort: MatSort;
   showSpinner = true;
+
   constructor(
-    @Inject(MAT_DIALOG_DATA) public dialogData: CheckInventoryDialogData,
-    private _dialogRef: MatDialogRef<CheckInventoryComponent>,
+    @Inject(MAT_DIALOG_DATA) public dialogData: PackageDistributionDialogData,
+    private _dialogRef: MatDialogRef<PackageDistributionComponent>,
     private _dataApi: DataApiService,
     private _pdfSvc: PdfService
-  ) { }
+   ) { }
 
   ngOnInit() {
     if (this.dialogData.orderIds.length > 0) {
-      this._dataApi.genericMethod('Order', 'getInventoryList', [this.dialogData.orderIds])
+      this._dataApi.genericMethod('Order', 'getPackageDistributionList', [this.dialogData.orderIds])
         .pipe(take(1))
-        .subscribe(productList => {
-          this._setTableDataSource(productList);
+        .subscribe(distributionList => {
+          this._setTableDataSource(distributionList);
           this.showSpinner = false;
         });
     } else {
@@ -38,14 +42,18 @@ export class CheckInventoryComponent implements OnInit {
     }
   }
 
+  applyFilter(filterValue: string) {
+    this.distributionList.filter = filterValue.trim().toLowerCase();
+  }
+
   async generatePDF() {
     // this._dataApi.genericGetFile('Order', 'getInventoryListInPdf', [this.dialogData.orderIds])
-    this._pdfSvc.downloadPDF('Order', 'getInventoryListInPdf', [this.dialogData.orderIds])
+    this._pdfSvc.downloadPDF('Order', 'getPackageDistributionListInPdf', [this.dialogData.orderIds])
     .pipe(take(1))
     .subscribe(pdfFile => {
       const element = document.createElement('a');
       element.href = URL.createObjectURL(pdfFile);
-      element.download =  `inventory_list.pdf`;
+      element.download =  `distribution_list.pdf`;
       // Firefox requires the element to be in the body
       document.body.appendChild(element);
       //simulate click
@@ -55,10 +63,10 @@ export class CheckInventoryComponent implements OnInit {
     });
   }
 
-  private _setTableDataSource(productList) {
-    this.productList = new MatTableDataSource(productList);
+  private _setTableDataSource(distributionList) {
+    this.distributionList = new MatTableDataSource(distributionList);
     setTimeout(() => {  // delay binding sort to the list.
-      this.productList.sort = this.sort;
+      this.distributionList.sort = this.sort;
     });
   }
 }

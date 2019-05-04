@@ -13,9 +13,8 @@
   "properties": {
     "id": {
       "type": "string",
-      "id": true,
-      "required": true
-    },
+      "id": true
+    },    
     "description": {
       "type": "string"
     },

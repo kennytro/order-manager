@@ -432,5 +432,8 @@ module.exports = {
     const pdfDoc = printer.createPdfKitDocument(docDefinition);
     pdfDoc.end();
     return pdfDoc;
+  },
+  makePackageDistributionList: async function(distributionList) {
+    // TODO: NEED CODE HERE
   }
 };
