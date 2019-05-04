@@ -1,0 +1,61 @@
+<h3 mat-dialog-title><fa-icon icon="truck-loading"></fa-icon> Package Distribution List</h3>
+<div mat-dialog-content>
+  <div fxLayout="column" fxLayoutGap="10px" faLayoutAlign="center">
+    <div *ngIf="showSpinner; else elseBlock">
+      <mat-spinner></mat-spinner>
+    </div>
+    <ng-template #elseBlock>
+      <div>
+        <mat-form-field>
+          <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Search">
+        </mat-form-field>
+
+        <table mat-table [dataSource]="distributionList" matSort>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          <ng-container matColumnDef="deliveryRouteId">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>ROUTE</th>
+            <td mat-cell *matCellDef="let row">{{row.deliveryRouteId}}</td>
+          </ng-container>
+          <ng-container matColumnDef="orderId">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> ORDER ID </th>
+            <td mat-cell *matCellDef="let row">{{row.orderId}}</td>
+          </ng-container>
+          <ng-container matColumnDef="clientId">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> CLIENT </th>
+            <td mat-cell *matCellDef="let row"><span class="id">{{row.clientId}}</span> - {{row.clientName}}</td>
+          </ng-container>
+          <ng-container matColumnDef="productName">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> PRODUCT </th>
+            <td mat-cell *matCellDef="let row">
+              <span class="id">{{row.productId}}</span> - 
+              <span *ngIf="row.productImageUrl; else noImage">
+                <img src={{row.productImageUrl}} height="50" width="50">
+              </span>
+              <ng-template #noImage>
+                <img src='/assets/img/no-picture.png' height="50" width="50">
+              </ng-template>
+               {{row.productName}}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="productDescription" class="mat-column-product-description">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> DESCRIPTION </th>
+            <td mat-cell *matCellDef="let row"> {{row.productDescription}} </td>
+          </ng-container>
+          <ng-container matColumnDef="productCategory">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> CATEGORY </th>
+            <td mat-cell *matCellDef="let row"> {{row.productCategory}} </td>
+          </ng-container>
+          <ng-container matColumnDef="productOrderCount">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> ORDER QTY </th>
+            <td mat-cell *matCellDef="let row"> {{row.productOrderCount}} </td>
+          </ng-container>
+        </table>
+      </div>
+    </ng-template>
+  </div>
+</div>
+<div mat-dialog-actions fxLayout="row" fxLayoutAlign="end">
+  <button mat-raised-button class="action" [mat-dialog-close]="false">Close</button>
+  <button mat-raised-button class="action" [disabled]="dialogData.orderIds.length===0" (click)="generatePDF()"><fa-icon icon="file-pdf"></fa-icon> Generate PDF</button>
+</div>

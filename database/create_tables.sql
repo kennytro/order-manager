@@ -35,8 +35,7 @@ CREATE TABLE IF NOT EXISTS public_page_element
 
 CREATE TABLE IF NOT EXISTS delivery_route
 (
-  id integer PRIMARY KEY DEFAULT nextval('generic_id_seq'),
-  name text NOT NULL UNIQUE,
+  id text PRIMARY KEY,
   description text,
   driver_name text,
   driver_phone text

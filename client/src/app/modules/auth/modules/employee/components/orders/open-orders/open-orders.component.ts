@@ -5,6 +5,7 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { take } from 'rxjs/operators';
 
 import { CheckInventoryDialogData, CheckInventoryComponent } from './check-inventory/check-inventory.component';
+import { PackageDistributionDialogData, PackageDistributionComponent } from './package-distribution/package-distribution.component';
 import { DataApiService } from '../../../services/data-api.service';
 
 import remove from 'lodash/remove';
@@ -32,6 +33,7 @@ export class OpenOrdersComponent implements OnInit {
   constructor(
     private _route: ActivatedRoute,
     private _checkInventoryDialog: MatDialog,
+    private _packageDistributionDialog: MatDialog,
     private _snackBar: MatSnackBar,    
     private _dataApi: DataApiService
 ) { }
@@ -125,7 +127,24 @@ export class OpenOrdersComponent implements OnInit {
   }
 
   showPackageDistributionDialog() {
-    console.log('show package distribution dialog');
+    if (this.processedOrders.data.length === 0) {
+      const snackBarRef = this._snackBar.open('There is no order processed.', 'Close');
+      snackBarRef.onAction()
+        .pipe(take(1))
+        .subscribe(() => {
+          snackBarRef.dismiss();
+        });
+      return;      
+    }
+
+    const dialogData: PackageDistributionDialogData = {
+      orderIds: this.processedOrders.data.map(function(order) {
+        return order.id
+      })
+    };
+    const dialogRef = this._packageDistributionDialog.open(PackageDistributionComponent, {
+      data: dialogData
+    });
   }
 
   /*********  Shipped Order Functions **********/

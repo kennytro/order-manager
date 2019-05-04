@@ -388,9 +388,10 @@ module.exports = {
     const companyLogo = await app.models.CompanyInfo.getLogoImageBase64(companyInfo.logoUrl);
     let docDefinition = getPdfDocDefinitionTemplate(companyInfo, companyLogo, {
       title: 'Inventory List',
-      date: moment().format('MM/DD/YYYY - HH:mm:ss'),
+      date: moment().format('MM/DD/YYYY'),
       number: 'N/A'
     }, null);
+    docDefinition.header = { text: 'Date - Time: ' + moment().format('MM/DD/YYYY - HH:mm:ss'), alignment: 'right' };
 
     // add product inventory table
     const invTableHeader = [
@@ -427,6 +428,91 @@ module.exports = {
     }));
     docDefinition.content.push(invTable);
 
+    // make PDF document
+    const printer = new PdfPrinter(PDF_FONTS);
+    const pdfDoc = printer.createPdfKitDocument(docDefinition);
+    pdfDoc.end();
+    return pdfDoc;
+  },
+  makePackageDistributionList: async function(distributionList) {
+    const companyInfo = await app.models.CompanyInfo.getCompanyInfo();
+    const companyLogo = await app.models.CompanyInfo.getLogoImageBase64(companyInfo.logoUrl);
+    let docDefinition = getPdfDocDefinitionTemplate(companyInfo, companyLogo, {
+      title: 'Distribution List',
+      date: moment().format('MM/DD/YYYY'),
+      number: 'N/A'
+    }, null);
+    docDefinition.header = { text: 'Date - Time: ' + moment().format('MM/DD/YYYY - HH:mm:ss'), alignment: 'right' };
+
+    // first, group by route. Each route has its own table.
+    // add product order table
+    distributionList = _.sortBy(distributionList, ['deliveryRouteId', 'clientId', 'orderId', 'productId']);
+    let groupByRoute = _.groupBy(distributionList, 'deliveryRouteId');
+    const routes = _.keys(groupByRoute);
+    _.each(routes, function(route, index) {
+      docDefinition.content.push({ text: 'Delivery Route: ' + route, bold: true, pageBreak: (index > 0) ? 'before' : undefined });
+      const distTableHeader = [
+        { text: 'CLIENT', style: 'tableHeader' },
+        { text: 'ORDER #', style: 'tableHeader' },
+        { text: 'ID', style: 'tableHeader' },
+        { text: 'NAME', style: 'tableHeader' },
+        { text: 'DESCRIPTION', style: 'tableHeader' },
+        { text: 'ORDER QTY.', style: 'tableHeader' }
+      ];
+      let distTable = {
+        table: {
+          widths: ['auto', 'auto', 'auto', 'auto', '*', 'auto'],
+          headerRows: 1,
+          body: [distTableHeader]
+        }
+      };
+      let listByRoute = groupByRoute[route];
+      const itemCountByRoute = listByRoute.length;
+      // second, group by client.
+      let groupByClient = _.groupBy(listByRoute, 'clientId');
+      const clients = _.keys(groupByClient);
+      _.each(clients, function(client) {
+        let listByClient = groupByClient[client];
+        const itemCountByClient = listByClient.length;
+        let printClientId = true;
+        // finally, group by order
+        let groupByOrder = _.groupBy(listByClient, 'orderId');
+        const orders = _.keys(groupByOrder);
+        _.each(orders, function(order) {
+          let listByOrder = groupByOrder[order];
+          const itemCountByOrder = listByOrder.length;
+          let printOrderId = true;
+          // add table row
+          _.each(listByOrder, function(item) {
+            let tableRow = [];
+            // handle columns that span multiple rows.
+            if (printClientId) {
+              tableRow.push({
+                rowSpan: itemCountByClient,
+                text: item.clientId + ' - ' + item.clientName
+              });
+              printClientId = false;
+            } else {
+              tableRow.push('');
+            }
+            if (printOrderId) {
+              tableRow.push({
+                rowSpan: itemCountByOrder,
+                text: item.orderId
+              });
+              printOrderId = false;
+            } else {
+              tableRow.push('');
+            }
+            // add rest column values.
+            tableRow.push(item.productId, item.productName, item.productDescription, item.productOrderCount);
+            distTable.table.body.push(tableRow);
+          });
+        });
+      });
+
+      docDefinition.content.push(distTable);
+    });
     // make PDF document
     const printer = new PdfPrinter(PDF_FONTS);
     const pdfDoc = printer.createPdfKitDocument(docDefinition);
