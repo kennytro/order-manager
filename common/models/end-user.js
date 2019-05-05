@@ -12,11 +12,6 @@ module.exports = function(EndUser) {
   const CLIENT_ID = process.env.AUTH0_API_CLIENT_ID;
   const CLIENT_SECRET = process.env.AUTH0_API_CLIENT_SECRET;
   const DEFAULT_PW = process.env.DEFAULT_PW;
-  const Auth0Management = new auth0ManagementClient({
-    domain: tenantSettings.domainId,
-    clientId: CLIENT_ID,
-    clientSecret: CLIENT_SECRET
-  });
 
   /* clientId is required is user role is customer.
    */
@@ -70,9 +65,14 @@ module.exports = function(EndUser) {
   ** @returns {EndUser} newUser
   */
   EndUser.createNewUser = async function(userObject) {
+    const management = new auth0ManagementClient({
+      domain: tenantSettings.domainId,
+      clientId: CLIENT_ID,
+      clientSecret: CLIENT_SECRET
+    });
     let auth0User = null;
     try {
-      auth0User = await Auth0Management.createUser({
+      auth0User = await management.createUser({
         connection: tenantSettings.connection,
         email: userObject.email,
         password: DEFAULT_PW,
@@ -87,7 +87,7 @@ module.exports = function(EndUser) {
         logger.error(`Error while creating Auth0 user(email: ${userObject.email}, clientId: ${userObject.clientId}) - ${error.message}`);
         throw error;
       }
-      let users = await Auth0Management.getUsersByEmail(userObject.email);
+      let users = await management.getUsersByEmail(userObject.email);
       auth0User = users[0];
       debugAuth0(`User(email: ${userObject.email}, auth0 id: ${auth0User.user_id}) already exists.`);
     }
@@ -105,6 +105,11 @@ module.exports = function(EndUser) {
   };
 
   EndUser.updateUser = async function(userObject) {
+    const management = new auth0ManagementClient({
+      domain: tenantSettings.domainId,
+      clientId: CLIENT_ID,
+      clientSecret: CLIENT_SECRET
+    });
     let existingUser = await EndUser.findById(userObject.id);
     if (!existingUser) {
       logger.info(`EndUser(id: ${userObject.id}) does not exist.`);
@@ -112,7 +117,7 @@ module.exports = function(EndUser) {
     }
     if (existingUser.clientId !== userObject.clientId) {
       try {
-        await Auth0Management.updateAppMetadata({ id: existingUser.authId },
+        await management.updateAppMetadata({ id: existingUser.authId },
           {
             clientId: userObject.clientId,
             roles: [userObject.role]
@@ -130,7 +135,7 @@ module.exports = function(EndUser) {
       logger.error(`Error while upserting user(id: ${userObject.id} - ${error.message}`);
       // we must role back Auth0 user app metadata
       if (existingUser.clientId !== userObject.clientId) {
-        await Auth0Management.updateAppMetadata({ id: existingUser.authId },
+        await management.updateAppMetadata({ id: existingUser.authId },
           {
             clientId: existingUser.clientId,
             roles: [existingUser.role]
@@ -150,9 +155,14 @@ module.exports = function(EndUser) {
       logger.info(`EndUser(id: ${id}) does not exist.`);
       return;
     }
+    const management = new auth0ManagementClient({
+      domain: tenantSettings.domainId,
+      clientId: CLIENT_ID,
+      clientSecret: CLIENT_SECRET
+    });
     try {
       if (user.authId) {
-        await Auth0Management.deleteUser({ id: user.authId });
+        await management.deleteUser({ id: user.authId });
         debugAuth0(`successfully deleted user(id: ${id}, auth0Id: ${user.authId}`);
       }
       await EndUser.destroyById(id);
