@@ -14,7 +14,7 @@ import { DataApiService } from '../../services/data-api.service';
 })
 export class UsersComponent implements OnInit {
   // TO DO: get column names from service.
-  displayedColumns: string[] = ['id', 'email', 'clientId', 'createdDate'];
+  displayedColumns: string[] = ['id', 'email', 'role', 'clientId', 'createdDate'];
   private _users: MatTableDataSource<any>;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -28,7 +28,9 @@ export class UsersComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this._route.data.subscribe(routeData => {
+    this._route.data
+      .pipe(take(1))
+      .subscribe(routeData => {
       if (routeData['users']) {
         this._setTableDataSource(routeData['users']);
       }
@@ -62,7 +64,9 @@ export class UsersComponent implements OnInit {
       return;
     }
     const dialogRef = this._newUserDialog.open(NewUserComponent);
-    dialogRef.afterClosed().subscribe(async result => {
+    dialogRef.afterClosed()
+      .pipe(take(1))
+      .subscribe(async result => {
       if (result) {
         // refresh list to include the new client
         let userArray = await this._dataApi.find('EndUser', {

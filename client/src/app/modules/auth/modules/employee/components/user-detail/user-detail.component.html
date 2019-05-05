@@ -7,23 +7,26 @@
   </mat-card-header>
   <mat-card-content>
     <form [formGroup]="userFG" class="form-container">
-      <mat-form-field appearance="outline">
-        <mat-label>Email</mat-label>
-        <input matInput placeholder="Business email address" formControlName="email">
-        <mat-error> Please, enter a valid email address </mat-error>
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <mat-label>Client ID</mat-label>
-        <mat-select placeholder="Select client" formControlName="clientId" required>
-          <mat-option *ngFor="let client of clientList" [value]="client">{{ client }}</mat-option>
-        </mat-select>
-        <mat-error>This field is required</mat-error>
-      </mat-form-field>
+      <div fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="center">
+        <div><span class="thick">Role:</span> {{user.role}}</div>
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <input matInput placeholder="Business email address" formControlName="email">
+          <mat-error> Please, enter a valid email address </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Client ID</mat-label>
+          <mat-select placeholder="Select client" formControlName="clientId" [required]="user.role==='customer'">
+            <mat-option *ngFor="let client of clientList" [value]="client.id">{{client.id}} - {{client.name}}</mat-option>
+          </mat-select>
+          <mat-error>This field is required</mat-error>
+        </mat-form-field>
+      </div>
     </form>
   </mat-card-content>
   <mat-card-actions align="end">
-    <button mat-raised-button routerLink="../">Close</button>
-    <button mat-raised-button color="green" (click)="save()">Save</button>
-    <button mat-raised-button color="warn" (click)="delete()">Delete</button>
+    <button mat-raised-button class="action" routerLink="../">Close</button>
+    <button mat-raised-button class="action" color="green" [disabled]="!userFG.dirty" (click)="save()">Save</button>
+    <button mat-raised-button class="action" color="warn" [disabled]="isCurrentUser()" (click)="delete()">Delete</button>
   </mat-card-actions>
 </mat-card>

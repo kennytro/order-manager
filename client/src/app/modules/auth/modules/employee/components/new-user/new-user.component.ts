@@ -53,11 +53,7 @@ export class NewUserComponent implements OnInit {
 
   async create() {
     try {
-      let user = this.userFG.value;
-      user.userSettings = {
-        roles: [user.role]
-      };
-      user = await this._dataApi.upsert('EndUser', user).toPromise();
+      let user = await this._dataApi.upsert('EndUser', this.userFG.value).toPromise();
       const snackBarRef = this._snackBar.open(`User(id: ${user.id}) successfully created`,
         'Close', { duration: 3000 });
       snackBarRef.onAction().subscribe(() => {

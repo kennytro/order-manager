@@ -21,6 +21,10 @@
         <th mat-header-cell *matHeaderCellDef mat-sort-header> EMAIL </th>
         <td mat-cell *matCellDef="let row"> {{row.email}} </td>
       </ng-container>
+      <ng-container matColumnDef="role">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> ROLE </th>
+        <td mat-cell *matCellDef="let row"> {{row.role}} </td>
+      </ng-container>
       <ng-container matColumnDef="clientId">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Client ID </th>
         <td mat-cell *matCellDef="let row"> {{row.clientId}} </td>
