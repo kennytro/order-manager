@@ -42,6 +42,7 @@ jobs:
           name: Setup database
           command: |
             cat ./database/create_roles.sql | psql -U ubuntu -d $DB --set pw="ciecleci_test" 
+            cat ./database/create_types.sql | psql -U ubuntu -d $DB
             cat ./database/create_tables.sql | psql -U ubuntu -d $DB
             cat ./database/seed_data.sql | psql -U ubuntu -d $DB
       - run:

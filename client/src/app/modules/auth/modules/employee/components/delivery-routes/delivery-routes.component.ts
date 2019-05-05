@@ -12,7 +12,7 @@ import { DataApiService } from '../../services/data-api.service';
   styleUrls: ['./delivery-routes.component.css']
 })
 export class DeliveryRoutesComponent implements OnInit {
-  displayedColumns: string[] = ['id', 'driverName', 'driverPhone'];
+  displayedColumns: string[] = ['id', 'description', 'driverName', 'driverPhone'];
   private _deliveryRoutes: MatTableDataSource<any>;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;

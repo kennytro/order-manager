@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialogRef, MatSnackBar } from '@angular/material';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { DataApiService } from '../../services/data-api.service';
+import { Subject } from 'rxjs';
+import { take, takeUntil } from 'rxjs/operators';
 
 import map from 'lodash/map';
+
+import { DataApiService } from '../../services/data-api.service';
 
 @Component({
   selector: 'app-new-user',
@@ -14,6 +17,7 @@ export class NewUserComponent implements OnInit {
   clientList = [];
   userFG: FormGroup;
   phoneMask: any[] = ['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/];
+  private _unsubscribe = new Subject<boolean>();
 
   constructor(
     private _dialogRef: MatDialogRef<NewUserComponent>,
@@ -23,14 +27,28 @@ export class NewUserComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this._dataApi.find('Client', { fields: { id: true } })
-      .subscribe(result => {
-        this.clientList = map(result, 'id');
-      });
     this.userFG = this._formBuilder.group({
-      email: ['', Validators.email],
-      clientId: ['', Validators.required]
+      role: 'customer',
+      clientId: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]]
     });
+    this.userFG.get('role').valueChanges
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe(role => {
+        this._updateClientIdFormControl(role);
+      });
+
+    this._dataApi.find('Client', { fields: { id: true, name: true } })
+      .pipe(take(1))
+      .subscribe(result => {
+        // this.clientList = map(result, 'id');
+        this.clientList = result;
+      });
+  }
+
+  ngOnDestroy() {
+    this._unsubscribe.next(true);
+    this._unsubscribe.unsubscribe();
   }
 
   async create() {
@@ -44,6 +62,20 @@ export class NewUserComponent implements OnInit {
       this._dialogRef.close(true);
     } catch (err) {
       console.log(`error: failed to create a user(email: ${this.userFG.value.email}) - ${err.message}`);
+    }
+  }
+
+  /* Whenever user role changes, 'clientId' validation must change as well.
+  */
+  private _updateClientIdFormControl(roleSelected) {
+    let clientIdFC = this.userFG.get('clientId');
+    // clientId is applicable only for 'customer' role.
+    if (roleSelected === 'customer') {
+      clientIdFC.setValidators([Validators.required]);
+      clientIdFC.reset({ value: '', disabled: false });
+    } else {
+      clientIdFC.setValidators(null);
+      clientIdFC.reset({ value: '', disabled: true });
     }
   }
 }

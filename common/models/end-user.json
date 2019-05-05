@@ -20,6 +20,7 @@
     },
     "email": {
       "type": "string",
+      "required": true,
       "postgresql": {
         "columnName": "email"
       }
@@ -29,6 +30,11 @@
       "postgresql": {
         "columnName": "email_verified"
       }
+    },
+    "role": {
+      "type": "string",
+      "required": true,
+      "default": "customer"
     },
     "clientId": {
       "type": "number",

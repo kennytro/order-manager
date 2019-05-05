@@ -73,6 +73,7 @@ CREATE TABLE IF NOT EXISTS end_user
   auth_id text NOT NULL,
   email text NOT NULL,
   email_verified bool NULL,
+  role text NOT NULL DEFAULT 'customer',
   client_id integer REFERENCES client,
   settings jsonb,
   created_date timestamptz DEFAULT now()
