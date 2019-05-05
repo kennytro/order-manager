@@ -76,9 +76,10 @@ export class NewUserComponent implements OnInit {
     // clientId is applicable only for 'customer' role.
     if (roleSelected === 'customer') {
       clientIdFC.setValidators([Validators.required]);
+      clientIdFC.reset({ value: '', disabled: false });
     } else {
       clientIdFC.setValidators(null);
-      clientIdFC.reset();
+      clientIdFC.reset({ value: '', disabled: true });
     }
   }
 }

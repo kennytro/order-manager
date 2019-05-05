@@ -2,8 +2,8 @@
 <div mat-dialog-content>
   <form [formGroup]="userFG" class="form-container">
     <div fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="center">
-      <div style="margin-top: 10px;" fxLayout="row wrap" fxLayoutGap="10px">
-        <span class="thick">Role: </span>
+      <div fxLayout="row wrap" fxLayoutGap="10px">
+        <span class="thick inline-block">Role: </span>
         <mat-radio-group formControlName="role">
           <mat-radio-button value="customer"> Client</mat-radio-button>
           <mat-radio-button value="admin"> Employee</mat-radio-button>
@@ -11,7 +11,7 @@
       </div>
       <mat-form-field appearance="outline">
         <mat-label>Client</mat-label>
-        <mat-select placeholder="Select client" formControlName="clientId" [disabled]="userFG.get('role').value!=='customer'" [required]="userFG.get('role').value==='customer'">
+        <mat-select placeholder="Select client" formControlName="clientId" [required]="userFG.get('role').value==='customer'">
           <mat-option *ngFor="let client of clientList" [value]="client.id">{{ client.id}} - {{client.name}}</mat-option>
         </mat-select>
         <mat-error>This field is required</mat-error>
