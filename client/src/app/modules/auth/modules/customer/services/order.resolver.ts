@@ -47,7 +47,7 @@ export class OrderResolver implements Resolve<any> {
         return {
           order: order,
           products: products,
-          productExclusionList: currentUser.userSettings.productExcluded || []
+          productExclusionList: get(currentUser, ['userSettings', 'productExcluded'], [])
         };
       } catch (err) {
         console.error(`Errro while resolving order data - ${err.message}`);
