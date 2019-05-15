@@ -9,5 +9,5 @@ Use the following user credential to login.
 - admin user: user id(`demoAdmin@etr.com`),  password(`D3moAdmin`)
 
 ##### Note:
-Because Heroku(Cloud platform provider) puts idel application to sleep in free plan, initial loading may take a while.
+Because Heroku(Cloud platform provider) puts idle application to sleep in free plan, initial loading may take a while.
 
