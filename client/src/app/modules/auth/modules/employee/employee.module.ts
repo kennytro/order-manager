@@ -19,9 +19,9 @@ import { TotalOrdersComponent } from './components/dashboard/total-orders/total-
 import { UsersComponent } from './components/users/users.component';
 import { UserDetailComponent } from './components/user-detail/user-detail.component';
 import { NewUserComponent } from './components/new-user/new-user.component';
-import { DeliveryRoutesComponent } from './components/delivery-routes/delivery-routes.component';
-import { DeliveryRouteDetailComponent } from './components/delivery-route-detail/delivery-route-detail.component';
-import { NewDeliveryRouteComponent } from './components/new-delivery-route/new-delivery-route.component';
+import { DeliveryRoutesComponent } from './components/delivery-routes/delivery-routes/delivery-routes.component';
+import { DeliveryRouteDetailComponent } from './components/delivery-routes/delivery-route-detail/delivery-route-detail.component';
+import { NewDeliveryRouteComponent } from './components/delivery-routes/new-delivery-route/new-delivery-route.component';
 import { ProductsComponent } from './components/products/products.component';
 import { ProductDetailComponent } from './components/product-detail/product-detail.component';
 import { NewProductComponent } from './components/new-product/new-product.component';

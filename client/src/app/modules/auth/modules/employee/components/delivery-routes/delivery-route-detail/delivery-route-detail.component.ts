@@ -3,8 +3,8 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
-import { AlertService } from '../../../../shared/services/alert.service';
-import { DataApiService } from '../../services/data-api.service';
+import { AlertService } from '../../../../../shared/services/alert.service';
+import { DataApiService } from '../../../services/data-api.service';
 
 import assign from 'lodash/assign';
 
