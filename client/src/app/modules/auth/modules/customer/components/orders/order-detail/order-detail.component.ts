@@ -5,9 +5,9 @@ import { FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { take, takeUntil } from 'rxjs/operators';
 
-import { ConfirmDialogComponent, DialogData } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { FileService } from '../../../../shared/services/file.service';
-import { DataApiService } from '../../services/data-api.service';
+import { ConfirmDialogComponent, DialogData } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { FileService } from '../../../../../shared/services/file.service';
+import { DataApiService } from '../../../services/data-api.service';
 
 import get from 'lodash/get';
 import sortBy from 'lodash/sortBy';

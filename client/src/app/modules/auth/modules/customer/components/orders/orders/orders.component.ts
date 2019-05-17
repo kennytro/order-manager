@@ -3,8 +3,8 @@ import { ActivatedRoute } from '@angular/router';
 import { MatPaginator, MatSort, MatTableDataSource } from '@angular/material';
 import { take} from 'rxjs/operators';
 
-import { FileService } from '../../../../shared/services/file.service';
-import { DataApiService } from '../../services/data-api.service';
+import { FileService } from '../../../../../shared/services/file.service';
+import { DataApiService } from '../../../services/data-api.service';
 
 @Component({
   selector: 'app-orders',
