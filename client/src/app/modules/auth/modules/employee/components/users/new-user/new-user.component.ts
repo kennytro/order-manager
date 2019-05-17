@@ -6,7 +6,7 @@ import { take, takeUntil } from 'rxjs/operators';
 
 import map from 'lodash/map';
 
-import { DataApiService } from '../../services/data-api.service';
+import { DataApiService } from '../../../services/data-api.service';
 
 @Component({
   selector: 'app-new-user',

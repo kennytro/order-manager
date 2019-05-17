@@ -16,9 +16,9 @@ import { ClientDetailComponent } from './components/clients/client-detail/client
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { TodaysSnapshotsComponent } from './components/dashboard/todays-snapshots/todays-snapshots.component';
 import { TotalOrdersComponent } from './components/dashboard/total-orders/total-orders.component';
-import { UsersComponent } from './components/users/users.component';
-import { UserDetailComponent } from './components/user-detail/user-detail.component';
-import { NewUserComponent } from './components/new-user/new-user.component';
+import { UsersComponent } from './components/users/users/users.component';
+import { UserDetailComponent } from './components/users/user-detail/user-detail.component';
+import { NewUserComponent } from './components/users/new-user/new-user.component';
 import { DeliveryRoutesComponent } from './components/delivery-routes/delivery-routes/delivery-routes.component';
 import { DeliveryRouteDetailComponent } from './components/delivery-routes/delivery-route-detail/delivery-route-detail.component';
 import { NewDeliveryRouteComponent } from './components/delivery-routes/new-delivery-route/new-delivery-route.component';

@@ -4,8 +4,8 @@ import { MatDialog, MatPaginator, MatSort, MatTableDataSource, MatSnackBar } fro
 import { take } from 'rxjs/operators';
 
 import { NewUserComponent } from '../new-user/new-user.component';
-import { AuthService } from '../../../../../../services/auth.service';
-import { DataApiService } from '../../services/data-api.service';
+import { AuthService } from '../../../../../../../services/auth.service';
+import { DataApiService } from '../../../services/data-api.service';
 
 @Component({
   selector: 'app-users',
