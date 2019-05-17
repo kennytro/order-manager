@@ -21,4 +21,3 @@ Use the following user credential to login.
 
 ##### Note:
 Because Heroku(Cloud platform provider) puts idle application to sleep in free plan, initial loading may take a while.
-
