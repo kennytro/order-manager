@@ -15,8 +15,8 @@ import { ClosedOrdersComponent } from './components/orders/closed-orders/closed-
 import { OrderDetailComponent } from './components/orders/order-detail/order-detail.component';
 import { NewOrderComponent } from './components/orders/new-order/new-order.component';
 
-import { ClientsComponent } from './components/clients/clients.component';
-import { ClientDetailComponent } from './components/client-detail/client-detail.component'; 
+import { ClientsComponent } from './components/clients/clients/clients.component';
+import { ClientDetailComponent } from './components/clients/client-detail/client-detail.component'; 
 import { UsersComponent } from './components/users/users.component';
 import { UserDetailComponent } from './components/user-detail/user-detail.component';
 import { DeliveryRoutesComponent } from './components/delivery-routes/delivery-routes.component';

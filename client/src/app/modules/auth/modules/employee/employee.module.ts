@@ -10,12 +10,12 @@ import { EmployeeRoutingModule } from './employee-routing.module';
 // Components
 import { EmployeeLayoutComponent } from './components/employee-layout/employee-layout.component';
 import { SettingsComponent } from './components/employee-layout/settings/settings.component';
-import { ClientsComponent } from './components/clients/clients.component';
+import { ClientsComponent } from './components/clients/clients/clients.component';
+import { NewClientComponent } from './components/clients/new-client/new-client.component';
+import { ClientDetailComponent } from './components/clients/client-detail/client-detail.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { TodaysSnapshotsComponent } from './components/dashboard/todays-snapshots/todays-snapshots.component';
 import { TotalOrdersComponent } from './components/dashboard/total-orders/total-orders.component';
-import { NewClientComponent } from './components/new-client/new-client.component';
-import { ClientDetailComponent } from './components/client-detail/client-detail.component';
 import { UsersComponent } from './components/users/users.component';
 import { UserDetailComponent } from './components/user-detail/user-detail.component';
 import { NewUserComponent } from './components/new-user/new-user.component';

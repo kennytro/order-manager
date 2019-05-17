@@ -4,7 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { MatPaginator, MatSort, MatTableDataSource} from '@angular/material';
 
 import { NewClientComponent } from '../new-client/new-client.component';
-import { DataApiService } from '../../services/data-api.service';
+import { DataApiService } from '../../../services/data-api.service';
 
 @Component({
   selector: 'app-clients',
