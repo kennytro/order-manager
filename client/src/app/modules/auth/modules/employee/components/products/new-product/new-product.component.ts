@@ -2,8 +2,8 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialogRef, MatStepper, MatSnackBar } from '@angular/material';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ImageCroppedEvent, ImageCropperComponent } from 'ngx-image-cropper';
-import { DataApiService } from '../../services/data-api.service';
-import { ProductService } from '../../services/product.service';
+import { DataApiService } from '../../../services/data-api.service';
+import { ProductService } from '../../../services/product.service';
 
 import get from 'lodash/get';
 

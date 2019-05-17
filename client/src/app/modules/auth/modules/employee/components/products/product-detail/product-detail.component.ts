@@ -4,9 +4,9 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {ImageCroppedEvent, ImageCropperComponent } from 'ngx-image-cropper'
-import { AlertService } from '../../../../shared/services/alert.service';
-import { DataApiService } from '../../services/data-api.service';
-import { ProductService } from '../../services/product.service';
+import { AlertService } from '../../../../../shared/services/alert.service';
+import { DataApiService } from '../../../services/data-api.service';
+import { ProductService } from '../../../services/product.service';
 
 import assign from 'lodash/assign';
 import get from 'lodash/get';

@@ -20,8 +20,8 @@ import { UsersComponent } from './components/users/users/users.component';
 import { UserDetailComponent } from './components/users/user-detail/user-detail.component';
 import { DeliveryRoutesComponent } from './components/delivery-routes/delivery-routes/delivery-routes.component';
 import { DeliveryRouteDetailComponent } from './components/delivery-routes/delivery-route-detail/delivery-route-detail.component';
-import { ProductsComponent } from './components/products/products.component';
-import { ProductDetailComponent } from './components/product-detail/product-detail.component';
+import { ProductsComponent } from './components/products/products/products.component';
+import { ProductDetailComponent } from './components/products/product-detail/product-detail.component';
 
 import { DataResolver } from './services/data.resolver';
 import { DataArrayResolver } from './services/data-array.resolver';

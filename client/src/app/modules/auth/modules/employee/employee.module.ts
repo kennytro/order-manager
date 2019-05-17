@@ -22,9 +22,9 @@ import { NewUserComponent } from './components/users/new-user/new-user.component
 import { DeliveryRoutesComponent } from './components/delivery-routes/delivery-routes/delivery-routes.component';
 import { DeliveryRouteDetailComponent } from './components/delivery-routes/delivery-route-detail/delivery-route-detail.component';
 import { NewDeliveryRouteComponent } from './components/delivery-routes/new-delivery-route/new-delivery-route.component';
-import { ProductsComponent } from './components/products/products.component';
-import { ProductDetailComponent } from './components/product-detail/product-detail.component';
-import { NewProductComponent } from './components/new-product/new-product.component';
+import { ProductsComponent } from './components/products/products/products.component';
+import { ProductDetailComponent } from './components/products/product-detail/product-detail.component';
+import { NewProductComponent } from './components/products/new-product/new-product.component';
 import { OrderLayoutComponent } from './components/orders/order-layout/order-layout.component';
 import { TodaysOrdersComponent } from './components/orders/todays-orders/todays-orders.component';
 import { OpenOrdersComponent } from './components/orders/open-orders/open-orders.component';
