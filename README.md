@@ -5,13 +5,13 @@ See [this page](https://github.com/kennytro/order-manager/blob/master/docs/confi
 
 #### Screenshots:
 Dashboard with key business metrics.
-![dashboard screenshot](https://github.com/kennytro/order-manager/tree/master/docs/images/screenshot-dashboard.jpg "Dashboard")
+![dashboard screenshot](docs/images/screenshot-dashboard.JPG "Dashboard")
 
 Order detail with total amounts.
-![dashboard screenshot](https://github.com/kennytro/order-manager/tree/master/docs/images/screenshot-order-detail.jpg "Order detail")
+![order detail screenshot](docs/images/screenshot-order-detail.JPG "Order detail")
 
 Invoice PDF file.
-![dashboard screenshot](https://github.com/kennytro/order-manager/tree/master/docs/images/screenshot-invoice.jpg "Invoice")
+![invoice screenshot](docs/images/screenshot-invoice.JPG "Invoice")
 
 
 #### [Live Demo](https://etr-order-manager-staging.herokuapp.com/):
