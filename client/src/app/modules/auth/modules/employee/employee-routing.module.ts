@@ -14,15 +14,14 @@ import { OpenOrdersComponent } from './components/orders/open-orders/open-orders
 import { ClosedOrdersComponent } from './components/orders/closed-orders/closed-orders.component';
 import { OrderDetailComponent } from './components/orders/order-detail/order-detail.component';
 import { NewOrderComponent } from './components/orders/new-order/new-order.component';
-
-import { ClientsComponent } from './components/clients/clients.component';
-import { ClientDetailComponent } from './components/client-detail/client-detail.component'; 
-import { UsersComponent } from './components/users/users.component';
-import { UserDetailComponent } from './components/user-detail/user-detail.component';
-import { DeliveryRoutesComponent } from './components/delivery-routes/delivery-routes.component';
-import { DeliveryRouteDetailComponent } from './components/delivery-route-detail/delivery-route-detail.component';
-import { ProductsComponent } from './components/products/products.component';
-import { ProductDetailComponent } from './components/product-detail/product-detail.component';
+import { ClientsComponent } from './components/clients/clients/clients.component';
+import { ClientDetailComponent } from './components/clients/client-detail/client-detail.component'; 
+import { UsersComponent } from './components/users/users/users.component';
+import { UserDetailComponent } from './components/users/user-detail/user-detail.component';
+import { DeliveryRoutesComponent } from './components/delivery-routes/delivery-routes/delivery-routes.component';
+import { DeliveryRouteDetailComponent } from './components/delivery-routes/delivery-route-detail/delivery-route-detail.component';
+import { ProductsComponent } from './components/products/products/products.component';
+import { ProductDetailComponent } from './components/products/product-detail/product-detail.component';
 
 import { DataResolver } from './services/data.resolver';
 import { DataArrayResolver } from './services/data-array.resolver';

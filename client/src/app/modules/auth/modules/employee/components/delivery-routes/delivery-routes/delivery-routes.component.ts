@@ -4,7 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { MatPaginator, MatSort, MatTableDataSource} from '@angular/material';
 
 import { NewDeliveryRouteComponent } from '../new-delivery-route/new-delivery-route.component';
-import { DataApiService } from '../../services/data-api.service';
+import { DataApiService } from '../../../services/data-api.service';
 
 @Component({
   selector: 'app-delivery-routes',

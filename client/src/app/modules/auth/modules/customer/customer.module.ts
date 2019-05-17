@@ -10,9 +10,9 @@ import { SettingsComponent } from './components/customer-layout/settings/setting
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { TotalOrdersComponent } from './components/dashboard/total-orders/total-orders.component';
 import { TodaysSnapshotsComponent } from './components/dashboard/todays-snapshots/todays-snapshots.component';
-import { OrdersComponent } from './components/orders/orders.component';
-import { NewOrderComponent } from './components/new-order/new-order.component';
-import { OrderDetailComponent } from './components/order-detail/order-detail.component';
+import { OrdersComponent } from './components/orders/orders/orders.component';
+import { NewOrderComponent } from './components/orders/new-order/new-order.component';
+import { OrderDetailComponent } from './components/orders/order-detail/order-detail.component';
 import { StatementsComponent } from './components/statements/statements/statements.component';
 import { StatementDetailComponent } from './components/statements/statement-detail/statement-detail.component';
 

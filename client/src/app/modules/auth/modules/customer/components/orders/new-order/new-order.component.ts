@@ -2,8 +2,9 @@ import { Component, OnInit /*, ViewChild*/ } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatSort, MatTableDataSource, MatSnackBar, MatStepper } from '@angular/material';
 import { FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
-import { DataApiService } from '../../services/data-api.service';
-import { AuthService, UserProfile } from '../../../../../../services/auth.service';
+
+import { DataApiService } from '../../../services/data-api.service';
+import { AuthService, UserProfile } from '../../../../../../../services/auth.service';
 import get from 'lodash/get';
 import sortBy from 'lodash/sortBy';
 

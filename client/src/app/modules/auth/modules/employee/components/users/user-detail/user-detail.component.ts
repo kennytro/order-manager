@@ -3,9 +3,9 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
-import { AlertService } from '../../../../shared/services/alert.service';
-import { DataApiService } from '../../services/data-api.service';
-import { AuthService } from '../../../../../../services/auth.service';
+import { AlertService } from '../../../../../shared/services/alert.service';
+import { DataApiService } from '../../../services/data-api.service';
+import { AuthService } from '../../../../../../../services/auth.service';
 
 import assign from 'lodash/assign';
 import map from 'lodash/map';
