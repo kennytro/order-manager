@@ -11,6 +11,7 @@ import { StatementDetailComponent } from './components/statements/statement-deta
 import { OrderLayoutComponent } from './components/orders/order-layout/order-layout.component';
 import { TodaysOrdersComponent } from './components/orders/todays-orders/todays-orders.component';
 import { OpenOrdersComponent } from './components/orders/open-orders/open-orders.component';
+import { ShoppingListComponent } from './components/orders/open-orders/shopping-list/shopping-list.component';
 import { ClosedOrdersComponent } from './components/orders/closed-orders/closed-orders.component';
 import { OrderDetailComponent } from './components/orders/order-detail/order-detail.component';
 import { NewOrderComponent } from './components/orders/new-order/new-order.component';
@@ -133,6 +134,31 @@ const routes: Routes = [
                 }
               }
             ]
+          }, 
+          {
+            path: 'shopping-list',
+            component: ShoppingListComponent,
+            resolve: { orders: OrdersResolver },
+            data: {
+              filter: {
+                where: {
+                  status: 'Submitted'
+                },
+                include: [{
+                  relation: 'client',
+                  scope: {
+                    fields: { id: true, name: true }
+                  }
+                }, {
+                  relation: 'orderItem',
+                  scope: {
+                    include: {
+                      relation: 'product'
+                    }
+                  }
+                }]
+              }
+            }
           },
           {
             path: 'new',

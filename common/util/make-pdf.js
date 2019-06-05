@@ -383,26 +383,26 @@ module.exports = {
    * @param {Object[]} productList  - Array of product with 'totalOrderCount' additional property
    * @returns {Buffer}              - PDF document.
   */
-  makeInventoryList: async function(productList) {
+  makeShoppingList: async function(productList) {
     const companyInfo = await app.models.CompanyInfo.getCompanyInfo();
     const companyLogo = await app.models.CompanyInfo.getLogoImageBase64(companyInfo.logoUrl);
     let docDefinition = getPdfDocDefinitionTemplate(companyInfo, companyLogo, {
-      title: 'Inventory List',
+      title: 'Shopping List',
       date: moment().format('MM/DD/YYYY'),
       number: 'N/A'
     }, null);
     docDefinition.header = { text: 'Date - Time: ' + moment().format('MM/DD/YYYY - HH:mm:ss'), alignment: 'right' };
 
-    // add product inventory table
+    // add product shopping table
     const invTableHeader = [
       { text: 'No.', style: 'tableHeader' },
       { text: 'ID', style: 'tableHeader' },
       { text: 'NAME', style: 'tableHeader' },
       { text: 'DESCRIPTION', style: 'tableHeader' },
       { text: 'ORDER QTY.', style: 'tableHeader' },
-      { text: 'INVENTORY QTY.', style: 'tableHeader' }
+      { text: 'UNIT', style: 'tableHeader' }
     ];
-    docDefinition.content.push({ text: 'Product Inventory List', bold: true });
+    docDefinition.content.push({ text: 'Product List', bold: true });
     let invTable = {
       table: {
         widths: ['auto', 'auto', 'auto', '*', 'auto', 'auto'],
@@ -423,7 +423,7 @@ module.exports = {
         product.name,
         product.description,
         product.totalOrderCount,
-        product.inventoryCount
+        product.unit
       ];
     }));
     docDefinition.content.push(invTable);

@@ -8,7 +8,7 @@
     <ng-template matExpansionPanelContent>
       <div class="order-button-row" fxLayout="row wrap" fxLayoutGap="10px" fxLayoutAlign="center space-between">
         <button mat-stroked-button (click)="moveFromSubmittedToProcessed()" matTooltip="Change status of the selected order to 'Processed'" [disabled]="submittedOrderSelection.selected.length==0"><fa-icon icon="arrow-alt-circle-down"></fa-icon> Move Down</button>
-        <button mat-stroked-button (click)="showInventoryDialog()" matTooltip="Show inventory status of submitted orders" [disabled]="submittedOrders.data.length == 0"><fa-icon icon="file-alt"></fa-icon> Check Inventory</button>
+        <button mat-stroked-button routerLink="../shopping-list" matTooltip="Show inventory status of submitted orders" [disabled]="submittedOrders.data.length == 0"><fa-icon icon="file-alt"></fa-icon> Check Inventory</button>
       </div>
       <div class="table-responsive">
         <table mat-table [dataSource]="submittedOrders" matSort>

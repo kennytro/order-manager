@@ -4,7 +4,6 @@ import { MatDialog, MatSort, MatTableDataSource, MatSnackBar } from '@angular/ma
 import { SelectionModel } from '@angular/cdk/collections';
 import { take } from 'rxjs/operators';
 
-import { CheckInventoryDialogData, CheckInventoryComponent } from './check-inventory/check-inventory.component';
 import { PackageDistributionDialogData, PackageDistributionComponent } from './package-distribution/package-distribution.component';
 import { DataApiService } from '../../../services/data-api.service';
 
@@ -32,7 +31,6 @@ export class OpenOrdersComponent implements OnInit {
 
   constructor(
     private _route: ActivatedRoute,
-    private _checkInventoryDialog: MatDialog,
     private _packageDistributionDialog: MatDialog,
     private _snackBar: MatSnackBar,    
     private _dataApi: DataApiService
@@ -88,27 +86,6 @@ export class OpenOrdersComponent implements OnInit {
     if (orderIds.length > 0) {
       this._updateOrderStatus(orderIds, 'Submitted', 'Processed');
     }
-  }
-
-  showInventoryDialog() {
-    if (this.submittedOrders.data.length === 0) {
-      const snackBarRef = this._snackBar.open('There is no order submitted.', 'Close');
-      snackBarRef.onAction()
-        .pipe(take(1))
-        .subscribe(() => {
-          snackBarRef.dismiss();
-        });
-      return;      
-    }
-
-    const dialogData: CheckInventoryDialogData = {
-      orderIds: this.submittedOrders.data.map(function(order) {
-        return order.id
-      })
-    };
-    const dialogRef = this._checkInventoryDialog.open(CheckInventoryComponent, {
-      data: dialogData
-    });
   }
 
   /*********  Processed Order Functions **********/
