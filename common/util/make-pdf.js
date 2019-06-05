@@ -317,8 +317,8 @@ module.exports = {
     const tableHeader = [
       { text: 'ITEM #', style: 'tableHeader' },
       { text: 'DESCRIPTION', style: 'tableHeader' },
-      { text: 'UNIT COST', style: 'tableHeader' },
       { text: 'QTY', style: 'tableHeader' },
+      { text: 'UNIT COST', style: 'tableHeader' },
       { text: 'AMOUNT', style: 'tableHeader' }
     ];
     docDefinition.content.push({ text: 'Account Summary', bold: true });
@@ -340,8 +340,8 @@ module.exports = {
       return [
         oItem.product.id,
         oItem.product.description,
-        { text: formatCurrency(oItem.unitPrice), alignment: 'right' },
         oItem.quantity,
+        { text: formatCurrency(oItem.unitPrice), alignment: 'right' },
         { text: formatCurrency(oItem.quantity * oItem.unitPrice), alignment: 'right' }
       ];
     }));
