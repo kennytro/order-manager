@@ -14,7 +14,7 @@ import sortBy from 'lodash/sortBy';
   styleUrls: ['./new-order.component.css']
 })
 export class NewOrderComponent implements OnInit {
-  displayedColumns = ['id', 'name', 'description', 'category', 'unitPrice', 'quantity', 'subtotal'];
+  displayedColumns = ['id', 'name', 'description', 'category', 'quantity', 'unitPrice', 'subtotal'];
   orderItems: MatTableDataSource<OrderItem>;
   order: any;
   orderFG: FormGroup;
