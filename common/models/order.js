@@ -178,7 +178,7 @@ module.exports = function(Order) {
    * @param {string[]} - list of order id.
    * @returns {Object[]} - list of product with order count.
    */
-  Order.getInventoryList = async function(orderIds) {
+  Order.getShoppingList = async function(orderIds) {
     if (_.isEmpty(orderIds)) {
       return [];
     }
@@ -209,20 +209,20 @@ module.exports = function(Order) {
   };
 
   /**
-   * Generate a PDF file of inventory list of given orders.
+   * Generate a PDF file of shopping list of given orders.
    * @param {string[]} - array of order id.
    * @returns {Object} - JSON object containing content type and file object.
    */
-  Order.getInventoryListInPdf = async function(orderIds) {
+  Order.getShoppingListInPdf = async function(orderIds) {
     try {
-      const productList = await Order.getInventoryList(orderIds);
-      const pdfDoc = await PdfMaker.makeInventoryList(productList);
+      const productList = await Order.getShoppingList(orderIds);
+      const pdfDoc = await PdfMaker.makeShoppingList(productList);
       return {
         contentType: 'application/pdf',
         document: pdfDoc
       };
     } catch (error) {
-      logger.error(`Error while generating inventory list pdf file - ${error.message}`);
+      logger.error(`Error while generating shopping list pdf file - ${error.message}`);
       throw error;
     }
   };

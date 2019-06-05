@@ -28,7 +28,7 @@ import { NewProductComponent } from './components/products/new-product/new-produ
 import { OrderLayoutComponent } from './components/orders/order-layout/order-layout.component';
 import { TodaysOrdersComponent } from './components/orders/todays-orders/todays-orders.component';
 import { OpenOrdersComponent } from './components/orders/open-orders/open-orders.component';
-import { CheckInventoryComponent } from './components/orders/open-orders/check-inventory/check-inventory.component';
+import { ShoppingListComponent } from './components/orders/open-orders/shopping-list/shopping-list.component';
 import { PackageDistributionComponent } from './components/orders/open-orders/package-distribution/package-distribution.component';
 import { ClosedOrdersComponent } from './components/orders/closed-orders/closed-orders.component';
 import { OrderDetailComponent } from './components/orders/order-detail/order-detail.component';
@@ -76,7 +76,7 @@ import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV,
     DeliveryRoutesComponent, DeliveryRouteDetailComponent, NewDeliveryRouteComponent,
     ProductsComponent, ProductDetailComponent, NewProductComponent,
     OrderLayoutComponent, TodaysOrdersComponent,
-    OpenOrdersComponent, CheckInventoryComponent, PackageDistributionComponent,
+    OpenOrdersComponent, ShoppingListComponent, PackageDistributionComponent,
     ClosedOrdersComponent, OrderDetailComponent, NewOrderComponent,
     StatementsComponent, NewStatementComponent, EditAdjustComponent, StatementDetailComponent,
     PhoneNumberPipe
@@ -109,7 +109,6 @@ import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV,
     NewDeliveryRouteComponent,
     NewProductComponent,
     EditAdjustComponent,
-    CheckInventoryComponent,
     PackageDistributionComponent
   ]
 })
