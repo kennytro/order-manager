@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { MatSort, MatTableDataSource } from '@angular/material';
+import { MatSort, MatTableDataSource, MatSnackBar } from '@angular/material';
 import { take } from 'rxjs/operators';
 import { DataApiService } from '../../../../services/data-api.service';
 import { PdfService } from '../../../../services/pdf.service';
@@ -15,11 +15,13 @@ export class ShoppingListComponent implements OnInit {
   orderList: MatTableDataSource<any> = new MatTableDataSource([]);
   displayedColumns: string[] = ['id', 'name', 'description', 'category', 'quantity', 'unit'];
   productList: MatTableDataSource<any> = new MatTableDataSource([]);
-  @ViewChild(MatSort) orderSort: MatSort;
+  // MatSort doesn't work with multiple tables. Disable on order table for now.
+  // @ViewChild(MatSort) orderSort: MatSort;
   @ViewChild(MatSort) productSort: MatSort;
 
   constructor(
     private _route: ActivatedRoute,
+    private _snackBar: MatSnackBar,
     private _dataApi: DataApiService,
     private _pdfSvc: PdfService
   ) { }
@@ -35,6 +37,22 @@ export class ShoppingListComponent implements OnInit {
   }
 
   ngOnDestroy() {
+  }
+
+  async moveOrdersToProcessed() {
+    if (this.orderList.data.length > 0) {
+      let orderIds = this.orderList.data.map(function(order) {
+        return order.id;
+      })
+      try {
+        await this._dataApi.genericMethod('Order', 'updateAll', [{ id: { inq: orderIds } },
+          { status: 'Processed' }]).toPromise();
+        this._snackBar.open('Successfully moved all orders to \'Processed\' status',
+          'Close', { duration: 3000 });
+      } catch (err) {
+        console.log(`error: failed to change order status - ${err.message}`);
+      }
+    }
   }
 
   async generatePDF() {
@@ -60,7 +78,7 @@ export class ShoppingListComponent implements OnInit {
         clientName: order.client.name
       }
     }));
-    this.orderList.sort = this.orderSort;
+    // this.orderList.sort = this.orderSort;
 
     let productMap = this._getAggregateProductCount(orders);
     this.productList = new MatTableDataSource(Array.from(productMap.values()));

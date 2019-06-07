@@ -150,3 +150,7 @@ p.thick {
   text-decoration: none !important;
   margin-right: 10px;
 }
+
+.fill-remaining-space {
+  flex: 1 1 auto;
+}
