@@ -1,6 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
-import { Location } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { MatSort, MatTableDataSource } from '@angular/material';
 import { take } from 'rxjs/operators';
 import { DataApiService } from '../../../../services/data-api.service';
@@ -21,8 +20,6 @@ export class ShoppingListComponent implements OnInit {
 
   constructor(
     private _route: ActivatedRoute,
-    private _router: Router,
-    private _location: Location,
     private _dataApi: DataApiService,
     private _pdfSvc: PdfService
   ) { }
@@ -38,14 +35,6 @@ export class ShoppingListComponent implements OnInit {
   }
 
   ngOnDestroy() {
-  }
-
-  close() {
-    if (window.history.length > 1) {
-      this._location.back();
-    } else {
-      this._router.navigate(['../open'], { relativeTo: this._route });  // navigate to '/orders/open'
-    }
   }
 
   async generatePDF() {

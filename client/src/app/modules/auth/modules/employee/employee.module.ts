@@ -108,8 +108,7 @@ import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV,
     NewUserComponent,
     NewDeliveryRouteComponent,
     NewProductComponent,
-    EditAdjustComponent,
-    PackageDistributionComponent
+    EditAdjustComponent
   ]
 })
 export class EmployeeModule {

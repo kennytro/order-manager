@@ -4,7 +4,7 @@ import { MatDialog, MatSort, MatTableDataSource, MatSnackBar } from '@angular/ma
 import { SelectionModel } from '@angular/cdk/collections';
 import { take } from 'rxjs/operators';
 
-import { PackageDistributionDialogData, PackageDistributionComponent } from './package-distribution/package-distribution.component';
+import { PackageDistributionComponent } from './package-distribution/package-distribution.component';
 import { DataApiService } from '../../../services/data-api.service';
 
 import remove from 'lodash/remove';
@@ -103,26 +103,26 @@ export class OpenOrdersComponent implements OnInit {
     }
   }
 
-  showPackageDistributionDialog() {
-    if (this.processedOrders.data.length === 0) {
-      const snackBarRef = this._snackBar.open('There is no order processed.', 'Close');
-      snackBarRef.onAction()
-        .pipe(take(1))
-        .subscribe(() => {
-          snackBarRef.dismiss();
-        });
-      return;      
-    }
+  // showPackageDistributionDialog() {
+  //   if (this.processedOrders.data.length === 0) {
+  //     const snackBarRef = this._snackBar.open('There is no order processed.', 'Close');
+  //     snackBarRef.onAction()
+  //       .pipe(take(1))
+  //       .subscribe(() => {
+  //         snackBarRef.dismiss();
+  //       });
+  //     return;      
+  //   }
 
-    const dialogData: PackageDistributionDialogData = {
-      orderIds: this.processedOrders.data.map(function(order) {
-        return order.id
-      })
-    };
-    const dialogRef = this._packageDistributionDialog.open(PackageDistributionComponent, {
-      data: dialogData
-    });
-  }
+  //   const dialogData: PackageDistributionDialogData = {
+  //     orderIds: this.processedOrders.data.map(function(order) {
+  //       return order.id
+  //     })
+  //   };
+  //   const dialogRef = this._packageDistributionDialog.open(PackageDistributionComponent, {
+  //     data: dialogData
+  //   });
+  // }
 
   /*********  Shipped Order Functions **********/
   moveFromShippedToProcessed() {
