@@ -231,9 +231,9 @@ module.exports = function(Order) {
    * Create a list of product order items along with delivery route and client.
    *
    * @param {string[]} - list of order id.
-   * @returns {object[]} - list of product order item along with route and client.
+   * @returns {Map} - Map of route Id to product order item.
    */
-  Order.getPackageDistributionList = async function(orderIds) {
+  Order.getPackageDistributionMap = async function(orderIds) {
     if (_.isEmpty(orderIds)) {
       return [];
     }
@@ -246,26 +246,71 @@ module.exports = function(Order) {
       app.models.Product.find(),
       app.models.DeliveryRoute.find()
     ]);
-    return _.flatMap(orders, function(order) {
+
+    let productMap = new Map();
+    products.forEach(function(product) {
+      productMap.set(product.id, product);
+    });
+
+    let routeClientMap = new Map();
+    let routeMap = new Map();
+    orders.forEach(function(order) {
       order = order.toJSON();
-      let client = order.client;
-      let route = _.find(routes, { id: client.deliveryRouteId });
-      return _.map(order.orderItem, function(orderItem) {
-        const product = _.find(products, { id: orderItem.productId });
-        return {
-          deliveryRouteId: route.id,
-          orderId: order.id,
-          clientId: client.id,
-          clientName: client.name,
-          productId: product.id,
-          productName: product.name,
-          productImageUrl: product.settings.imageUrl,
-          productDescription: product.description,
-          productCategory: product.category,
-          productOrderCount: orderItem.quantity
-        };
+      const client = order.client;
+      const routeId = client.deliveryRouteId;
+      if (!routeMap.has(routeId)) {
+        routeMap.set(routeId, new Map());
+      }
+
+      if (!routeClientMap.has(routeId)) {
+        routeClientMap.set(routeId, new Set([client.name]));
+      } else {
+        let clientSet = routeClientMap.get(routeId);
+        clientSet.add(client.name);
+      }
+      let itemMap = routeMap.get(routeId);
+      order.orderItem.forEach(function(orderItem) {
+        const product = productMap.get(orderItem.productId);
+        let totalQuantity = orderItem.quantity;
+        if (itemMap.has(product.id)) {
+          let clientMap = itemMap.get(product.id);
+          if (clientMap.has(client.name)) {
+            totalQuantity += clientMap.get(client.name);
+          }
+          clientMap.set(client.name, totalQuantity);
+        } else {
+          itemMap.set(product.id, new Map([[client.name, orderItem.quantity]]));
+        }
       });
     });
+
+    routeMap.forEach(function(itemMap, routeId, rMap) {
+      let routeData = {
+        name: routeId,
+        clients: Array.from(routeClientMap.get(routeId).values()),
+        items: []
+      };
+
+      itemMap.forEach(function(clientMap, productId, iMap) {
+        const product = productMap.get(productId);
+        let prodData = {
+          id: product.id,
+          name: product.name,
+          description: product.description,
+          totalCount: 0
+        };
+        routeData.clients.forEach(function(clientName) {
+          prodData[clientName] = 0;
+        });
+        clientMap.forEach(function(quantity, clientName) {
+          prodData[clientName] = Number(quantity);
+          prodData['totalCount'] += prodData[clientName];
+        });
+        routeData.items.push(prodData);
+      });
+      rMap.set(routeId, routeData);
+    });
+    return routeMap;
   };
 
   /**
@@ -275,8 +320,8 @@ module.exports = function(Order) {
    */
   Order.getPackageDistributionListInPdf = async function(orderIds) {
     try {
-      const distributionList = await Order.getPackageDistributionList(orderIds);
-      const pdfDoc = await PdfMaker.makePackageDistributionList(distributionList);
+      const routeMap = await Order.getPackageDistributionMap(orderIds);
+      const pdfDoc = await PdfMaker.makePackageDistributionList(routeMap);
       return {
         contentType: 'application/pdf',
         document: pdfDoc

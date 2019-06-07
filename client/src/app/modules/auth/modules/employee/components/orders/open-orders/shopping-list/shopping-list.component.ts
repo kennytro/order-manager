@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
-import { Location } from '@angular/common';
-import { MatSort, MatTableDataSource } from '@angular/material';
+import { ActivatedRoute } from '@angular/router';
+import { MatSort, MatTableDataSource, MatSnackBar } from '@angular/material';
 import { take } from 'rxjs/operators';
 import { DataApiService } from '../../../../services/data-api.service';
 import { PdfService } from '../../../../services/pdf.service';
@@ -16,13 +15,13 @@ export class ShoppingListComponent implements OnInit {
   orderList: MatTableDataSource<any> = new MatTableDataSource([]);
   displayedColumns: string[] = ['id', 'name', 'description', 'category', 'quantity', 'unit'];
   productList: MatTableDataSource<any> = new MatTableDataSource([]);
-  @ViewChild(MatSort) orderSort: MatSort;
+  // MatSort doesn't work with multiple tables. Disable on order table for now.
+  // @ViewChild(MatSort) orderSort: MatSort;
   @ViewChild(MatSort) productSort: MatSort;
 
   constructor(
     private _route: ActivatedRoute,
-    private _router: Router,
-    private _location: Location,
+    private _snackBar: MatSnackBar,
     private _dataApi: DataApiService,
     private _pdfSvc: PdfService
   ) { }
@@ -40,28 +39,37 @@ export class ShoppingListComponent implements OnInit {
   ngOnDestroy() {
   }
 
-  close() {
-    if (window.history.length > 1) {
-      this._location.back();
-    } else {
-      this._router.navigate(['../open'], { relativeTo: this._route });  // navigate to '/orders/open'
+  async moveOrdersToProcessed() {
+    const orderIds = this.orderList.data.map(order => order.id);    
+    if (orderIds.length > 0) {
+      try {
+        await this._dataApi.genericMethod('Order', 'updateAll', [{ id: { inq: orderIds } },
+          { status: 'Processed' }]).toPromise();
+        this._snackBar.open('Successfully moved all orders to \'Processed\' status',
+          'Close', { duration: 3000 });
+      } catch (err) {
+        console.log(`error: failed to change order status - ${err.message}`);
+      }
     }
   }
 
   async generatePDF() {
-    this._pdfSvc.downloadPDF('Order', 'getShoppingListInPdf', [this.orderList.data.map(order => order.id)])
-    .pipe(take(1))
-    .subscribe(pdfFile => {
-      const element = document.createElement('a');
-      element.href = URL.createObjectURL(pdfFile);
-      element.download =  `shopping_list.pdf`;
-      // Firefox requires the element to be in the body
-      document.body.appendChild(element);
-      //simulate click
-      element.click();
-      //remove the element when done
-      document.body.removeChild(element);
-    });
+    const orderIds = this.orderList.data.map(order => order.id);
+    if (orderIds.length > 0) {
+      this._pdfSvc.downloadPDF('Order', 'getShoppingListInPdf', [orderIds])
+      .pipe(take(1))
+      .subscribe(pdfFile => {
+        const element = document.createElement('a');
+        element.href = URL.createObjectURL(pdfFile);
+        element.download =  `shopping_list.pdf`;
+        // Firefox requires the element to be in the body
+        document.body.appendChild(element);
+        //simulate click
+        element.click();
+        //remove the element when done
+        document.body.removeChild(element);
+      });
+    }
   }
 
   private _setTableDataSource(orders) {
@@ -71,7 +79,7 @@ export class ShoppingListComponent implements OnInit {
         clientName: order.client.name
       }
     }));
-    this.orderList.sort = this.orderSort;
+    // this.orderList.sort = this.orderSort;
 
     let productMap = this._getAggregateProductCount(orders);
     this.productList = new MatTableDataSource(Array.from(productMap.values()));
