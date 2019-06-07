@@ -40,10 +40,8 @@ export class ShoppingListComponent implements OnInit {
   }
 
   async moveOrdersToProcessed() {
-    if (this.orderList.data.length > 0) {
-      let orderIds = this.orderList.data.map(function(order) {
-        return order.id;
-      })
+    const orderIds = this.orderList.data.map(order => order.id);    
+    if (orderIds.length > 0) {
       try {
         await this._dataApi.genericMethod('Order', 'updateAll', [{ id: { inq: orderIds } },
           { status: 'Processed' }]).toPromise();
@@ -56,19 +54,22 @@ export class ShoppingListComponent implements OnInit {
   }
 
   async generatePDF() {
-    this._pdfSvc.downloadPDF('Order', 'getShoppingListInPdf', [this.orderList.data.map(order => order.id)])
-    .pipe(take(1))
-    .subscribe(pdfFile => {
-      const element = document.createElement('a');
-      element.href = URL.createObjectURL(pdfFile);
-      element.download =  `shopping_list.pdf`;
-      // Firefox requires the element to be in the body
-      document.body.appendChild(element);
-      //simulate click
-      element.click();
-      //remove the element when done
-      document.body.removeChild(element);
-    });
+    const orderIds = this.orderList.data.map(order => order.id);
+    if (orderIds.length > 0) {
+      this._pdfSvc.downloadPDF('Order', 'getShoppingListInPdf', [orderIds])
+      .pipe(take(1))
+      .subscribe(pdfFile => {
+        const element = document.createElement('a');
+        element.href = URL.createObjectURL(pdfFile);
+        element.download =  `shopping_list.pdf`;
+        // Firefox requires the element to be in the body
+        document.body.appendChild(element);
+        //simulate click
+        element.click();
+        //remove the element when done
+        document.body.removeChild(element);
+      });
+    }
   }
 
   private _setTableDataSource(orders) {

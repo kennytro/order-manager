@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { MatSort, MatTableDataSource } from '@angular/material';
+import { MatSort, MatTableDataSource, MatSnackBar } from '@angular/material';
 import { take } from 'rxjs/operators';
 
 import { DataApiService } from '../../../../services/data-api.service';
@@ -15,15 +15,16 @@ export class PackageDistributionComponent implements OnInit {
   productMap = new Map();
   distributionMap = new Map();
   routeList = [];
-  orderIds = [];
-  displayedColumns = [];
-  clientNames = [];  
+  clientNames: string[] = [];
+  orderColumns: string[] = ['id', 'clientName'];
+  orderList: MatTableDataSource<any> = new MatTableDataSource([]);  
+  displayedColumns: string[] = [];
   distributionList: MatTableDataSource<any> = new MatTableDataSource([]);
 
-  @ViewChild(MatSort) orderSort: MatSort;
   @ViewChild(MatSort) productSort: MatSort;  
   constructor(
     private _route: ActivatedRoute,
+    private _snackBar: MatSnackBar,
     private _dataApi: DataApiService,
     private _pdfSvc: PdfService
    ) { }
@@ -49,25 +50,47 @@ export class PackageDistributionComponent implements OnInit {
     this.distributionList.filter = filterValue.trim().toLowerCase();
   }
 
+  async moveOrdersToShipped() {
+    const orderIds = this.orderList.data.map(order => order.id);    
+    if (orderIds.length > 0) {
+      try {
+        await this._dataApi.genericMethod('Order', 'updateAll', [{ id: { inq: orderIds } },
+          { status: 'Shipped' }]).toPromise();
+        this._snackBar.open('Successfully moved all orders to \'Shipped\' status',
+          'Close', { duration: 3000 });
+      } catch (err) {
+        console.log(`error: failed to change order status - ${err.message}`);
+      }
+    }
+  }
+
   async generatePDF() {
-    this._pdfSvc.downloadPDF('Order', 'getPackageDistributionListInPdf', [this.orderIds])
-    .pipe(take(1))
-    .subscribe(pdfFile => {
-      const element = document.createElement('a');
-      element.href = URL.createObjectURL(pdfFile);
-      element.download =  `distribution_list.pdf`;
-      // Firefox requires the element to be in the body
-      document.body.appendChild(element);
-      //simulate click
-      element.click();
-      //remove the element when done
-      document.body.removeChild(element);
-    });
+    const orderIds = this.orderList.data.map(order => order.id);    
+    if (orderIds.length > 0) {
+      this._pdfSvc.downloadPDF('Order', 'getPackageDistributionListInPdf', [orderIds])
+      .pipe(take(1))
+      .subscribe(pdfFile => {
+        const element = document.createElement('a');
+        element.href = URL.createObjectURL(pdfFile);
+        element.download =  `distribution_list.pdf`;
+        // Firefox requires the element to be in the body
+        document.body.appendChild(element);
+        //simulate click
+        element.click();
+        //remove the element when done
+        document.body.removeChild(element);
+      });
+    }
   }
 
   private _initOrderData(orders) {
     // init order IDs
-    this.orderIds = Array.from(orders.map(order => order.id));
+    this.orderList = new MatTableDataSource(orders.map(function(order) {
+      return {
+        id: order.id,
+        clientName: order.client.name
+      }
+    }));
 
     // init routeList
     let routeSet = new Set();
