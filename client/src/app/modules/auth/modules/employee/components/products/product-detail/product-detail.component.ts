@@ -53,6 +53,7 @@ export class ProductDetailComponent implements OnInit {
         name: [this.product.name, Validators.required],
         description: [this.product.description, Validators.required],
         category: [this.product.category],
+        originCountry: [this.product.originCountry],
         unitPrice: [this.product.unitPrice, Validators.required],
         unit: [this.product.unit],
         inventoryCount: [this.product.inventoryCount],

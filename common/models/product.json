@@ -55,6 +55,13 @@
         "columnName": "is_available"
       }      
     },
+    "originCountry": {
+      "type": "string",
+      "default": "USA",
+      "postgresql": {
+        "columnName": "origin_country"
+      }
+    },
     "settings": {
       "type": "object",
       "postgresql": {
