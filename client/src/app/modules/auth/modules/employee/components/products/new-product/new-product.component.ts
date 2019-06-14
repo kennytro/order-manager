@@ -41,6 +41,7 @@ export class NewProductComponent implements OnInit {
       name: ['', Validators.required],
       description: ['', Validators.required],
       category: [''],
+      originCountry: ['USA'],      
       unitPrice: ['', Validators.required],
       unit: [''],
       inventoryCount: [''],

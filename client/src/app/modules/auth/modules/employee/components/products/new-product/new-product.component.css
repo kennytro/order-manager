@@ -8,6 +8,6 @@ image-cropper {
   border: 1px solid #021a40;
 }
 
-button {
+.mat-icon-button {
   min-width: 10px !important;
 }

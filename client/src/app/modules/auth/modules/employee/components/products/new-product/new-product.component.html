@@ -11,10 +11,14 @@
           </mat-form-field>
         </div>
         <div fxLayout="row wrap" fxLayoutGap="20px" fxLayoutAlign="center space-between">
-          <div fxFlex="1 0 200px">
+          <div fxFlex="1 0 200px" fxLayout="column" fxLayoutGap="20px">
             <mat-form-field appearance="outline">
               <mat-label>Product Category</mat-label>
               <input matInput placeholder="Enter product category " formControlName="category">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Country of Origin</mat-label>
+              <input matInput placeholder="Enter product country of origin " formControlName="originCountry">
             </mat-form-field>
           </div>
           <div fxFlex="1 0 150px" fxLayout="column" fxLayoutGap="20px">
@@ -83,6 +87,6 @@
 </div>
 <mat-divider></mat-divider>
 <div mat-dialog-actions fxLayout="row" fxLayoutAlign="end">
-  <button mat-raised-button [mat-dialog-close]="false">Cancel</button>
-  <button mat-raised-button [disabled]="productFG.invalid" (click)="create()" color="green">Create</button>
+  <button mat-raised-button class="action" [mat-dialog-close]="false">Cancel</button>
+  <button mat-raised-button class="action" [disabled]="productFG.invalid" (click)="create()" color="green">Create</button>
 </div>

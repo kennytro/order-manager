@@ -13,7 +13,7 @@ import { DataApiService } from '../../../services/data-api.service';
 })
 export class ProductsComponent implements OnInit {
   // TO DO: get column names from service.
-  displayedColumns: string[] = ['id', 'name', 'description', 'category', 'unitPrice', 'inventoryCount'];
+  displayedColumns: string[] = ['id', 'name', 'description', 'category', 'originCountry', 'unitPrice'];
   private _products: MatTableDataSource<any>;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
