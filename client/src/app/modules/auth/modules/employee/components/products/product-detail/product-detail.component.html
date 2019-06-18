@@ -70,8 +70,8 @@
         <div fxFlex="1 0 75px">
           <mat-form-field appearance="outline">
             <mat-label>Unit Price</mat-label>
-            <input matInput type="number" class="right" placeholder="Enter product unit price" formControlName="unitPrice">
-            <span matPrefix>$&nbsp;</span>
+            <input matInput type="number" min="0" step="0.01" class="mat-input-right" placeholder="Enter product unit price" formControlName="unitPrice">
+            <span matPrefix class="right">$&nbsp;</span>
           </mat-form-field>
         </div>
         <div fxFlex="1 0 20px">
@@ -85,7 +85,7 @@
         <div fxFlex="1 0 75px">
           <mat-form-field appearance="outline">
             <mat-label>Inventory Count</mat-label>
-            <input matInput type="number" class="right" placeholder="Enter inventory count" formControlName="inventoryCount">
+            <input matInput type="number" class="mat-input-right" placeholder="Enter inventory count" formControlName="inventoryCount">
           </mat-form-field>
         </div>
       </div>
