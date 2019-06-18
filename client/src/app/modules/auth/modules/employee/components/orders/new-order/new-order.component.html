@@ -19,8 +19,8 @@
             </mat-form-field>            
           </div>
           <div fxLayout="row" fxLayoutAlign="end" fxLayoutGap="20px">
-            <button mat-raised-button routerLink="../">Cancel</button>
-            <button mat-raised-button matStepperNext type="button">Next <fa-icon icon="long-arrow-alt-right"></fa-icon></button>
+            <button mat-raised-button class="action" routerLink="../">Cancel</button>
+            <button mat-raised-button class="action" matStepperNext type="button">Next <fa-icon icon="long-arrow-alt-right"></fa-icon></button>
           </div>
         </form>
       </mat-step>
@@ -97,9 +97,9 @@
           </div>
         </div>
         <div fxLayout="row" fxLayoutAlign="end" fxLayoutGap="20px">
-          <button mat-raised-button routerLink="../">Cancel</button>
-          <button mat-raised-button matStepperPrevious type="button"><fa-icon icon="long-arrow-alt-left"></fa-icon> Back</button>
-          <button mat-raised-button matStepperNext type="button" [disabled]="order.totalAmount <= 0">Review <fa-icon icon="long-arrow-alt-right"></fa-icon></button>
+          <button mat-raised-button class="action" routerLink="../">Cancel</button>
+          <button mat-raised-button class="action" matStepperPrevious type="button"><fa-icon icon="long-arrow-alt-left"></fa-icon> Back</button>
+          <button mat-raised-button class="action" matStepperNext type="button" [disabled]="order.totalAmount <= 0">Review <fa-icon icon="long-arrow-alt-right"></fa-icon></button>
         </div>
       </form>
       </mat-step>
@@ -172,9 +172,9 @@
           </div>
         </div>
         <div fxLayout="row" fxLayoutAlign="end" fxLayoutGap="20px">
-          <button mat-raised-button routerLink="../">Cancel</button>
-          <button mat-raised-button matStepperPrevious type="button"><fa-icon icon="long-arrow-alt-left"></fa-icon> Edit</button>
-          <button mat-raised-button color="green" (click)="create()">Submit</button>
+          <button mat-raised-button class="action" routerLink="../">Cancel</button>
+          <button mat-raised-button class="action" matStepperPrevious type="button"><fa-icon icon="long-arrow-alt-left"></fa-icon> Edit</button>
+          <button mat-raised-button class="action" color="green" (click)="create()">Submit</button>
         </div>          
       </mat-step>
     </mat-horizontal-stepper>

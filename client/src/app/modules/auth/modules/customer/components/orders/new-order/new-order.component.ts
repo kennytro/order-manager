@@ -2,6 +2,8 @@ import { Component, OnInit /*, ViewChild*/ } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatSort, MatTableDataSource, MatSnackBar, MatStepper } from '@angular/material';
 import { FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { takeUntil, distinctUntilChanged } from 'rxjs/operators';
 
 import { DataApiService } from '../../../services/data-api.service';
 import { AuthService, UserProfile } from '../../../../../../../services/auth.service';
@@ -18,6 +20,7 @@ export class NewOrderComponent implements OnInit {
   orderItems: MatTableDataSource<OrderItem>;
   order: any;
   orderFG: FormGroup;
+  private _unsubscribe = new Subject<boolean>();
   private _endUser: any;
   private _client: any;
 
@@ -75,6 +78,11 @@ export class NewOrderComponent implements OnInit {
         this._setTableDataSource(orderItems);
       }
     });
+  }
+
+  ngOnDestroy() {
+    this._unsubscribe.next(true);
+    this._unsubscribe.unsubscribe();
   }
 
   getOrderItemTableSource() {
@@ -136,10 +144,15 @@ export class NewOrderComponent implements OnInit {
     };
 
     // update subtotal of row and total.
-    newOrderItem.quantity.valueChanges.subscribe(val => {
-      newOrderItem.subtotal = newOrderItem.unitPrice * val;
-      this._updateTotalAmount();
-    });
+    newOrderItem.quantity.valueChanges
+      .pipe(takeUntil(this._unsubscribe), distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)))
+      .subscribe(val => {
+        if (!val) {
+          val = 0;
+        }
+        newOrderItem.subtotal = newOrderItem.unitPrice * val;
+        this._updateTotalAmount();
+      });
     return newOrderItem;
   }
 
