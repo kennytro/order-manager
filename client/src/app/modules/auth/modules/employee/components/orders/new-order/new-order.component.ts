@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatTableDataSource, MatSnackBar } from '@angular/material';
 import { FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { takeUntil, distinctUntilChanged } from 'rxjs/operators';
+
 import { DataApiService } from '../../../services/data-api.service';
 
 import get from 'lodash/get';
@@ -19,6 +22,7 @@ export class NewOrderComponent implements OnInit {
   clientList: Array<any>;
   selectedClient: any;
   orderFG: FormGroup;
+  private _unsubscribe = new Subject<boolean>();
   constructor(
     private _route: ActivatedRoute,
     private _router: Router,
@@ -42,11 +46,13 @@ export class NewOrderComponent implements OnInit {
       note: ['']
     });
     
-    this.orderFG.get('clientId').valueChanges.subscribe(clientId => {
-      this.selectedClient = this.clientList.find(client => client.id === clientId);
-      this.order.clientId = this.selectedClient.id;
-      this._updateTotalAmount();    // client change may affect fee and total amount.
-    });
+    this.orderFG.get('clientId').valueChanges
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe(clientId => {
+        this.selectedClient = this.clientList.find(client => client.id === clientId);
+        this.order.clientId = this.selectedClient.id;
+        this._updateTotalAmount();    // client change may affect fee and total amount.
+      });
 
     /***** Data initialization: client and product list *****/
     this._route.data.subscribe(routeData => {
@@ -74,6 +80,11 @@ export class NewOrderComponent implements OnInit {
         }
         this._setTableDataSource(orderItems);
       });
+  }
+
+  ngOnDestroy() {
+    this._unsubscribe.next(true);
+    this._unsubscribe.unsubscribe();
   }
 
   getOrderItemTableSource() {
@@ -136,10 +147,15 @@ export class NewOrderComponent implements OnInit {
     };
 
     // update subtotal of row and total.
-    newOrderItem.quantity.valueChanges.subscribe(val => {
-      newOrderItem.subtotal = newOrderItem.unitPrice * val;
-      this._updateTotalAmount();
-    });
+    newOrderItem.quantity.valueChanges
+      .pipe(takeUntil(this._unsubscribe), distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)))
+      .subscribe(val => {
+        if (!val) {
+          val = 0;
+        }
+        newOrderItem.subtotal = newOrderItem.unitPrice * val;
+        this._updateTotalAmount();
+      });
     return newOrderItem;
   }
 
