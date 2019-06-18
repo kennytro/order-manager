@@ -1,0 +1,5 @@
+.mat-input-unitprice {
+  margin-bottom: -1.25em;   /* make input vertically center aligned */
+  max-width: 100px !important;
+  text-align: right !important;
+}
