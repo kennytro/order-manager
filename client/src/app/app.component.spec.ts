@@ -2,8 +2,11 @@ import { TestBed, async } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { AppComponent } from './app.component';
 
+import { RootScopeShareService } from './services/root-scope-share.service';
+
 describe('AppComponent', () => {
   beforeEach(async(() => {
+    const dsSpy = jasmine.createSpyObj('RootScopeShareService', ['getData']);
     TestBed.configureTestingModule({
       imports: [
         RouterTestingModule
@@ -11,25 +14,24 @@ describe('AppComponent', () => {
       declarations: [
         AppComponent
       ],
+      providers: [
+        { provide: RootScopeShareService, useValue: dsSpy }
+      ]
     }).compileComponents();
   }));
 
   it('should create the app', () => {
+    spyOn(document, 'getElementById').and.callFake(function() {
+      return {
+        setAttribute: function(a, b) {}
+      };
+    });
+    const dsSpy = TestBed.get(RootScopeShareService);
+    dsSpy.getData.and.returnValue({id: 'test'});
+
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.debugElement.componentInstance;
     expect(app).toBeTruthy();
-  });
-
-  it(`should have as title 'client'`, () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.debugElement.componentInstance;
-    expect(app.title).toEqual('client');
-  });
-
-  it('should render title in a h1 tag', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.debugElement.nativeElement;
-    expect(compiled.querySelector('h1').textContent).toContain('Welcome to client!');
+    expect(dsSpy.getData.calls.count()).toBe(1, 'spy method was called once');
   });
 });
