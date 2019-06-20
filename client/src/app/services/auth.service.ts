@@ -36,35 +36,6 @@ export class AuthService {
     private dataShare: RootScopeShareService,
     private router: Router,
     private _cookieService: CookieService) {
-    let tenant = this.dataShare.getData('tenant');
-    this._lock = new Auth0Lock(tenant.clientId, tenant.domainId, {
-      container: 'login-content-wrapper',
-      allowSignUp: false,
-      closable: false,
-      avatar: null,
-      rememberLastLogin: false,
-      auth: {
-        audience: tenant.audience,
-        redirect: false,
-        responseType: 'token id_token',
-        params: {
-          scope: 'openid email profile'
-        }
-      },
-      languageDictionary: {
-        title: ''
-      },
-      theme: {
-        logo: AWS_S3_PUBLIC_URL + tenant.id + '/favicon.png',
-        primaryColor: '#0B941E'
-      }
-    });
-
-    this._lock.on('authenticated', this.onAuthenticated.bind(this));
-    this._lock.on('authorization_error', error => {
-      console.log('something went wrong', error);
-    });
-
     // renew tokens and user profile if accessToken is still available
     if (this.isAuthenticated()) {
       this.scheduleRenewal();
@@ -73,6 +44,7 @@ export class AuthService {
   }
 
   async login() {
+    this._initAuth0Lock();
     this._lock.show();
     // hide lock when we navigate away from login page.
     this._navSubscription = this.router.events.pipe(
@@ -146,6 +118,7 @@ export class AuthService {
   }
 
   renewTokens() {
+    this._initAuth0Lock();
     this._lock.checkSession({redirectUri: this._document.location.origin + '/login'}, (err, authResult) => {
       if (err) {
         console.log(err);
@@ -175,11 +148,52 @@ export class AuthService {
     }
   }
 
+  private _initAuth0Lock() {
+    if (!this._lock) {
+      let tenant = this.dataShare.getData('tenant');
+      this._lock = new Auth0Lock(tenant.clientId, tenant.domainId, {
+        container: 'login-content-wrapper',
+        allowSignUp: false,
+        closable: false,
+        avatar: null,
+        rememberLastLogin: false,
+        auth: {
+          audience: tenant.audience,
+          redirect: false,
+          responseType: 'token id_token',
+          params: {
+            scope: 'openid email profile'
+          }
+        },
+        languageDictionary: {
+          title: ''
+        },
+        theme: {
+          logo: AWS_S3_PUBLIC_URL + tenant.id + '/favicon.png',
+          primaryColor: '#0B941E'
+        }
+      });
+
+      this._lock.on('authenticated', this.onAuthenticated.bind(this));
+      this._lock.on('authorization_error', error => {
+        console.log('something went wrong', error);
+      });      
+    }
+  }
+
   private async _getAuth0UserProfile(): Promise<void> {
+    const idToken = this._cookieService.check('idToken') ? this._cookieService.get('idToken') : undefined;
+    if (idToken) {
+      this._setUserProfile(this._jwtHelper.decodeToken(idToken));
+      return;
+    }
+
+    // ID token is not available. Fetch user profile from Auth0
     const accessToken = this._cookieService.check('accessToken') ? this._cookieService.get('accessToken') : undefined;
     if (!accessToken) {
       throw new Error('Access Token must exist to fetch profile');
     }
+
     const self = this;
     await new Promise((resolve, reject) => {
       self._lock.getUserInfo(accessToken, function(error, profile) {
