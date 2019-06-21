@@ -3,7 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
 import { ContentService } from './content.service';
 import { LocalScopeShareService } from './local-scope-share.service';
-import { asyncData, asyncError } from '../../../../../testing/async-observable-helpers';
+import { asyncData, asyncError } from '../../../../testing/async-observable-helpers';
 
 describe('ContentService', () => {
   let httpClientSpy: jasmine.SpyObj<HttpClient>;  

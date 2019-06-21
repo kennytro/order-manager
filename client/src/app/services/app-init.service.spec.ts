@@ -4,7 +4,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { AppInitService } from './app-init.service';
 import { RootScopeShareService } from './root-scope-share.service';
 
-import { asyncData, asyncError } from '../../../testing/async-observable-helpers';
+import { asyncData, asyncError } from '../../testing/async-observable-helpers';
 
 describe('AppInitService', () => {
   let shareSvcSpy: jasmine.SpyObj<RootScopeShareService>;
