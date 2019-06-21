@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import swal from 'sweetalert2';
+
 import { AlertService } from './alert.service';
 
 describe('AlertService', () => {
