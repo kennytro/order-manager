@@ -26,6 +26,7 @@ export class ContactUsComponent implements OnInit {
   }
 
   submit() {
+    // TO DO: implement data submission
     const snackBarRef = this._snackBar.open(`Thank you for contacting us!`,
       'Close', { duration: 3000 });
     snackBarRef.onAction().subscribe(() => {
