@@ -33,5 +33,5 @@ describe('PublicHomeComponent', () => {
   });
   it('should get content', () => {
     expect(component.getContent()).toEqual('<p>test</p>');
-  })
+  });
 });
