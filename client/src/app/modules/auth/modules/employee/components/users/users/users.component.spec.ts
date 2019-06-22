@@ -15,26 +15,31 @@ import { DataApiService } from '../../../services/data-api.service';
 describe('UsersComponent', () => {
   let component: UsersComponent;
   let fixture: ComponentFixture<UsersComponent>;
+  let dialogSpy: jasmine.SpyObj<MatDialog>;
   let authSvcSpy: jasmine.SpyObj<AuthService>;
   let apiSpy: jasmine.SpyObj<DataApiService>;
+  let snackbarSpy: jasmine.SpyObj<MatSnackBar>;
   library.add(faUserPlus);
 
   beforeEach(async(() => {
     const testUsers = [
       { id: 'kenny', email: 'kenny@etr.com', role: 'customer', clientId: '111', createDate: '01/01/2019'}
     ];
-    const route = ({ data: of({ users: testUsers} ), snapshot: {} } as any) as ActivatedRoute;    
+    const route = ({ data: of({ users: testUsers} ), snapshot: {} } as any) as ActivatedRoute;
+    const mdSpy = jasmine.createSpyObj('MatDialog', ['open']);
     const authSpy = jasmine.createSpyObj('AuthService', ['isDemoUser']);
-    const dataSpy = jasmine.createSpyObj('DataApiService', ['find']); 
+    const dataSpy = jasmine.createSpyObj('DataApiService', ['find']);
+    const msbSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
+
     TestBed.configureTestingModule({
       declarations: [ UsersComponent ],
       imports: [ NoopAnimationsModule, AuthSharedModule, RouterTestingModule],
       providers: [
         { provide: ActivatedRoute, useValue: route },
-        MatDialog,
-        MatSnackBar,
+        { provide: MatDialog, useValue: mdSpy },
         { provide: AuthService, useValue: authSpy },
-        { provide: DataApiService, useValue: dataSpy }
+        { provide: DataApiService, useValue: dataSpy },
+        { provide: MatSnackBar, useValue: msbSpy }
       ]
     })
     .compileComponents();
@@ -42,9 +47,11 @@ describe('UsersComponent', () => {
 
   beforeEach(() => {
     fixture = TestBed.createComponent(UsersComponent);
+    component = fixture.componentInstance;
+    dialogSpy = TestBed.get(MatDialog);
     authSvcSpy = TestBed.get(AuthService);
     apiSpy = TestBed.get(DataApiService);
-    component = fixture.componentInstance;
+    snackbarSpy = TestBed.get(MatSnackBar);
     fixture.detectChanges();
   });
 
