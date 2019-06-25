@@ -25,7 +25,7 @@ describe('NewUserComponent', () => {
         { provide: MatDialogRef, useValue: dlgSpy },
         FormBuilder,
         { provide: MatSnackBar, useValue: msbSpy },
-        { provide: DataApiService, useValue: dataSpy },
+        { provide: DataApiService, useValue: dataSpy }
       ]
     })
     .compileComponents();
