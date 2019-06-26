@@ -59,5 +59,5 @@ describe('EmployeeLayoutComponent', () => {
   it('should get Company Info', () => {
     expect(component.getCompanyLogo()).toEqual(AWS_S3_PUBLIC_URL + testTenant.id + '/favicon.png', 'expect tenant logo URL');
     expect(component.getCompanyName()).toEqual(testTenant.companyName, 'expect tenant name');
-  })
+  });
 });
