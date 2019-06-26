@@ -14,7 +14,7 @@ describe('TotalOrdersComponent', () => {
       declarations: [ TotalOrdersComponent ],
       imports: [ AuthSharedModule, NoopAnimationsModule ],
       providers: [
-        { provide: DataApiService, useValue: jasmine.createSpyObj('DataApiService', ['genericMethod']) },
+        { provide: DataApiService, useValue: jasmine.createSpyObj('DataApiService', ['genericMethod']) }
       ]
     })
     .compileComponents();
