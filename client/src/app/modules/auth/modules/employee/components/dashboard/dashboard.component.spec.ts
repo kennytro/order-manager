@@ -9,16 +9,13 @@ import { DashboardComponent } from './dashboard.component';
   selector: 'app-todays-snapshots',
   template: '<p>Mock Snapshots Component</p>'
 })
-class FakeTodaysSnapshotsComponent {
-  constructor() {}
-};
+class FakeTodaysSnapshotsComponent { };
+
 @Component({
   selector: 'app-total-orders',
   template: '<p>Mock Orders Component</p>'
 })
-class FakeTotalOrdersComponent {
-  constructor() {}
-};
+class FakeTotalOrdersComponent { };
 
 describe('DashboardComponent', () => {
   let component: DashboardComponent;
