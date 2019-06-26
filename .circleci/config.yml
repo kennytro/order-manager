@@ -49,6 +49,9 @@ jobs:
           name: Build front-end app
           command: npm run build:ng
       - run:
+          name: Test fornt-end app
+          command: npm run front-test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
+      - run:
           name: Start back-end app
           command: ALLOW_HTTP=true ENABLE_FULL_STACK_TRACE=true ONE_OFF=true node .
           background: true
