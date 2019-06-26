@@ -31,12 +31,6 @@ export class SettingsComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this._dataApi.genericMethod('CompanyInfo', 'getCompanyInfo')
-      .pipe(take(1))
-      .subscribe(result => {
-        this.companyInfo = result;
-        this._loadCompanyInfoToFormControl();
-      });
     // build form group. TODO: add logo selection.
     this.companyInfoFG = this._formBuilder.group({
       name: ['', Validators.required],
@@ -47,6 +41,13 @@ export class SettingsComponent implements OnInit {
       phone: ['', Validators.required],
       email: ['', Validators.email]
     });
+
+    this._dataApi.genericMethod('CompanyInfo', 'getCompanyInfo')
+      .pipe(take(1))
+      .subscribe(result => {
+        this.companyInfo = result;
+        this._loadCompanyInfoToFormControl();
+      });
   }
 
   ngOnDestroy() { }
