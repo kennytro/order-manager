@@ -7,7 +7,7 @@ jobs:
   build-and-test:
     working_directory: ~/order-manager
     docker:
-      - image: circleci/node:10.13.0
+      - image: circleci/node:10.13.0-browsers
         environment:
           NODE_ENV: test
           DATABASE_URL: "postgres://web_app:circleci_test@localhost:5432/circle_test?ssl=true"
