@@ -1,5 +1,8 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { MatDialogRef } from '@angular/material';
 
+import { AuthSharedModule } from '../../../../../shared/auth-shared.module';
 import { SettingsComponent } from './settings.component';
 
 describe('SettingsComponent', () => {
@@ -8,7 +11,11 @@ describe('SettingsComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ SettingsComponent ]
+      declarations: [ SettingsComponent ],
+      imports: [ NoopAnimationsModule, AuthSharedModule ],
+      providers: [
+        { provide: MatDialogRef, useValue: jasmine.createSpyObj('MatDialogRef', ['close']) },
+      ]
     })
     .compileComponents();
   }));
