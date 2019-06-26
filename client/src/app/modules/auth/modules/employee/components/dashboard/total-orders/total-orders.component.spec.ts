@@ -1,5 +1,4 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AuthSharedModule } from '../../../../../shared/auth-shared.module';
@@ -13,7 +12,7 @@ describe('TotalOrdersComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [ TotalOrdersComponent ],
-      imports: [ NoopAnimationsModule, AuthSharedModule, RouterTestingModule],
+      imports: [ AuthSharedModule, NoopAnimationsModule ],
       providers: [
         { provide: DataApiService, useValue: jasmine.createSpyObj('DataApiService', ['genericMethod']) },
       ]
