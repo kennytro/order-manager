@@ -1,5 +1,4 @@
 import { NgModule } from '@angular/core';
-import { Ng2GoogleChartsModule } from 'ng2-google-charts';
 
 import { AuthSharedModule } from '../../shared/auth-shared.module';
 import { CustomerRoutingModule } from './customer-routing.module';
@@ -36,8 +35,7 @@ import { faBars, faCartPlus, faChartLine, faCog, faExclamationCircle,
     StatementsComponent, StatementDetailComponent/* ConfirmDialogComponent */ ],
   imports: [
     AuthSharedModule,
-    CustomerRoutingModule,
-    Ng2GoogleChartsModule
+    CustomerRoutingModule
   ],
   providers: [
     FileService,
