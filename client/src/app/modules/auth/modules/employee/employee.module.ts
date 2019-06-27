@@ -1,7 +1,6 @@
 // Modules
 import { NgModule } from '@angular/core';
 import { ImageCropperModule } from 'ngx-image-cropper';
-import { Ng2GoogleChartsModule } from 'ng2-google-charts';
 
 import { AuthSharedModule } from '../../shared/auth-shared.module';
 import { SharedModule } from '../../../../shared/shared.module';
@@ -85,8 +84,7 @@ import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV,
     AuthSharedModule,
     ImageCropperModule,
     SharedModule,
-    EmployeeRoutingModule,
-    Ng2GoogleChartsModule
+    EmployeeRoutingModule
   ],
   providers: [
     DataResolver,

@@ -1,5 +1,9 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { MatSnackBar } from '@angular/material';
+import { FormBuilder } from '@angular/forms';
 
+import { PublicModule } from '../../public.module';
 import { ContactUsComponent } from './contact-us.component';
 
 describe('ContactUsComponent', () => {
@@ -8,7 +12,14 @@ describe('ContactUsComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ContactUsComponent ]
+      imports: [
+        NoopAnimationsModule,
+        PublicModule
+      ],
+      providers: [
+        FormBuilder,
+        MatSnackBar
+      ]
     })
     .compileComponents();
   }));
@@ -22,4 +33,9 @@ describe('ContactUsComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+  /*
+  it('should submit', () => {
+    // TO DO: test submit action.
+  })
+  */
 });

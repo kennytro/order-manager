@@ -1,6 +1,8 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { RouterTestingModule } from '@angular/router/testing';
+import { PublicModule } from '../../public.module';
 import { LoginComponent } from './login.component';
+import { AuthService } from '../../../../services/auth.service';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -8,7 +10,15 @@ describe('LoginComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ LoginComponent ]
+      imports: [ 
+        PublicModule,
+        RouterTestingModule
+      ],
+      providers: [
+        { provide: AuthService, useValue: {
+          login: async() => {}
+        }}
+      ]
     })
     .compileComponents();
   }));

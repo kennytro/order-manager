@@ -1,5 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { PublicModule } from '../../public.module';
+import { ActivatedRoute, Data } from '@angular/router';
 import { ProcessComponent } from './process.component';
 
 describe('ProcessComponent', () => {
@@ -8,7 +9,16 @@ describe('ProcessComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ProcessComponent ]
+      imports: [ PublicModule ],
+      providers: [
+        { provide: ActivatedRoute, useValue: {
+          data: {
+            subscribe: (fn: (value: Data) => void) => fn({
+              content: '<p>test</p>'
+            })
+          }
+        } }
+      ]
     })
     .compileComponents();
   }));
@@ -21,5 +31,8 @@ describe('ProcessComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+  it('should get content', () => {
+    expect(component.getContent()).toEqual('<p>test</p>');
   });
 });

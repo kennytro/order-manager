@@ -4,8 +4,6 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { take, takeUntil } from 'rxjs/operators';
 
-import map from 'lodash/map';
-
 import { DataApiService } from '../../../services/data-api.service';
 
 @Component({
@@ -16,7 +14,6 @@ import { DataApiService } from '../../../services/data-api.service';
 export class NewUserComponent implements OnInit {
   clientList = [];
   userFG: FormGroup;
-  phoneMask: any[] = ['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/];
   private _unsubscribe = new Subject<boolean>();
 
   constructor(
@@ -41,7 +38,6 @@ export class NewUserComponent implements OnInit {
     this._dataApi.find('Client', { fields: { id: true, name: true } })
       .pipe(take(1))
       .subscribe(result => {
-        // this.clientList = map(result, 'id');
         this.clientList = result;
       });
   }

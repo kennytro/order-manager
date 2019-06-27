@@ -7,7 +7,7 @@ jobs:
   build-and-test:
     working_directory: ~/order-manager
     docker:
-      - image: circleci/node:10.13.0
+      - image: circleci/node:10.13.0-browsers
         environment:
           NODE_ENV: test
           DATABASE_URL: "postgres://web_app:circleci_test@localhost:5432/circle_test?ssl=true"
@@ -48,6 +48,9 @@ jobs:
       - run:
           name: Build front-end app
           command: npm run build:ng
+      - run:
+          name: Test fornt-end app
+          command: npm run front-test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
       - run:
           name: Start back-end app
           command: ALLOW_HTTP=true ENABLE_FULL_STACK_TRACE=true ONE_OFF=true node .
