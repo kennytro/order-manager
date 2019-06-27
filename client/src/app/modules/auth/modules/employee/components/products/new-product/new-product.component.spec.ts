@@ -11,9 +11,10 @@ import { DataApiService } from '../../../services/data-api.service';
 import { ProductService } from '../../../services/product.service';
 
 describe('NewProductComponent', () => {
+  const noImage = require('../../../../../../../../assets/img/no-picture.png');
   let component: NewProductComponent;
   let fixture: ComponentFixture<NewProductComponent>;
-
+  let prodSvcSpy: jasmine.SpyObj<ProductService>;
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [ NewProductComponent ],
@@ -30,6 +31,8 @@ describe('NewProductComponent', () => {
   }));
 
   beforeEach(() => {
+    prodSvcSpy = TestBed.get(ProductService);
+    prodSvcSpy.getNoPictureImage.and.returnValue(noImage);
     fixture = TestBed.createComponent(NewProductComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

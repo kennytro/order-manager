@@ -16,11 +16,13 @@ import { DataApiService } from '../../../services/data-api.service';
 import { ProductService } from '../../../services/product.service';
 
 describe('ProductDetailComponent', () => {
+  const noImage = require('../../../../../../../../assets/img/no-picture.png');
   const testProduct = {
     id: '1111', name: 'grape', description: 'Grape', category: 'fruit', originCountry: 'USA', unitPrice: '10.00', unit: 'lb', settings: {}
   };
   let component: ProductDetailComponent;
   let fixture: ComponentFixture<ProductDetailComponent>;
+  let prodSvcSpy: jasmine.SpyObj<ProductService>;
   library.add(faTag, faFolderOpen, faArrowsAltV, faUndoAlt);
   
   beforeEach(async(() => {
@@ -41,6 +43,8 @@ describe('ProductDetailComponent', () => {
   }));
 
   beforeEach(() => {
+    prodSvcSpy = TestBed.get(ProductService);
+    prodSvcSpy.getNoPictureImage.and.returnValue(noImage);
     fixture = TestBed.createComponent(ProductDetailComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
