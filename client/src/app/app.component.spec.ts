@@ -27,7 +27,7 @@ describe('AppComponent', () => {
       };
     });
     const dsSpy = TestBed.get(RootScopeShareService);
-    dsSpy.getData.and.returnValue({id: 'test'});
+    dsSpy.getData.and.returnValue({id: 'om-app-dev'});
 
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.debugElement.componentInstance;

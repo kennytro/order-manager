@@ -15,7 +15,7 @@ import { DataApiService } from '../../services/data-api.service';
 
 describe('CustomerLayoutComponent', () => {
   const testClient = { id: '1000', name: 'testA', phone: '1111111111', deliveryRouteId: 'routeA', createdDate: '1/1/2019' };
-  const testTenant = { id: 'test', companyName: 'test' };
+  const testTenant = { id: 'om-app-dev', companyName: 'test' };
   const testProfile = { email: 'kenny@etr.com', authId: 'AAAAAA', clientId: '1000', pictureUrl: '' };
   let component: CustomerLayoutComponent;
   let fixture: ComponentFixture<CustomerLayoutComponent>;

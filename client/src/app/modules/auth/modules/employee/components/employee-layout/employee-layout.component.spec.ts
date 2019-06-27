@@ -14,7 +14,7 @@ import { DataApiService } from '../../services/data-api.service';
 
 describe('EmployeeLayoutComponent', () => {
   const testTenant = {
-    id: 'test',
+    id: 'om-app-dev',
     companyName: 'test'
   };
   const testProfile = {

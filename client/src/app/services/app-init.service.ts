@@ -16,9 +16,9 @@ export class AppInitService {
    */
   async init() {
     // Get tenant configuration from API server.
-    console.log('Getting tenant configuration...');
+    // console.log('Getting tenant configuration...');
     let tenant = await this.http.get('/tenant').toPromise();
     this.dataShare.setData('tenant', tenant);
-    console.log('Saved tenant configuration.')
+    // console.log('Saved tenant configuration.')
   }
 }

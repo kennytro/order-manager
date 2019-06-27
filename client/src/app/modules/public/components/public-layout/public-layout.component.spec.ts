@@ -24,7 +24,7 @@ describe('PublicLayoutComponent', () => {
 
   beforeEach(() => {
     shareSvcSpy = TestBed.get(RootScopeShareService);
-    shareSvcSpy.getData.and.returnValue({id: 'test'});
+    shareSvcSpy.getData.and.returnValue({id: 'om-app-dev'});
     fixture = TestBed.createComponent(PublicLayoutComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -34,6 +34,6 @@ describe('PublicLayoutComponent', () => {
     expect(component).toBeTruthy();
   });
   it('should get compnay logo', () => {
-    expect(component.getCompanyLogo()).toEqual(AWS_S3_PUBLIC_URL + 'test/favicon.png');
+    expect(component.getCompanyLogo()).toEqual(AWS_S3_PUBLIC_URL + 'om-app-dev/favicon.png');
   })
 });
