@@ -99,8 +99,11 @@ module.exports = function(Product) {
    */
   Product.getMyProducts = async function(authId) {
     let endUser = await app.models.EndUser.getMyUser(authId);
+    if (!endUser) {
+      return [];
+    }
     let filter = {};
-    if (endUser && _.get(endUser, ['userSettings', 'productExcluded'])) {
+    if (_.get(endUser, ['userSettings', 'productExcluded'])) {
       filter.where = {
         id: { nin: _.get(endUser, ['userSettings', 'productExcluded']) }
       };

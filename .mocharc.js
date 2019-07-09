@@ -1,4 +1,6 @@
 'use strict';
+process.env.DISABLE_CLUSTER = true;
+process.env.ONE_OFF = true;
 module.exports = {
   diff: true,
   extension: ['js'],
