@@ -55,7 +55,7 @@ jobs:
           name: Start back-end app
           command: ALLOW_HTTP=true ENABLE_FULL_STACK_TRACE=true ONE_OFF=true DISABLE_CLUSTER=true node .
           background: true
-      - run: sleep 5
+      - run: sleep 10
       # run back end unit test while back-end app starts up.
       - run:
           name: Run back end unit tests
