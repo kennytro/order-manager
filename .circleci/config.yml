@@ -56,6 +56,10 @@ jobs:
           command: ALLOW_HTTP=true ENABLE_FULL_STACK_TRACE=true ONE_OFF=true node .
           background: true
       - run: sleep 5
+      # run back end unit test while back-end app starts up.
+      - run:
+          name: Run back end unit tests
+          command: npm run back-unit-test
       - run: 
           name: Run test
           command: npm run back-test
