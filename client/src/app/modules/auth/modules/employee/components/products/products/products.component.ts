@@ -1,7 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material';
 import { ActivatedRoute } from '@angular/router';
-import { MatPaginator, MatSort, MatTableDataSource} from '@angular/material';
+import { MatPaginator, MatSort, MatTableDataSource } from '@angular/material';
+import { SelectionModel } from '@angular/cdk/collections';
 import { FormControl } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil, debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -17,6 +18,8 @@ import { DataApiService } from '../../../services/data-api.service';
 export class ProductsComponent implements OnInit {
   // TO DO: get column names from service.
   displayedColumns: string[] = ['id', 'name', 'description', 'category', 'originCountry', 'unitPrice', 'unit'];
+  selection: SelectionModel<any>;
+  productIdSelected: string;
   private _products: MatTableDataSource<any>;
   private _unsubscribe = new Subject<boolean>();
 
@@ -25,7 +28,16 @@ export class ProductsComponent implements OnInit {
 
   constructor(private _route: ActivatedRoute,
     private _newProductDialog: MatDialog,
-    private _dataApi: DataApiService) { }
+    private _dataApi: DataApiService) {
+    this.selection = new SelectionModel(false, []);
+    this.selection.onChange
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((a) => {
+        if (a.added[0]) {
+          this.selectProduct(a.added[0]);
+        }
+      });
+  }
 
   ngOnInit() {
     this._route.data.subscribe(routeData => {
@@ -70,6 +82,11 @@ export class ProductsComponent implements OnInit {
     })
   }
 
+  selectProduct(row) {
+    console.log(`id: ${row.id}, name: ${row.name}`);
+    this.productIdSelected = row.id;
+  }
+
   private _setTableDataSource(products: Array<any>) {
     products.forEach((product) => {
       product.unitPriceFC = new FormControl(product.unitPrice);
@@ -82,7 +99,7 @@ export class ProductsComponent implements OnInit {
     });
     this._products = new MatTableDataSource(products);
     this._products.paginator = this.paginator;
-    this._products.sort = this.sort;   
+    this._products.sort = this.sort;
   }
 
   private async _updateUnitPrice(product: any) {

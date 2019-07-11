@@ -3,3 +3,7 @@
   max-width: 100px !important;
   text-align: right !important;
 }
+
+.mat-row.selected {
+   background: #eafaea;
+}
