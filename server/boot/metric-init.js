@@ -11,7 +11,7 @@ module.exports = async function(app) {
    * process.(NOTE: Currently there is only 1 worker. When we have multiple
    * workers, use a lock to avoid race condition.)
    */
-  if (process.env.ONE_OFF || !process.env.IS_WORKER) {
+  if (process.env.NODE_ENV !== 'test' && (process.env.ONE_OFF || !process.env.IS_WORKER)) {
     return;
   };
   const UUID_NAMESPACE = metricSetting.uuidNamespace;
@@ -119,6 +119,18 @@ module.exports = async function(app) {
       aggregationType: 'Sum',
       timeRange: 'Yearly',
       modelName: 'Order'
+    },
+    // product unit price
+    {
+      id: uuidv5('product_unit_price', UUID_NAMESPACE),
+      level: 0,
+      name: 'product_unit_price',
+      description: 'Product unit price daily',
+      displayName: 'Product Unit Price',
+      shortName: 'PUP',
+      unit: 'Currency',
+      timeRange: 'None',
+      modelName: 'Product'
     },
     // Client specific metric
     // total sales by client

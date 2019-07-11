@@ -6,5 +6,7 @@ module.exports = {
   // Set containing orders changed.
   redisOrderChangedSetKey: 'order-changed-set',
   // Set containing clients deleted.
-  redisClientDeletedSetKey: 'client-deleted-set'
+  redisClientDeletedSetKey: 'client-deleted-set',
+  // Set containing product changed.
+  redisProductChangedSetKey: 'product-changed-set'
 };
