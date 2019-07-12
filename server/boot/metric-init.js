@@ -11,7 +11,7 @@ module.exports = async function(app) {
    * process.(NOTE: Currently there is only 1 worker. When we have multiple
    * workers, use a lock to avoid race condition.)
    */
-  if (process.env.NODE_ENV !== 'test' && (process.env.ONE_OFF || !process.env.IS_WORKER)) {
+  if (process.env.NODE_ENV !== 'unit_test' && (process.env.ONE_OFF || !process.env.IS_WORKER)) {
     return;
   };
   const UUID_NAMESPACE = metricSetting.uuidNamespace;
