@@ -15,7 +15,7 @@
     "ng": "ng",
     "upgrade-db": "node ./database/upgrade-db.js",
     "back-test": "./node_modules/.bin/mocha test/ -name '*.js' --recursive",
-    "back-unit-test": "set NODE_ENV=unit_test&& \"./node_modules/.bin/mocha\" './common/**/*.spec.js'",
+    "back-unit-test": "cross-env NODE_ENV=unit_test \"./node_modules/.bin/mocha\" './common/**/*.spec.js'",
     "front-test": "cd client && ng test",
     "e2e": "ng e2e"
   },
@@ -94,6 +94,7 @@
     "@types/jasminewd2": "~2.0.3",
     "chai": "^4.2.0",
     "codelyzer": "~4.5.0",
+    "cross-env": "^5.2.0",
     "eslint": ">=4.18.2",
     "eslint-config-loopback": "^8.0.0",
     "jasmine-core": "~2.99.1",
