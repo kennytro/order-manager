@@ -48,7 +48,7 @@ export class HistoryGraphComponent implements OnInit {
           if (data.length === 0) {
             this.historyChart.dataTable = [['', {role: 'annotation'}], ['', '']];
           } else {
-            this.historyChart.dataTable = [['Date', this._metricDefinition.unit]];
+            this.historyChart.dataTable = [['Date', this._metricDefinition.unitLabel]];
             data.sort(function(a, b) { 
               return moment(a.metricDate).isBefore(b.metricDate) ? -1 : 1;
             });
@@ -69,7 +69,9 @@ export class HistoryGraphComponent implements OnInit {
       options: {
         title: metric.displayName,
         width: 600,
-        height: 400
+        height: 400,
+        legend: 'none',
+        vAxis: { title: metric.unitLabel }
       }
     };
   }

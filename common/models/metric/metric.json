@@ -51,6 +51,12 @@
       "required": true,
       "description": "One of 'Days', 'Number', 'Currency', 'Percent', 'Integer'"
     },
+    "unitLabel": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "unit_label"
+      }
+    },
     "aggregationType": {
       "type": "string",
       "description": "One of 'None', 'Sum', 'Product', 'Average'",

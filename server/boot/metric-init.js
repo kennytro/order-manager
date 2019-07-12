@@ -28,6 +28,7 @@ module.exports = async function(app) {
       displayName: 'Order Total Sale Amount',
       shortName: 'TS',
       unit: 'Currency',
+      unitLabel: 'Amount',
       timeRange: 'None',
       modelName: 'Order'
     },
@@ -40,6 +41,7 @@ module.exports = async function(app) {
       displayName: 'Daily Total Sale Amount',
       shortName: 'TSD',
       unit: 'Currency',
+      unitLabel: 'Amount',
       aggregationType: 'Sum',
       timeRange: 'Daily',
       modelName: 'Order'
@@ -53,6 +55,7 @@ module.exports = async function(app) {
       displayName: 'Monthly Total Sale Amount',
       shortName: 'TSM',
       unit: 'Currency',
+      unitLabel: 'Amount',
       aggregationType: 'Sum',
       timeRange: 'Monthly',
       modelName: 'Order'
@@ -65,6 +68,7 @@ module.exports = async function(app) {
       displayName: 'Yearly Total Sale Amount',
       shortName: 'TSY',
       unit: 'Currency',
+      unitLabel: 'Amount',
       aggregationType: 'Sum',
       timeRange: 'Yearly',
       modelName: 'Order'
@@ -79,6 +83,7 @@ module.exports = async function(app) {
       displayName: 'Total Order Count',
       shortName: 'TO',
       unit: 'Integer',
+      unitLabel: 'Count',
       timeRange: 'None',
       modelName: 'Order'
     },
@@ -91,6 +96,7 @@ module.exports = async function(app) {
       displayName: 'Daily Total Order Count',
       shortName: 'TOD',
       unit: 'Integer',
+      unitLabel: 'Count',
       aggregationType: 'Sum',
       timeRange: 'Daily',
       modelName: 'Order'
@@ -104,6 +110,7 @@ module.exports = async function(app) {
       displayName: 'Monthly Total Order Count',
       shortName: 'TOM',
       unit: 'Integer',
+      unitLabel: 'Count',
       aggregationType: 'Sum',
       timeRange: 'Monthly',
       modelName: 'Order'
@@ -116,6 +123,7 @@ module.exports = async function(app) {
       displayName: 'Yearly Total Order Count',
       shortName: 'TOY',
       unit: 'Integer',
+      unitLabel: 'Count',
       aggregationType: 'Sum',
       timeRange: 'Yearly',
       modelName: 'Order'
@@ -129,6 +137,7 @@ module.exports = async function(app) {
       displayName: 'Product Unit Price',
       shortName: 'PUP',
       unit: 'Currency',
+      unitLabel: 'Price',
       timeRange: 'None',
       modelName: 'Product'
     },
@@ -143,6 +152,7 @@ module.exports = async function(app) {
       displayName: 'Sale Amount By Client',
       shortName: 'CS',
       unit: 'Currency',
+      unitLabel: 'Amount',
       timeRange: 'None',
       modelName: 'Order',
       groupByKey: 'clientId'
@@ -156,6 +166,7 @@ module.exports = async function(app) {
       displayName: 'Daily Sale Amount By Client',
       shortName: 'CSD',
       unit: 'Currency',
+      unitLabel: 'Amount',
       aggregationType: 'Sum',
       timeRange: 'Daily',
       modelName: 'Order',
@@ -170,6 +181,7 @@ module.exports = async function(app) {
       displayName: 'Monthly Sale Amount By Client',
       shortName: 'CSM',
       unit: 'Currency',
+      unitLabel: 'Amount',
       aggregationType: 'Sum',
       timeRange: 'Monthly',
       modelName: 'Order',
@@ -183,6 +195,7 @@ module.exports = async function(app) {
       displayName: 'Yearly Sale Amount By Client',
       shortName: 'CSY',
       unit: 'Currency',
+      unitLabel: 'Amount',
       aggregationType: 'Sum',
       timeRange: 'Yearly',
       modelName: 'Order',
@@ -193,11 +206,12 @@ module.exports = async function(app) {
   // Seed metric definition if not exists already.
   try {
     await Promise.map(SEED_METRICS, async (metricDef) => {
-      const metric = await app.models.Metric.findById(metricDef.id, { fields: { id: true } });
-      if (!metric) {
-        await app.models.Metric.create(metricDef);
-        logger.info(`Seeded metric definition for ${metricDef.name}`);
-      }
+      // const metric = await app.models.Metric.findById(metricDef.id, { fields: { id: true } });
+      // if (!metric) {
+      //   await app.models.Metric.create(metricDef);
+      //   logger.info(`Seeded metric definition for ${metricDef.name}`);
+      // }
+      await app.models.Metric.upsert(metricDef);
     }, {
       concurrency: 4    // avoid EventEmitter memory leak
     });
