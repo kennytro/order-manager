@@ -15,7 +15,7 @@
     "ng": "ng",
     "upgrade-db": "node ./database/upgrade-db.js",
     "back-test": "./node_modules/.bin/mocha test/ -name '*.js' --recursive",
-    "back-unit-test": "set NODE_ENV=unit_test&& \"./node_modules/.bin/mocha\" ./**/*.spec.js --exclude ./node_modules/**/* --exclude ./client/**/* --exclude ./dist/**/*",
+    "back-unit-test": "set NODE_ENV=unit_test&& \"./node_modules/.bin/mocha\" './common/**/*.spec.js'",
     "front-test": "cd client && ng test",
     "e2e": "ng e2e"
   },

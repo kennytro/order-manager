@@ -53,7 +53,7 @@ jobs:
           command: npm run front-test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
       - run:
           name: Start back-end app
-          command: ALLOW_HTTP=true ENABLE_FULL_STACK_TRACE=true ONE_OFF=true DISABLE_CLUSTER=true node .
+          command: ALLOW_HTTP=true ENABLE_FULL_STACK_TRACE=true ONE_OFF=true node .
           background: true
       - run: sleep 5
       - run:
