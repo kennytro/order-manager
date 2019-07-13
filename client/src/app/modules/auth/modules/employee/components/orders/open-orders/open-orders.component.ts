@@ -148,18 +148,27 @@ export class OpenOrdersComponent implements OnInit {
   private async _updateOrderStatus(orderIds: Array<string>, fromStatus: string, toStatus: string) {
     if (orderIds.length > 0) {
       try {
-        // update order status
-        await this._dataApi.genericMethod('Order', 'updateAll', [{ id: { inq: orderIds } },
-          { status: toStatus }]).toPromise();
+        let statuses = [fromStatus];
+        /* For completed orders, we use different API in order to create related 
+         * metric data. */
+        if (toStatus === 'Completed') {
+          await this._dataApi.genericMethod('Order', 'completeOrders', [orderIds]).toPromise();
+          // no need to include 'Completed' status
+        } else {
+          // update order status
+          await this._dataApi.genericMethod('Order', 'updateAll', [{ id: { inq: orderIds } },
+            { status: toStatus }]).toPromise();
+          statuses.push(toStatus);
+        }
         // query orders to update affected tables.
         let orders = await this._dataApi.find('Order', {
-          where: { status: { inq: [fromStatus, toStatus] } },
+          where: { status: { inq: statuses } },
           include: [{
             relation: 'client',
             scope: { fields: { id: true, name: true }}
           }]
          }).toPromise();
-        this._setTableDataSource(orders, [fromStatus, toStatus]);
+        this._setTableDataSource(orders, statuses);
       } catch (err) {
         console.log(`error: failed to change order status - ${err.message}`);
       }

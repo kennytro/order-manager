@@ -42,7 +42,13 @@ export class HistoryGraphComponent implements OnInit {
   private _updateChart() {
     if (this._productId) {
 //      this.showSpinner = true;
-      this._dataApi.genericMethod('Metric', 'findMetricDataByName', [[this._metricDefinition.name], { instanceId: this._productId }])
+      let whereFilter = {};
+      if (this._metricDefinition.level === 0) {
+        whereFilter = { instanceId: this._productId };
+      } else {
+        whereFilter = { groupByValue: this._productId };
+      }
+      this._dataApi.genericMethod('Metric', 'findMetricDataByName', [[this._metricDefinition.name], whereFilter])
         .pipe(take(1))
         .subscribe(data => {
           if (data.length === 0) {

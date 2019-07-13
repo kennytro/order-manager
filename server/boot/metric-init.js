@@ -141,6 +141,65 @@ module.exports = async function(app) {
       timeRange: 'None',
       modelName: 'Product'
     },
+    // product sales count
+    {
+      id: uuidv5('product_sale', UUID_NAMESPACE),
+      parentId: uuidv5('product_sale_daily', UUID_NAMESPACE),
+      level: 0,
+      name: 'product_sale',
+      description: 'Product sale amount',
+      displayName: 'Product Sale Amount',
+      shortName: 'PS',
+      unit: 'Currency',
+      unitLabel: 'Amount',
+      timeRange: 'None',
+      modelName: 'OrderItem',
+      groupByKey: 'productId'
+    },
+    {
+      id: uuidv5('product_sale_daily', UUID_NAMESPACE),
+      parentId: uuidv5('product_sale_monthly', UUID_NAMESPACE),
+      level: 1,
+      name: 'product_sale_daily',
+      description: 'Product total sale daily',
+      displayName: 'Product Total Sale Daily',
+      shortName: 'PSD',
+      unit: 'Currency',
+      unitLabel: 'Amount',
+      aggregationType: 'Sum',
+      timeRange: 'Daily',
+      modelName: 'OrderItem',
+      groupByKey: 'productId'
+    },
+    {
+      id: uuidv5('product_sale_monthly', UUID_NAMESPACE),
+      parentId: uuidv5('product_sale_yearly', UUID_NAMESPACE),
+      level: 2,
+      name: 'product_sale_monthly',
+      description: 'Product total sale monthly',
+      displayName: 'Product Total Sale Monthly',
+      shortName: 'PSM',
+      unit: 'Currency',
+      unitLabel: 'Amount',
+      aggregationType: 'Sum',
+      timeRange: 'Monthly',
+      modelName: 'OrderItem',
+      groupByKey: 'productId'
+    },
+    {
+      id: uuidv5('product_sale_yearly', UUID_NAMESPACE),
+      level: 3,
+      name: 'product_sale_yearly',
+      description: 'Product total sale yearly',
+      displayName: 'Product Total Sale Yearly',
+      shortName: 'PSY',
+      unit: 'Currency',
+      unitLabel: 'Amount',
+      aggregationType: 'Sum',
+      timeRange: 'Yearly',
+      modelName: 'OrderItem',
+      groupByKey: 'productId'
+    },
     // Client specific metric
     // total sales by client
     {

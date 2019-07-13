@@ -13,6 +13,7 @@ module.exports = function(Metric) {
   const TS_METRIC_ID = uuidv5('total_sale', METRIC_NS_UUID);
   const TO_METRIC_ID = uuidv5('total_orders', METRIC_NS_UUID);
   const CS_METRIC_ID = uuidv5('client_sale', METRIC_NS_UUID);
+  const PS_METRIC_ID = uuidv5('product_sale', METRIC_NS_UUID);
   const PUP_METRIC_ID = uuidv5('product_unit_price', METRIC_NS_UUID);
   const CONCURRENCY_LIMIT = process.env.CONCURRENCY_LIMIT ? parseInt(process.env.CONCURRENCY_LIMIT) : 3;  // avoid connection exhaustion
 
@@ -57,7 +58,12 @@ module.exports = function(Metric) {
    * Functions that update metrics.
   **/
 
-  async function updateAggregationMetric(metric, orders) {
+  /**
+   * Recusively update aggregation metric data.
+   * @param {Object} metric - Metric instance.
+   * @param {Object[]} objects - Array of object(must have 'createdAt' property).
+  **/
+  async function updateAggregationMetric(metric, objects) {
     if (!metric || !metric.parentId) {
       return;
     }
@@ -66,10 +72,10 @@ module.exports = function(Metric) {
     debugBatch(`Updating aggregate metric(id: ${aggrMetric.id}, name: ${aggrMetric.name}, groupByKey: ${_.get(aggrMetric, 'groupByKey', 'null')})`);
     let aggrMDArray = [];
     if (aggrMetric.groupByKey) {
-      const groupByOrders = _.groupBy(orders, aggrMetric.groupByKey);
-      aggrMDArray = await Promise.map(_.keys(groupByOrders), async (key) => {
+      const groupedBy = _.groupBy(objects, aggrMetric.groupByKey);
+      aggrMDArray = await Promise.map(_.keys(groupedBy), async (key) => {
         debugBatch(`<${aggrMetric.name}>: Group by key: ${key} -`);
-        let grouped = groupByOrders[key];
+        let grouped = groupedBy[key];
         let dateArray = aggrMetric.getDateArray(_.map(grouped, 'createdAt'));
         return await Promise.map(dateArray, async (date) => {
           debugBatch(`<${aggrMetric.name}>: Metric date: ${date} -`);
@@ -99,7 +105,7 @@ module.exports = function(Metric) {
       });
       aggrMDArray = _.flatten(aggrMDArray);
     } else {
-      let dateArray = aggrMetric.getDateArray(_.map(orders, 'createdAt'));
+      let dateArray = aggrMetric.getDateArray(_.map(objects, 'createdAt'));
       aggrMDArray = await Promise.map(dateArray, async (date) => {
         debugBatch(`<${aggrMetric.name}>: Metric date: ${date} -`);
         let aggrMD = await app.models.MetricData.findOne({
@@ -148,7 +154,7 @@ module.exports = function(Metric) {
     });
 
     // recursively update parent.
-    await updateAggregationMetric(aggrMetric, orders);
+    await updateAggregationMetric(aggrMetric, objects);
   }
 
   /**
@@ -203,6 +209,47 @@ module.exports = function(Metric) {
   }
 
   /**
+   * Update product metrics or orders
+   * @param {String} leafMetricId - Id of leaf metric
+   * @param {Object[]} products -     Array of changed orders
+  **/
+  async function updateOrderItemMetrics(leafMetricId, orders) {
+    // product metrics of orders are updated only on 'Completed' orders
+    // because metric value may change or cancelled throughout order processing.
+    orders = orders.filter(order => order.status === 'Completed');
+    if (_.isEmpty(orders)) {
+      return;
+    }
+    const leafMetric = await Metric.findById(leafMetricId);
+    debugBatch(`updateProductOrderMetrics(${leafMetric.name}) - Begins.`);
+
+    let orderItems = [];
+    orders.forEach(function(order) {
+      let oItems = order.toJSON().orderItem;
+      oItems.forEach(function(orderItem) {      // assign order creation date to each order item.
+        orderItem.createdAt = order.createdAt;
+        orderItems.push(orderItem);
+      });
+    });
+    let newMetricData = orderItems.map(function(oItem) {
+      const newMData = {
+        metricId: leafMetric.id,
+        instanceId: oItem.id,
+        value: leafMetric.getValue(oItem),
+        metricDate: oItem.createdAt,
+        groupByValue: leafMetric.groupByKey ? oItem[leafMetric.groupByKey] : null
+      };
+      debugBatch(`<${leafMetric.name}>: Creating new metric data(OrderItem id: ${oItem.id}) with value ${newMData.value}.`);
+      return newMData;
+    });
+    await app.models.MetricData.create(newMetricData);
+    debugBatch(`<${leafMetric.name}>: Created ${newMetricData.length} new metric data(s).`);
+
+    await updateAggregationMetric(leafMetric, orderItems);
+    debugBatch(`updateProductOrderMetrics(${leafMetric.name}) - Ends.`);
+  }
+
+  /**
    * Update product metrics
    * @param {String} leafMetricId - Id of leaf metric
    * @param {Object[]} products -     Array of changed products
@@ -251,7 +298,7 @@ module.exports = function(Metric) {
     }
 
     try {
-      let orders = await app.models.Order.find({ where: { id: { inq: orderIds } } });
+      let orders = await app.models.Order.find({ where: { id: { inq: orderIds } }, include: 'orderItem' });
       if (debugBatch.enabled) {
         orders.forEach(function(order) {
           const id = order.id;
@@ -265,7 +312,8 @@ module.exports = function(Metric) {
       await Promise.all([
         updateOrderMetrics(TS_METRIC_ID, orders),
         updateOrderMetrics(TO_METRIC_ID, orders),
-        updateOrderMetrics(CS_METRIC_ID, orders)
+        updateOrderMetrics(CS_METRIC_ID, orders),
+        updateOrderItemMetrics(PS_METRIC_ID, orders)
       ]);
     } catch (error) {
       logger.error(`Error while updating metric data on Order model - ${error.message}`);
@@ -422,6 +470,14 @@ module.exports = function(Metric) {
         return dataObject.unitPrice;
       }
       logger.error(`Metric(id: ${this.id}, name: ${this.name}) has unsupported unit(${this.unit}) on 'Product' model.`);
+      throw new Error('Unsupported unit');
+    }
+    if (this.modelName === 'OrderItem') {
+      if (this.unit === 'Currency') {
+        // casting to Number is necessary if OrderItem instances are queried via 'include' filter.
+        return Number(dataObject.unitPrice) * Number(dataObject.quantity);
+      }
+      logger.error(`Metric(id: ${this.id}, name: ${this.name}) has unsupported unit(${this.unit}) on 'OrderItem' model.`);
       throw new Error('Unsupported unit');
     }
     logger.error(`Metric(id: ${this.id}, name: ${this.name}) has unsupported model(${this.modelName}).`);

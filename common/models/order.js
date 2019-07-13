@@ -88,6 +88,9 @@ module.exports = function(Order) {
         logger.debug(`  Created ${newOrderItems.length} order items`);
       });
     } catch (error) {
+      if (error instanceof HttpErrors) {
+        throw error;
+      }
       throw new HttpErrors(500, `cannot update order - ${error.message}`);
     }
     // run the following commands asynchronously
@@ -126,6 +129,43 @@ module.exports = function(Order) {
       status: 200,
       message: `Order(id: ${existingOrder.id}) is cancelled.`,
       orderId: existingOrder.id
+    };
+  };
+
+  /**
+   * Update order status to 'Completed'
+   * @param{string[]} orderIds - array of order Id.
+   * @param{object} metadata
+  **/
+  Order.completeOrders = async function(orderIds, metadata) {
+    let existingOrders = [];
+    try {
+      await app.dataSources.OrderManager.transaction(async models => {
+        const { Order } = models;
+        existingOrders = await Order.find({ where: { and: [
+          { id: { inq: orderIds } },
+          { status: { neq: 'Completed' } }
+        ] } });
+        await Promise.each(existingOrders, async (order) => {
+          // update metadata
+          if (_.get(metadata, ['endUserId'])) {
+            order.updatedBy = metadata.endUserId;
+          }
+          order.status = 'Completed';
+          await order.save();
+          logger.info(`Completed order(id: ${order.id})`);
+        });
+      });
+    } catch (error) {
+      throw new HttpErrors(500, `cannot complete orders - ${error.message}`);
+    }
+
+    // run the following commands asynchronously
+    existingOrders.forEach(order => order.addToRedisSet());
+    return {
+      status: 200,
+      message: `Completed ${existingOrders.length} orders.`,
+      orderIds: orderIds
     };
   };
 
