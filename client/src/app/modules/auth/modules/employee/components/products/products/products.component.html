@@ -67,10 +67,10 @@
 <div>
   <mat-grid-list cols="2" rowHeight="2:1" gutterSize="10px">
     <mat-grid-tile>
-      <app-history-graph metricName="product_unit_price" [productId]=productIdSelected></app-history-graph>
+      <app-history-graph metricName="product_unit_price" [instanceId]=productSelected?.id> [</app-history-graph>
     </mat-grid-tile>
     <mat-grid-tile>
-      <app-history-graph metricName="product_sale_daily" [productId]=productIdSelected></app-history-graph>
+      <app-history-graph metricName="product_sale_daily" [instanceId]=productSelected?.id></app-history-graph>
     </mat-grid-tile>  
   </mat-grid-list>
 </div>

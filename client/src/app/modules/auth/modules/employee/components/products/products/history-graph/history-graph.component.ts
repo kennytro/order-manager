@@ -13,15 +13,16 @@ import { DataApiService } from '../../../../services/data-api.service';
 export class HistoryGraphComponent implements OnInit {
   historyChart: GoogleChartInterface;
 //  showSpinner = false;
-  private _productId: string;
+  private _instanceId: string;
   @Input()
-  set productId(id: string) {
-    if (this._productId !== id) {
-      this._productId = id;
-      this._updateChart();
+  set instanceId(id: string) {
+    if (this._instanceId !== id) {
+      this._instanceId = id;
+      this._updateChart(id);
     }
   }
-  get productId(): string { return this._productId; }
+  get instanceId(): string { return this._instanceId; }
+
 
   @Input() metricName: string;
   private _metricDefinition: any;
@@ -39,14 +40,14 @@ export class HistoryGraphComponent implements OnInit {
       });
   }
 
-  private _updateChart() {
-    if (this._productId) {
+  private _updateChart(instanceId: string) {
+    if (instanceId) {
 //      this.showSpinner = true;
       let whereFilter = {};
       if (this._metricDefinition.level === 0) {
-        whereFilter = { instanceId: this._productId };
+        whereFilter = { instanceId: instanceId };
       } else {
-        whereFilter = { groupByValue: this._productId };
+        whereFilter = { groupByValue: instanceId };
       }
       this._dataApi.genericMethod('Metric', 'findMetricDataByName', [[this._metricDefinition.name], whereFilter])
         .pipe(take(1))

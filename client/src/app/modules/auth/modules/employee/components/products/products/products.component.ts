@@ -19,7 +19,7 @@ export class ProductsComponent implements OnInit {
   // TO DO: get column names from service.
   displayedColumns: string[] = ['id', 'name', 'description', 'category', 'originCountry', 'unitPrice', 'unit'];
   selection: SelectionModel<any>;
-  productIdSelected: string;
+  productSelected: any;
   private _products: MatTableDataSource<any>;
   private _unsubscribe = new Subject<boolean>();
 
@@ -83,8 +83,7 @@ export class ProductsComponent implements OnInit {
   }
 
   selectProduct(row) {
-    console.log(`id: ${row.id}, name: ${row.name}`);
-    this.productIdSelected = row.id;
+    this.productSelected = row;
   }
 
   private _setTableDataSource(products: Array<any>) {
