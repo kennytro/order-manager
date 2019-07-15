@@ -7,9 +7,11 @@ const logger = require(appRoot + '/config/winston');
 const app = require(appRoot + '/server/server');
 const fileStorage = require(appRoot + '/common/util/file-storage');
 const tenantSetting = require(appRoot + '/config/tenant');
+const metricSetting = require(appRoot + '/config/metric');
 
 module.exports = function(Product) {
   const AWS_S3_PUBLIC_URL = 'https://s3-us-west-2.amazonaws.com/om-public/';
+  const REDIS_PRODUCT_CHANGED_KEY = metricSetting.redisProductChangedSetKey;
 
   // Don't allow delete by ID. Instead set 'isAvailable' property.
   Product.disableRemoteMethodByName('deleteById');
@@ -58,6 +60,12 @@ module.exports = function(Product) {
    * image to AWS S3.
    */
   Product.observe('after save', async function(ctx) {
+    if (ctx.instance) {
+      Product.addToRedisSet(ctx.instance.id);
+    } else if (_.get(ctx, ['where', 'id'])) {
+      Product.addToRedisSet(_.get(ctx, ['where', 'id']));
+    }
+
     if (!ctx.instance || !_.get(ctx, ['instance', 'settings', 'imageUrl'])) {
       return;    // partial update assumes image is excluded.
     }
@@ -99,12 +107,27 @@ module.exports = function(Product) {
    */
   Product.getMyProducts = async function(authId) {
     let endUser = await app.models.EndUser.getMyUser(authId);
+    if (!endUser) {
+      return [];
+    }
     let filter = {};
-    if (endUser && _.get(endUser, ['userSettings', 'productExcluded'])) {
+    if (_.get(endUser, ['userSettings', 'productExcluded'])) {
       filter.where = {
         id: { nin: _.get(endUser, ['userSettings', 'productExcluded']) }
       };
     }
     return await app.models.Product.find(filter);
+  };
+
+  /**
+   * Add product id to the 'change' set in Redis.
+   *
+   * Any change in a product is added to a designated set in Redis
+   * to notify worker process to update metrics as a result of this change.
+   */
+  Product.addToRedisSet = function(id) {
+    if (app.redis) {
+      app.redis.sadd(REDIS_PRODUCT_CHANGED_KEY, id);
+    }
   };
 };

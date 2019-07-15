@@ -86,7 +86,7 @@ const logger = winston.createLogger({
     new Postgres(tpOptions.pg)
   ],
   exitOnError: false, // do not exit on handled exceptions
-  silent: process.env.NODE_ENV === 'test'  // suppress logger during test run
+  silent: process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'unit_test'  // suppress logger during test run
 });
 
 // create a stream object with a 'write' function that will be used by `morgan`

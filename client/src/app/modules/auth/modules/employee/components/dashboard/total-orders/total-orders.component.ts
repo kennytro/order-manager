@@ -24,7 +24,6 @@ export class TotalOrdersComponent implements OnInit {
   intervalSelection: FormControl;
   orderChart: GoogleChartInterface;
 
-  private _orderMetricDataArray = [];
   private _unsubscribe = new Subject<boolean>();
 
   constructor(private _dataApi: DataApiService) { }
@@ -59,7 +58,7 @@ export class TotalOrdersComponent implements OnInit {
   }
 
   private _updateChart(dataArray, intervalLabel) {
-       const intervalInfo = this.intervalList.find(function(element) {
+    const intervalInfo = this.intervalList.find(function(element) {
       return element.label === intervalLabel;
     })
 

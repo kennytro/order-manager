@@ -13,40 +13,57 @@ module.exports = function(Metric) {
   const TS_METRIC_ID = uuidv5('total_sale', METRIC_NS_UUID);
   const TO_METRIC_ID = uuidv5('total_orders', METRIC_NS_UUID);
   const CS_METRIC_ID = uuidv5('client_sale', METRIC_NS_UUID);
+  const PS_METRIC_ID = uuidv5('product_sale', METRIC_NS_UUID);
+  const PUP_METRIC_ID = uuidv5('product_unit_price', METRIC_NS_UUID);
   const CONCURRENCY_LIMIT = process.env.CONCURRENCY_LIMIT ? parseInt(process.env.CONCURRENCY_LIMIT) : 3;  // avoid connection exhaustion
-  /**
-   * Get a list of id of orders that have changed since last update.
-   *
-   * @returns {string[]} - list of order id.
-   */
-  async function getChangedOrderIds() {
-    const REDIS_ORDER_CHANGED_KEY = metricSetting.redisOrderChangedSetKey;
-    const MAX_ORDER_ID_COUNT = 1000;    // avoid memory exhaustion
 
+  /**
+   * Get a list of id of products that have changed since last update.
+   * @param {String} redisSetName - Set name in Redis
+   * @param {String} modelName - Model name
+   * @returns {string[]} - list of product id.
+   */
+  async function getChangedInstanceIds(modelName) {
+    const MAX_ORDER_ID_COUNT = 1000;    // avoid memory exhaustion
     if (!app.redis) {
       return [];
     }
+
+    let redisSetName;
+    if (modelName === 'Order') {
+      redisSetName = metricSetting.redisOrderChangedSetKey;
+    } else if (modelName === 'Product') {
+      redisSetName = metricSetting.redisProductChangedSetKey;
+    } else {
+      return [];
+    }
+
     const scardAsync = Promise.promisify(app.redis.scard).bind(app.redis);
     const spopAsync = Promise.promisify(app.redis.spop).bind(app.redis);
-    let idCount = await scardAsync(REDIS_ORDER_CHANGED_KEY);
+    let idCount = await scardAsync(redisSetName);
     if (idCount === 0) {
       return [];
     }
-    debugBatch(`${idCount} order(s) created.`);
+    debugBatch(`${idCount} ${modelName}(s) created.`);
     idCount = Math.min(idCount, MAX_ORDER_ID_COUNT);
 
-    const orderIds = await spopAsync(REDIS_ORDER_CHANGED_KEY, idCount);
+    const instanceIds = await spopAsync(redisSetName, idCount);
     if (debugBatch.enabled) {
-      debugBatch(`Order IDs in ${REDIS_ORDER_CHANGED_KEY}(count: ${orderIds.length}): ${JSON.stringify(orderIds)}.`);
+      debugBatch(`${modelName} IDs in ${redisSetName}(count: ${instanceIds.length}): ${JSON.stringify(instanceIds)}.`);
     }
-    return orderIds;
+    return instanceIds;
   }
 
   /**
    * Functions that update metrics.
   **/
 
-  async function updateAggregationMetric(metric, orders) {
+  /**
+   * Recusively update aggregation metric data.
+   * @param {Object} metric - Metric instance.
+   * @param {Object[]} objects - Array of object(must have 'createdAt' property).
+  **/
+  async function updateAggregationMetric(metric, objects) {
     if (!metric || !metric.parentId) {
       return;
     }
@@ -55,10 +72,10 @@ module.exports = function(Metric) {
     debugBatch(`Updating aggregate metric(id: ${aggrMetric.id}, name: ${aggrMetric.name}, groupByKey: ${_.get(aggrMetric, 'groupByKey', 'null')})`);
     let aggrMDArray = [];
     if (aggrMetric.groupByKey) {
-      const groupByOrders = _.groupBy(orders, aggrMetric.groupByKey);
-      aggrMDArray = await Promise.map(_.keys(groupByOrders), async (key) => {
+      const groupedBy = _.groupBy(objects, aggrMetric.groupByKey);
+      aggrMDArray = await Promise.map(_.keys(groupedBy), async (key) => {
         debugBatch(`<${aggrMetric.name}>: Group by key: ${key} -`);
-        let grouped = groupByOrders[key];
+        let grouped = groupedBy[key];
         let dateArray = aggrMetric.getDateArray(_.map(grouped, 'createdAt'));
         return await Promise.map(dateArray, async (date) => {
           debugBatch(`<${aggrMetric.name}>: Metric date: ${date} -`);
@@ -88,7 +105,7 @@ module.exports = function(Metric) {
       });
       aggrMDArray = _.flatten(aggrMDArray);
     } else {
-      let dateArray = aggrMetric.getDateArray(_.map(orders, 'createdAt'));
+      let dateArray = aggrMetric.getDateArray(_.map(objects, 'createdAt'));
       aggrMDArray = await Promise.map(dateArray, async (date) => {
         debugBatch(`<${aggrMetric.name}>: Metric date: ${date} -`);
         let aggrMD = await app.models.MetricData.findOne({
@@ -137,7 +154,7 @@ module.exports = function(Metric) {
     });
 
     // recursively update parent.
-    await updateAggregationMetric(aggrMetric, orders);
+    await updateAggregationMetric(aggrMetric, objects);
   }
 
   /**
@@ -191,14 +208,97 @@ module.exports = function(Metric) {
     debugBatch(`updateOrderMetrics(${leafMetric.name}) - Ends.`);
   }
 
+  /**
+   * Update product metrics or orders
+   * @param {String} leafMetricId - Id of leaf metric
+   * @param {Object[]} products -     Array of changed orders
+  **/
+  async function updateOrderItemMetrics(leafMetricId, orders) {
+    // product metrics of orders are updated only on 'Completed' orders
+    // because metric value may change or cancelled throughout order processing.
+    orders = orders.filter(order => order.status === 'Completed');
+    if (_.isEmpty(orders)) {
+      return;
+    }
+    const leafMetric = await Metric.findById(leafMetricId);
+    debugBatch(`updateProductOrderMetrics(${leafMetric.name}) - Begins.`);
+
+    let orderItems = [];
+    orders.forEach(function(order) {
+      let oItems = order.toJSON().orderItem;
+      oItems.forEach(function(orderItem) {      // assign order creation date to each order item.
+        orderItem.createdAt = order.createdAt;
+        orderItems.push(orderItem);
+      });
+    });
+    let newMetricData = orderItems.map(function(oItem) {
+      const newMData = {
+        metricId: leafMetric.id,
+        instanceId: oItem.id,
+        value: leafMetric.getValue(oItem),
+        metricDate: oItem.createdAt,
+        groupByValue: leafMetric.groupByKey ? oItem[leafMetric.groupByKey] : null
+      };
+      debugBatch(`<${leafMetric.name}>: Creating new metric data(OrderItem id: ${oItem.id}) with value ${newMData.value}.`);
+      return newMData;
+    });
+    await app.models.MetricData.create(newMetricData);
+    debugBatch(`<${leafMetric.name}>: Created ${newMetricData.length} new metric data(s).`);
+
+    await updateAggregationMetric(leafMetric, orderItems);
+    debugBatch(`updateProductOrderMetrics(${leafMetric.name}) - Ends.`);
+  }
+
+  /**
+   * Update product metrics
+   * @param {String} leafMetricId - Id of leaf metric
+   * @param {Object[]} products -     Array of changed products
+  **/
+  async function updateProductMetrics(leafMetricId, products) {
+    if (_.isEmpty(products)) {
+      return;
+    }
+    const leafMetric = await Metric.findById(leafMetricId);
+
+    debugBatch(`updateProductMetrics(${leafMetric.name}) - Begins.`);
+    const TODAY = moment().startOf('day').toDate();
+    await Promise.map(products, async function(product) {
+      const metricData = await app.models.MetricData.findOne({
+        where: { and: [
+          { metricId: leafMetric.id },
+          { instanceId: product.id },
+          { metricDate: TODAY }
+        ] }
+      });
+      if (metricData) {
+        await metricData.updateAttribute('value', leafMetric.getValue(product));
+        debugBatch(`<${leafMetric.name}>: Updated metric data(${metricData.id}) value to ${metricData.value}.`);
+      } else {
+        const newMetricData = await app.models.MetricData.create({
+          metricId: leafMetric.id,
+          instanceId: product.id,
+          value: leafMetric.getValue(product),
+          metricDate: TODAY,
+          groupByValue: leafMetric.groupByKey ? product[leafMetric.groupByKey] : null
+        });
+        debugBatch(`<${leafMetric.name}>: Created new metric data(${newMetricData.id}) with value ${newMetricData.value}.`);
+      }
+    }, {
+      concurrency: CONCURRENCY_LIMIT
+    });
+    // TO DO: update aggregation metric if needed.
+    debugBatch(`updateProductMetrics(${leafMetric.name}) - Ends.`);
+  }
+
   Metric.batchUpdateOnOrder = async function() {
-    const orderIds = await getChangedOrderIds();
+    // const orderIds = await getChangedOrderIds();
+    const orderIds = await getChangedInstanceIds('Order');
     if (_.isEmpty(orderIds)) {
       return;
     }
 
     try {
-      let orders = await app.models.Order.find({ where: { id: { inq: orderIds } } });
+      let orders = await app.models.Order.find({ where: { id: { inq: orderIds } }, include: 'orderItem' });
       if (debugBatch.enabled) {
         orders.forEach(function(order) {
           const id = order.id;
@@ -212,10 +312,35 @@ module.exports = function(Metric) {
       await Promise.all([
         updateOrderMetrics(TS_METRIC_ID, orders),
         updateOrderMetrics(TO_METRIC_ID, orders),
-        updateOrderMetrics(CS_METRIC_ID, orders)
+        updateOrderMetrics(CS_METRIC_ID, orders),
+        updateOrderItemMetrics(PS_METRIC_ID, orders)
       ]);
     } catch (error) {
       logger.error(`Error while updating metric data on Order model - ${error.message}`);
+      throw error;
+    }
+  };
+
+  Metric.batchUpdateOnProduct = async function() {
+    const productIds = await getChangedInstanceIds('Product');
+    if (_.isEmpty(productIds)) {
+      return;
+    }
+    try {
+      let products = await app.models.Product.find({ where: { id: { inq: productIds } } });
+      if (debugBatch.enabled) {
+        products.forEach(function(product) {
+          const id = product.id;
+          const name = product.name;
+          const price = product.unitPrice;
+          debugBatch(`Product ${id} - name: ${name}, price: ${price}`);
+        });
+      }
+      await Promise.all([
+        updateProductMetrics(PUP_METRIC_ID, products)
+      ]);
+    } catch (error) {
+      logger.error(`Error while updating metric data on Product model - ${error.message}`);
       throw error;
     }
   };
@@ -226,7 +351,8 @@ module.exports = function(Metric) {
   Metric.batchUpdate = async function(fireDate) {
     debugBatch(`${moment(fireDate).format()}: Running Metric.batchUpdate()`);
     await Metric.batchUpdateOnOrder();
-    // [Note] any batch update on model other than 'Order' should come here.
+    await Metric.batchUpdateOnProduct();
+    // [Note] any batch update on other model should come here.
   };
 
   Metric.removeOldData = async function(fireDate) {
@@ -337,6 +463,21 @@ module.exports = function(Metric) {
         return 1;
       }
       logger.error(`Metric(id: ${this.id}, name: ${this.name}) has unsupported unit(${this.unit}) on 'Order' model.`);
+      throw new Error('Unsupported unit');
+    }
+    if (this.modelName === 'Product') {
+      if (this.unit === 'Currency') {
+        return dataObject.unitPrice;
+      }
+      logger.error(`Metric(id: ${this.id}, name: ${this.name}) has unsupported unit(${this.unit}) on 'Product' model.`);
+      throw new Error('Unsupported unit');
+    }
+    if (this.modelName === 'OrderItem') {
+      if (this.unit === 'Currency') {
+        // casting to Number is necessary if OrderItem instances are queried via 'include' filter.
+        return Number(dataObject.unitPrice) * Number(dataObject.quantity);
+      }
+      logger.error(`Metric(id: ${this.id}, name: ${this.name}) has unsupported unit(${this.unit}) on 'OrderItem' model.`);
       throw new Error('Unsupported unit');
     }
     logger.error(`Metric(id: ${this.id}, name: ${this.name}) has unsupported model(${this.modelName}).`);

@@ -2,7 +2,8 @@ import { NgModule } from '@angular/core';
 import { 
   MatBadgeModule, MatButtonModule, MatCardModule, MatCheckboxModule,
   MatDatepickerModule, MatDialogModule, MatDividerModule,
-  MatExpansionModule, MatFormFieldModule, MatInputModule, MatMenuModule,
+  MatExpansionModule, MatFormFieldModule, MatGridListModule, MatInputModule,
+  MatMenuModule,
   MatPaginatorModule, MatProgressSpinnerModule,
   MatRadioModule,
   MatSelectModule, MatSlideToggleModule, MatSnackBarModule, MatSortModule, MatStepperModule,
@@ -22,6 +23,7 @@ const modules = [
   MatDividerModule,
   MatExpansionModule,
   MatFormFieldModule,
+  MatGridListModule,  
   MatInputModule,
   MatMenuModule,
   MatMomentDateModule,

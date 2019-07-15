@@ -7,6 +7,7 @@ import { of } from 'rxjs';
 
 import { AuthSharedModule } from '../../../../../shared/auth-shared.module';
 import { ProductsComponent } from './products.component';
+import { HistoryGraphComponent } from './history-graph/history-graph.component';
 import { DataApiService } from '../../../services/data-api.service';
 describe('ProductsComponent', () => {
   const testProducts = [
@@ -16,13 +17,13 @@ describe('ProductsComponent', () => {
   ];
   let component: ProductsComponent;
   let fixture: ComponentFixture<ProductsComponent>;
-
+  let apiSpy: jasmine.SpyObj<DataApiService>;
   beforeEach(async(() => {
     const route = ({ data: of({ products: testProducts} ), snapshot: {} } as any) as ActivatedRoute;
 
     TestBed.configureTestingModule({
-      declarations: [ ProductsComponent ],
-      imports: [ NoopAnimationsModule, AuthSharedModule, RouterTestingModule],
+      declarations: [ ProductsComponent, HistoryGraphComponent ],
+      imports: [ NoopAnimationsModule, AuthSharedModule, RouterTestingModule ],
       providers: [
         { provide: ActivatedRoute, useValue: route },
         { provide: MatDialog, useValue: jasmine.createSpyObj('MatDialog', ['open']) },
@@ -35,6 +36,8 @@ describe('ProductsComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(ProductsComponent);
     component = fixture.componentInstance;
+    apiSpy = TestBed.get(DataApiService);
+    apiSpy.genericMethod.and.returnValue(of(null));
     fixture.detectChanges();
   });
 

@@ -157,6 +157,7 @@ CREATE TABLE IF NOT EXISTS metric
   display_name text,
   short_name text,
   unit unit_of_measure,
+  unit_label text DEFAULT '',
   aggregation_type metric_aggregation_type DEFAULT 'None',
   time_range metric_time_range_type DEFAULT 'None',
   model_name text,

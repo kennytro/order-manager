@@ -22,6 +22,7 @@ import { DeliveryRoutesComponent } from './components/delivery-routes/delivery-r
 import { DeliveryRouteDetailComponent } from './components/delivery-routes/delivery-route-detail/delivery-route-detail.component';
 import { NewDeliveryRouteComponent } from './components/delivery-routes/new-delivery-route/new-delivery-route.component';
 import { ProductsComponent } from './components/products/products/products.component';
+import { HistoryGraphComponent } from './components/products/products/history-graph/history-graph.component';
 import { ProductDetailComponent } from './components/products/product-detail/product-detail.component';
 import { NewProductComponent } from './components/products/new-product/new-product.component';
 import { OrderLayoutComponent } from './components/orders/order-layout/order-layout.component';
@@ -73,7 +74,7 @@ import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV,
     ClientsComponent, ClientDetailComponent, NewClientComponent,
     UsersComponent, UserDetailComponent, NewUserComponent,
     DeliveryRoutesComponent, DeliveryRouteDetailComponent, NewDeliveryRouteComponent,
-    ProductsComponent, ProductDetailComponent, NewProductComponent,
+    ProductsComponent, HistoryGraphComponent, ProductDetailComponent, NewProductComponent,
     OrderLayoutComponent, TodaysOrdersComponent,
     OpenOrdersComponent, ShoppingListComponent, PackageDistributionComponent,
     ClosedOrdersComponent, OrderDetailComponent, NewOrderComponent,

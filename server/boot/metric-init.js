@@ -11,7 +11,7 @@ module.exports = async function(app) {
    * process.(NOTE: Currently there is only 1 worker. When we have multiple
    * workers, use a lock to avoid race condition.)
    */
-  if (process.env.ONE_OFF || !process.env.IS_WORKER) {
+  if (process.env.NODE_ENV !== 'unit_test' && (process.env.ONE_OFF || !process.env.IS_WORKER)) {
     return;
   };
   const UUID_NAMESPACE = metricSetting.uuidNamespace;
@@ -28,6 +28,7 @@ module.exports = async function(app) {
       displayName: 'Order Total Sale Amount',
       shortName: 'TS',
       unit: 'Currency',
+      unitLabel: 'Amount',
       timeRange: 'None',
       modelName: 'Order'
     },
@@ -40,6 +41,7 @@ module.exports = async function(app) {
       displayName: 'Daily Total Sale Amount',
       shortName: 'TSD',
       unit: 'Currency',
+      unitLabel: 'Amount',
       aggregationType: 'Sum',
       timeRange: 'Daily',
       modelName: 'Order'
@@ -53,6 +55,7 @@ module.exports = async function(app) {
       displayName: 'Monthly Total Sale Amount',
       shortName: 'TSM',
       unit: 'Currency',
+      unitLabel: 'Amount',
       aggregationType: 'Sum',
       timeRange: 'Monthly',
       modelName: 'Order'
@@ -65,6 +68,7 @@ module.exports = async function(app) {
       displayName: 'Yearly Total Sale Amount',
       shortName: 'TSY',
       unit: 'Currency',
+      unitLabel: 'Amount',
       aggregationType: 'Sum',
       timeRange: 'Yearly',
       modelName: 'Order'
@@ -79,6 +83,7 @@ module.exports = async function(app) {
       displayName: 'Total Order Count',
       shortName: 'TO',
       unit: 'Integer',
+      unitLabel: 'Count',
       timeRange: 'None',
       modelName: 'Order'
     },
@@ -91,6 +96,7 @@ module.exports = async function(app) {
       displayName: 'Daily Total Order Count',
       shortName: 'TOD',
       unit: 'Integer',
+      unitLabel: 'Count',
       aggregationType: 'Sum',
       timeRange: 'Daily',
       modelName: 'Order'
@@ -104,6 +110,7 @@ module.exports = async function(app) {
       displayName: 'Monthly Total Order Count',
       shortName: 'TOM',
       unit: 'Integer',
+      unitLabel: 'Count',
       aggregationType: 'Sum',
       timeRange: 'Monthly',
       modelName: 'Order'
@@ -116,9 +123,82 @@ module.exports = async function(app) {
       displayName: 'Yearly Total Order Count',
       shortName: 'TOY',
       unit: 'Integer',
+      unitLabel: 'Count',
       aggregationType: 'Sum',
       timeRange: 'Yearly',
       modelName: 'Order'
+    },
+    // product unit price
+    {
+      id: uuidv5('product_unit_price', UUID_NAMESPACE),
+      level: 0,
+      name: 'product_unit_price',
+      description: 'Product unit price daily',
+      displayName: 'Product Unit Price',
+      shortName: 'PUP',
+      unit: 'Currency',
+      unitLabel: 'Price',
+      timeRange: 'None',
+      modelName: 'Product'
+    },
+    // product sales count
+    {
+      id: uuidv5('product_sale', UUID_NAMESPACE),
+      parentId: uuidv5('product_sale_daily', UUID_NAMESPACE),
+      level: 0,
+      name: 'product_sale',
+      description: 'Product sale amount',
+      displayName: 'Product Sale Amount',
+      shortName: 'PS',
+      unit: 'Currency',
+      unitLabel: 'Amount',
+      timeRange: 'None',
+      modelName: 'OrderItem',
+      groupByKey: 'productId'
+    },
+    {
+      id: uuidv5('product_sale_daily', UUID_NAMESPACE),
+      parentId: uuidv5('product_sale_monthly', UUID_NAMESPACE),
+      level: 1,
+      name: 'product_sale_daily',
+      description: 'Product total sale daily',
+      displayName: 'Product Total Sale Daily',
+      shortName: 'PSD',
+      unit: 'Currency',
+      unitLabel: 'Amount',
+      aggregationType: 'Sum',
+      timeRange: 'Daily',
+      modelName: 'OrderItem',
+      groupByKey: 'productId'
+    },
+    {
+      id: uuidv5('product_sale_monthly', UUID_NAMESPACE),
+      parentId: uuidv5('product_sale_yearly', UUID_NAMESPACE),
+      level: 2,
+      name: 'product_sale_monthly',
+      description: 'Product total sale monthly',
+      displayName: 'Product Total Sale Monthly',
+      shortName: 'PSM',
+      unit: 'Currency',
+      unitLabel: 'Amount',
+      aggregationType: 'Sum',
+      timeRange: 'Monthly',
+      modelName: 'OrderItem',
+      groupByKey: 'productId'
+    },
+    {
+      id: uuidv5('product_sale_yearly', UUID_NAMESPACE),
+      level: 3,
+      name: 'product_sale_yearly',
+      description: 'Product total sale yearly',
+      displayName: 'Product Total Sale Yearly',
+      shortName: 'PSY',
+      unit: 'Currency',
+      unitLabel: 'Amount',
+      aggregationType: 'Sum',
+      timeRange: 'Yearly',
+      modelName: 'OrderItem',
+      groupByKey: 'productId'
     },
     // Client specific metric
     // total sales by client
@@ -131,6 +211,7 @@ module.exports = async function(app) {
       displayName: 'Sale Amount By Client',
       shortName: 'CS',
       unit: 'Currency',
+      unitLabel: 'Amount',
       timeRange: 'None',
       modelName: 'Order',
       groupByKey: 'clientId'
@@ -144,6 +225,7 @@ module.exports = async function(app) {
       displayName: 'Daily Sale Amount By Client',
       shortName: 'CSD',
       unit: 'Currency',
+      unitLabel: 'Amount',
       aggregationType: 'Sum',
       timeRange: 'Daily',
       modelName: 'Order',
@@ -158,6 +240,7 @@ module.exports = async function(app) {
       displayName: 'Monthly Sale Amount By Client',
       shortName: 'CSM',
       unit: 'Currency',
+      unitLabel: 'Amount',
       aggregationType: 'Sum',
       timeRange: 'Monthly',
       modelName: 'Order',
@@ -171,6 +254,7 @@ module.exports = async function(app) {
       displayName: 'Yearly Sale Amount By Client',
       shortName: 'CSY',
       unit: 'Currency',
+      unitLabel: 'Amount',
       aggregationType: 'Sum',
       timeRange: 'Yearly',
       modelName: 'Order',
@@ -181,11 +265,12 @@ module.exports = async function(app) {
   // Seed metric definition if not exists already.
   try {
     await Promise.map(SEED_METRICS, async (metricDef) => {
-      const metric = await app.models.Metric.findById(metricDef.id, { fields: { id: true } });
-      if (!metric) {
-        await app.models.Metric.create(metricDef);
-        logger.info(`Seeded metric definition for ${metricDef.name}`);
-      }
+      // const metric = await app.models.Metric.findById(metricDef.id, { fields: { id: true } });
+      // if (!metric) {
+      //   await app.models.Metric.create(metricDef);
+      //   logger.info(`Seeded metric definition for ${metricDef.name}`);
+      // }
+      await app.models.Metric.upsert(metricDef);
     }, {
       concurrency: 4    // avoid EventEmitter memory leak
     });
