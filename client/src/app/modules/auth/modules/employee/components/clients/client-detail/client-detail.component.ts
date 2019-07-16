@@ -46,7 +46,9 @@ export class ClientDetailComponent implements OnInit {
         this.personAltEmailFC.setValue(this.client.contactPersonAltEmail);
       }
       if (routeData['deliveryRoutes']) {
-        this.routeList = map(routeData['deliveryRoutes'], 'id');
+        this.routeList = map(routeData['deliveryRoutes'], function(route) {
+          return { id: route.id, name: route.name };
+        });
       }
     });
   }

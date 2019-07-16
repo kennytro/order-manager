@@ -34,6 +34,7 @@ export class DeliveryRouteDetailComponent implements OnInit {
       }
       this.deliveryRouteFG = this._formBuilder.group({
         id: [this.deliveryRoute.id, Validators.required],
+        name: [this.deliveryRoute.name, Validators.required],
         description: [this.deliveryRoute.description],
         driverName: [this.deliveryRoute.driverName],
         driverPhone: [this.deliveryRoute.driverPhone]

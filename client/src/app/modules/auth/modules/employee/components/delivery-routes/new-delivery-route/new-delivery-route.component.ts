@@ -21,7 +21,7 @@ export class NewDeliveryRouteComponent implements OnInit {
 
   ngOnInit() {
     this.deliveryRouteFG = this._formBuilder.group({
-      id: ['', Validators.required],
+      name: ['', Validators.required],
       description: [''],
       driverName: [''],
       driverPhone: ['']
@@ -38,7 +38,7 @@ export class NewDeliveryRouteComponent implements OnInit {
       });
       this._dialogRef.close(true);
     } catch (err) {
-      console.log(`error: failed to create a Delivery Route(id: ${this.deliveryRouteFG.value.id}) - ${err.message}`);
+      console.log(`error: failed to create a Delivery Route(id: ${this.deliveryRouteFG.value.name}) - ${err.message}`);
     }
   }
 }

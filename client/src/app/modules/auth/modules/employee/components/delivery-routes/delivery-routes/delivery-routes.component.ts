@@ -12,7 +12,7 @@ import { DataApiService } from '../../../services/data-api.service';
   styleUrls: ['./delivery-routes.component.css']
 })
 export class DeliveryRoutesComponent implements OnInit {
-  displayedColumns: string[] = ['id', 'description', 'driverName', 'driverPhone'];
+  displayedColumns: string[] = ['id', 'name', 'description', 'driverName', 'driverPhone'];
   private _deliveryRoutes: MatTableDataSource<any>;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -51,9 +51,7 @@ export class DeliveryRoutesComponent implements OnInit {
     dialogRef.afterClosed().subscribe(async result => {
       if (result) {
         // refresh list to include the new client
-        let deliveryRouteArray = await this._dataApi.find('DeliveryRoute', {
-          fields: { id: true, driverName: true, driverPhone: true }
-        }).toPromise();
+        let deliveryRouteArray = await this._dataApi.find('DeliveryRoute').toPromise();
         this._setTableDataSource(deliveryRouteArray);
       }
     })

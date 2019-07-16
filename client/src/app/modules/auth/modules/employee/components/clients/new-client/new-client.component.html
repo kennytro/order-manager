@@ -124,7 +124,7 @@
             <mat-form-field appearance="outline">
               <mat-label>Delivery Route</mat-label>
               <mat-select placeholder="Select route" formControlName="deliveryRouteId" required>
-                <mat-option *ngFor="let route of routeList" [value]="route">{{ route }}</mat-option>
+                <mat-option *ngFor="let route of routeList" [value]="route.id">{{route.id}} - {{route.name}}</mat-option>
               </mat-select>
               <mat-error>This field is required</mat-error>
             </mat-form-field>

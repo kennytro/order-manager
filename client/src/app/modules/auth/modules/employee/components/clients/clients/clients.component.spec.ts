@@ -11,7 +11,7 @@ import { DataApiService } from '../../../services/data-api.service';
 
 describe('ClientsComponent', () => {
   const testClients = [
-    { id: '1000', name: 'testA', phone: '1111111111', deliveryRouteId: 'routeA', createdDate: '1/1/2019' }
+    { id: '1000', name: 'testA', phone: '1111111111', deliveryRoute: { id: 1000, name: 'routeA' }, createdDate: '1/1/2019' }
   ];
   let component: ClientsComponent;
   let fixture: ComponentFixture<ClientsComponent>;

@@ -33,9 +33,11 @@ CREATE TABLE IF NOT EXISTS public_page_element
   CONSTRAINT public_page_element_unique UNIQUE (name, sequence_number)
 );
 
+CREATE SEQUENCE IF NOT EXISTS delivery_route_id_seq MINVALUE 1000;
 CREATE TABLE IF NOT EXISTS delivery_route
 (
-  id text PRIMARY KEY,
+  id integer PRIMARY KEY DEFAULT nextval('delivery_route_id_seq'),
+  name text NOT NULL UNIQUE,
   description text,
   driver_name text,
   driver_phone text
