@@ -2,7 +2,7 @@
   "name": "DeliveryRoute",
   "plural": "DeliveryRoutes",
   "base": "PersistedModel",
-  "idInjection": false,
+  "idInjection": true,
   "options": {
     "validateUpsert": true,
     "postgresql": {
@@ -11,9 +11,9 @@
     }
   },
   "properties": {
-    "id": {
+    "name": {
       "type": "string",
-      "id": true
+      "required": true
     },    
     "description": {
       "type": "string"

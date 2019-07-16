@@ -33,9 +33,11 @@ export class NewClientComponent implements OnInit {
    ) { }
 
   ngOnInit() {
-    this._dataApi.find('DeliveryRoute', { fields: { id: true } })
+    this._dataApi.find('DeliveryRoute', { fields: { id: true, name: true } })
       .subscribe(result => {
-        this.routeList = map(result, 'id');
+        this.routeList = map(result, function(route) {
+          return { id: route.id, name: route.name };
+        });
       });
     this.clientFG = this._formBuilder.group({
       formArray: this._formBuilder.array([

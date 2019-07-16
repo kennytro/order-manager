@@ -235,7 +235,15 @@ const routes: Routes = [
             path: '',
             component: ClientsComponent,
             resolve: { clients: DataArrayResolver },
-            data: { arrayModelName: 'Client' }
+            data: {
+              arrayModelName: 'Client',
+              arrayFilter: {
+                include: { 
+                  relation: 'deliveryRoute',
+                  scope: { fields: { id: true, name: true } }
+                }
+              }
+            }
           }
         ]
       },

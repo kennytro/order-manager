@@ -53,7 +53,11 @@ export class ClientsComponent implements OnInit {
       if (result) {
         // refresh list to include the new client
         let clientArray = await this._dataApi.find('Client', {
-          fields: { id: true, name: true, phone: true, deliveryRouteId: true, createdDate: true }
+          fields: { id: true, name: true, phone: true, deliveryRouteId: true, createdDate: true },
+          include : {
+            relation: 'deliveryRoute',
+            scope: { fields: { id: true, name: true } }
+          }
         }).toPromise();
         this._setTableDataSource(clientArray);
       }
