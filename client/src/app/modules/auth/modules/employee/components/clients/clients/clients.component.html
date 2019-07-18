@@ -27,7 +27,7 @@
       </ng-container>
       <ng-container matColumnDef="deliveryRouteId">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> DELIVERY ROUTE </th>
-        <td mat-cell *matCellDef="let row"> {{row.deliveryRoute.name}} </td>
+        <td mat-cell *matCellDef="let row"> {{row.deliveryRoute?.name}} </td>
       </ng-container>
       <ng-container matColumnDef="createdDate">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> CREATED </th>
