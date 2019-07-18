@@ -19,16 +19,21 @@ module.exports = function(Client) {
           const { Client, EndUser, Order, Statement } = models;
           let target = await Client.findById(id);
           if (target) {
+            // destroy models that use external resources(e.g. S3).
             // NOTE: we must delete statement first, so that orders can be
             // deleted without referential intergrity issue.
-            await Statement.destroyAll({ clientId: id });
+            let statements = await Statement.find({ where: { clientId: id }, fields: { id: true } });
+            await Promise.map(statements, async function(statement) {
+              await Statement.destroyById(statement.id, Promise.reject);
+            });
+            let orders = await Order.find({ where: { clientId: id }, fields: { id: true } });
+            await Promise.map(orders, async function(order) {
+              await Order.destroyById(order.id, Promise.reject);
+            });
 
-            await Promise.all([
-              EndUser.destroyAll({ clientId: id }),
-              Order.destroyAll({ clientId: id })
-            ]);
+            // finally remove other model instances.
+            await EndUser.destroyAll({ clientId: id });
             await target.destroy();
-            target.addToRedisSet();    // run asynchronously
           }
         });
       } catch (error) {
