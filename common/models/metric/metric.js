@@ -5,6 +5,7 @@ const debugBatch = require('debug')('order-manager:Metric:batch');
 const Promise = require('bluebird');
 const moment = require('moment');
 const uuidv5 = require('uuid/v5');
+const yn = require('yn');
 const app = require(appRoot + '/server/server');
 const logger = require(appRoot + '/config/winston');
 const metricSetting = require(appRoot + '/config/metric');
@@ -358,6 +359,39 @@ module.exports = function(Metric) {
   Metric.removeOldData = async function(fireDate) {
     debugBatch(`${moment(fireDate).format()}: Running Metric.removeOldData()`);
     // TO DO: remove old metric data
+  };
+
+  /**
+   *  create mock data using random number generator.
+   * [NOTE] this function is called 4 times a day, at 8, 12, 18, 20.
+   */
+  Metric.mockData = async function(fireDate) {
+    if (!yn(process.env.CREATE_MOCK_DATA)) {
+      return;
+    }
+    debugBatch(`${moment(fireDate).format()}: Running Metric.mockData()`);
+    if (fireDate.getHours() === 8) {
+      await app.models.Product.mockData();
+    }
+
+    let clients = await app.models.Client.mockData();
+    if (fireDate.getDay() > 0) {  // skip Sunday
+      await app.models.Order.mockData(clients);
+    } else {
+      await app.models.Statement.mockData(clients);
+    }
+  };
+
+  Metric.removeOldMockData = async function(fireDate) {
+    if (!yn(process.env.CREATE_MOCK_DATA)) {
+      return;
+    }
+
+    debugBatch(`${moment(fireDate).format()}: Running Metric.removeOldMockData()`);
+    // TODO:
+    //  - remove old metric data.
+    //  - remove statements.
+    //  - remove orders.
   };
 
   /**

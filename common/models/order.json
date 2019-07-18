@@ -31,7 +31,7 @@
     "status": {
       "type": "string",
       "default": "Submitted",
-      "description": "'Submitted', 'Processed', 'Completed', or 'Cancelled'"
+      "description": "'Submitted', 'Processed', 'Shipped', 'Completed', or 'Cancelled'"
     },
     "subtotal": {
       "type": "number"
