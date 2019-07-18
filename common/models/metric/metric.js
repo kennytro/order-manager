@@ -2,6 +2,7 @@
 const _ = require('lodash');
 const appRoot = require('app-root-path');
 const debugBatch = require('debug')('order-manager:Metric:batch');
+const debugMockData = require('debug')('order-manager:Metric:mockData');
 const Promise = require('bluebird');
 const moment = require('moment');
 const uuidv5 = require('uuid/v5');
@@ -369,7 +370,7 @@ module.exports = function(Metric) {
     if (!yn(process.env.CREATE_MOCK_DATA)) {
       return;
     }
-    debugBatch(`${moment(fireDate).format()}: Running Metric.mockData()`);
+    debugMockData(`${moment(fireDate).format()}: Running Metric.mockData()`);
     if (fireDate.getHours() === 8) {
       await app.models.Product.mockData();
     }
@@ -387,11 +388,17 @@ module.exports = function(Metric) {
       return;
     }
 
-    debugBatch(`${moment(fireDate).format()}: Running Metric.removeOldMockData()`);
-    // TODO:
-    //  - remove old metric data.
-    //  - remove statements.
-    //  - remove orders.
+    debugMockData(`${moment(fireDate).format()}: Running Metric.removeOldMockData()`);
+    const threeMonthAgo = moment().subtract(3, 'months').toDate();
+    let productMetrics = await Metric.find({ where: { modelName: 'Product' } });
+    await app.models.MetricData.destroyAll({
+      metricId: { inq: productMetrics.map(metric => metric.id) },
+      metricDate: { lt: threeMonthAgo }
+    });
+    debugMockData(`Removed all product metric data older than ${threeMonthAgo.toLocaleDateString('en-US')}`);
+
+    let clients = await app.models.Client.mockData();
+    await app.models.Statement.removeOldData(clients, threeMonthAgo);
   };
 
   /**

@@ -13,11 +13,21 @@ module.exports = function(app) {
   scheduler.scheduleJob(everyMinRule, app.models.Metric.batchUpdate);
 
   if (yn(process.env.CREATE_MOCK_DATA)) {
+    // schedule job to create mock data. This job runs 4 times everyday.
+    // 4 times are due to update order status to 4 different values.
     const mockRule = new scheduler.RecurrenceRule();
     mockRule.hour = [8, 12, 18, 20];
     mockRule.minute = 0;
     mockRule.second = 30;
     scheduler.scheduleJob(mockRule, app.models.Metric.mockData);
+
+    // schedule job to remove old mock data to run at 23:00 on Sunday.
+    const rmMockRule = new scheduler.RecurrenceRule();
+    rmMockRule.dayOfWeek = [0];
+    rmMockRule.hour = 23;
+    rmMockRule.minute = 0;
+    rmMockRule.second = 0;
+    scheduler.scheduleJob(rmMockRule, app.models.Metric.removeOldMockData);
   }
 
   // schedule jobs to run every midnight

@@ -208,6 +208,40 @@ module.exports = function(Statement) {
     debugMockData('Statement.mockData() - Ends');
   };
 
+  Statement.removeOldData = async function(clients, cutOffDate) {
+    if (!yn(process.env.CREATE_MOCK_DATA)) {
+      return;
+    }
+    debugMockData('Statement.removeOldData() - Begins');
+    if (clients.length === 0 || !cutOffDate) {
+      return;
+    }
+
+    const stmtToDelete = await Statement.find({
+      where: {
+        clientId: { inq: clients.map(c => c.id) },
+        createdAt: { lt: cutOffDate }
+      },
+      include: 'order'
+    });
+    try {
+      // delete statements along with their orders.
+      await Promise.each(stmtToDelete, async function(statement) {
+        let ordersToDelete = statement.toJSON().order;
+        await Statement.destroyById(statement.id, console.error);
+        debugMockData(`<Client[${statement.clientId}>: Deleted statement(id: ${statement.id})`);
+        await Promise.each(ordersToDelete, async function(order) {
+          await app.models.Order.destroyById(order.id, console.error);
+          debugMockData(`<Client[${order.clientId}>: Deleted order(id: ${order.id})`);
+        });
+      });
+    } catch (error) {
+      console.error(`Error while deleting mock statement - ${error.message}`);
+    }
+
+    debugMockData('Statement.removeOldData() - Ends');
+  };
+
   Statement.prototype.getPdfName = function() {
     return `${tenantSetting.id}/${this.clientId}/statement/${this.id}.pdf`;
   };
