@@ -18,8 +18,8 @@ import { DataApiService } from '../../../services/data-api.service';
 })
 export class TotalOrdersComponent implements OnInit {
   intervalList = [
-    { label: 'Daily', unit: 'Date', format: 'Do', amountMetricName: 'client_sale_daily' },
-    { label: 'Monthly', unit: 'Month', format: 'MMM', amountMetricName: 'client_sale_monthly' },
+    { label: 'Daily', unit: 'Date', format: 'MM/DD/YY', amountMetricName: 'client_sale_daily' },
+    { label: 'Monthly', unit: 'Month', format: 'MM/YY', amountMetricName: 'client_sale_monthly' },
     { label: 'Yearly', unit: 'Year', format: 'YYYY', amountMetricName: 'client_sale_yearly' }
   ];
   intervalSelection: FormControl;
