@@ -410,7 +410,7 @@ module.exports = function(Order) {
           });
           orderItems = _.compact(orderItems);
           let subtotal = orderItems.reduce((a, c) => a += c.quantity * c.unitPrice, 0);
-          let fee = (client.feeType === 'Fixed') ? Number(client.feeValue) : subtotal * Number(client.feeValue);
+          let fee = (client.feeType === 'Fixed') ? Number(client.feeValue) : subtotal * Number(client.feeValue) / 100.0;
           let orderData = {
             clientId: client.id,
             status: 'Submitted',
