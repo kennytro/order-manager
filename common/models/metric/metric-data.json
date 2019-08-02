@@ -35,6 +35,12 @@
         "columnName": "metric_date"
       }
     },
+    "sourceInstanceId": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "source_instance_id"
+      }
+    },
     "groupByValue": {
       "type": "string",
       "postgresql": {

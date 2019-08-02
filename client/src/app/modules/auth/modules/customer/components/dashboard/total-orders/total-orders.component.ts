@@ -53,7 +53,7 @@ export class TotalOrdersComponent implements OnInit {
   }
   private _getMetricData(intervalLabel) {
     let metricInfo = this.intervalList.find(element => element.label === intervalLabel);
-    this._dataApi.genericMethod('Metric', 'findMetricDataByName', [[metricInfo.amountMetricName], { groupByValue: this.clientId }])
+    this._dataApi.genericMethod('Metric', 'findMetricDataByName', [[metricInfo.amountMetricName], { instanceId: this.clientId }])
       .pipe(take(1))
       .subscribe(data => {
         this._updateChart(data, intervalLabel);

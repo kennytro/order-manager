@@ -43,13 +43,7 @@ export class HistoryGraphComponent implements OnInit {
   private _updateChart(instanceId: string) {
     if (instanceId) {
 //      this.showSpinner = true;
-      let whereFilter = {};
-      if (this._metricDefinition.level === 0) {
-        whereFilter = { instanceId: instanceId };
-      } else {
-        whereFilter = { groupByValue: instanceId };
-      }
-      this._dataApi.genericMethod('Metric', 'findMetricDataByName', [[this._metricDefinition.name], whereFilter])
+      this._dataApi.genericMethod('Metric', 'findMetricDataByName', [[this._metricDefinition.name],  { instanceId: instanceId }])
         .pipe(take(1))
         .subscribe(data => {
           if (data.length === 0) {

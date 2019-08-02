@@ -77,6 +77,12 @@
         "columnName": "model_name"
       }
     },
+    "sourceModelName": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "source_model_name"
+      }
+    },
     "groupByKey": {
       "type": "string",
       "postgresql": {
