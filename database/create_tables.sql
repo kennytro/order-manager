@@ -163,6 +163,7 @@ CREATE TABLE IF NOT EXISTS metric
   aggregation_type metric_aggregation_type DEFAULT 'None',
   time_range metric_time_range_type DEFAULT 'None',
   model_name text,
+  source_model_name text,
   group_by_key text
 );
 
@@ -173,5 +174,6 @@ CREATE TABLE IF NOT EXISTS metric_data
   instance_id integer,
   value numeric,
   metric_date timestamptz DEFAULT now(),
+  source_instance_id integer,
   group_by_value text
 );

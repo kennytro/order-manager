@@ -30,7 +30,8 @@ module.exports = async function(app) {
       unit: 'Currency',
       unitLabel: 'Amount',
       timeRange: 'None',
-      modelName: 'Order'
+      modelName: 'System',
+      sourceModelName: 'Order'
     },
     {
       id: uuidv5('total_sale_daily', UUID_NAMESPACE),
@@ -44,7 +45,8 @@ module.exports = async function(app) {
       unitLabel: 'Amount',
       aggregationType: 'Sum',
       timeRange: 'Daily',
-      modelName: 'Order'
+      modelName: 'System',
+      sourceModelName: 'Order'
     },
     {
       id: uuidv5('total_sale_monthly', UUID_NAMESPACE),
@@ -58,7 +60,8 @@ module.exports = async function(app) {
       unitLabel: 'Amount',
       aggregationType: 'Sum',
       timeRange: 'Monthly',
-      modelName: 'Order'
+      modelName: 'System',
+      sourceModelName: 'Order'
     },
     {
       id: uuidv5('total_sale_yearly', UUID_NAMESPACE),
@@ -71,7 +74,8 @@ module.exports = async function(app) {
       unitLabel: 'Amount',
       aggregationType: 'Sum',
       timeRange: 'Yearly',
-      modelName: 'Order'
+      modelName: 'System',
+      sourceModelName: 'Order'
     },
     // total orders metric
     {
@@ -85,7 +89,8 @@ module.exports = async function(app) {
       unit: 'Integer',
       unitLabel: 'Count',
       timeRange: 'None',
-      modelName: 'Order'
+      modelName: 'System',
+      sourceModelName: 'Order'
     },
     {
       id: uuidv5('total_orders_daily', UUID_NAMESPACE),
@@ -99,7 +104,8 @@ module.exports = async function(app) {
       unitLabel: 'Count',
       aggregationType: 'Sum',
       timeRange: 'Daily',
-      modelName: 'Order'
+      modelName: 'System',
+      sourceModelName: 'Order'
     },
     {
       id: uuidv5('total_orders_monthly', UUID_NAMESPACE),
@@ -113,7 +119,8 @@ module.exports = async function(app) {
       unitLabel: 'Count',
       aggregationType: 'Sum',
       timeRange: 'Monthly',
-      modelName: 'Order'
+      modelName: 'System',
+      sourceModelName: 'Order'
     },
     {
       id: uuidv5('total_orders_yearly', UUID_NAMESPACE),
@@ -126,7 +133,8 @@ module.exports = async function(app) {
       unitLabel: 'Count',
       aggregationType: 'Sum',
       timeRange: 'Yearly',
-      modelName: 'Order'
+      modelName: 'System',
+      sourceModelName: 'Order'
     },
     // product unit price
     {
@@ -153,8 +161,8 @@ module.exports = async function(app) {
       unit: 'Currency',
       unitLabel: 'Amount',
       timeRange: 'None',
-      modelName: 'OrderItem',
-      groupByKey: 'productId'
+      modelName: 'Product',
+      sourceModelName: 'Order'
     },
     {
       id: uuidv5('product_sale_daily', UUID_NAMESPACE),
@@ -168,8 +176,8 @@ module.exports = async function(app) {
       unitLabel: 'Amount',
       aggregationType: 'Sum',
       timeRange: 'Daily',
-      modelName: 'OrderItem',
-      groupByKey: 'productId'
+      modelName: 'Product',
+      sourceModelName: 'Order'
     },
     {
       id: uuidv5('product_sale_monthly', UUID_NAMESPACE),
@@ -183,8 +191,8 @@ module.exports = async function(app) {
       unitLabel: 'Amount',
       aggregationType: 'Sum',
       timeRange: 'Monthly',
-      modelName: 'OrderItem',
-      groupByKey: 'productId'
+      modelName: 'Product',
+      sourceModelName: 'Order'
     },
     {
       id: uuidv5('product_sale_yearly', UUID_NAMESPACE),
@@ -197,8 +205,8 @@ module.exports = async function(app) {
       unitLabel: 'Amount',
       aggregationType: 'Sum',
       timeRange: 'Yearly',
-      modelName: 'OrderItem',
-      groupByKey: 'productId'
+      modelName: 'Product',
+      sourceModelName: 'Order'
     },
     // Client specific metric
     // total sales by client
@@ -213,8 +221,8 @@ module.exports = async function(app) {
       unit: 'Currency',
       unitLabel: 'Amount',
       timeRange: 'None',
-      modelName: 'Order',
-      groupByKey: 'clientId'
+      modelName: 'Client',
+      sourceModelName: 'Order'
     },
     {
       id: uuidv5('client_sale_daily', UUID_NAMESPACE),
@@ -228,8 +236,8 @@ module.exports = async function(app) {
       unitLabel: 'Amount',
       aggregationType: 'Sum',
       timeRange: 'Daily',
-      modelName: 'Order',
-      groupByKey: 'clientId'
+      modelName: 'Client',
+      sourceModelName: 'Order'
     },
     {
       id: uuidv5('client_sale_monthly', UUID_NAMESPACE),
@@ -243,8 +251,8 @@ module.exports = async function(app) {
       unitLabel: 'Amount',
       aggregationType: 'Sum',
       timeRange: 'Monthly',
-      modelName: 'Order',
-      groupByKey: 'clientId'
+      modelName: 'Client',
+      sourceModelName: 'Order'
     },
     {
       id: uuidv5('client_sale_yearly', UUID_NAMESPACE),
@@ -257,8 +265,8 @@ module.exports = async function(app) {
       unitLabel: 'Amount',
       aggregationType: 'Sum',
       timeRange: 'Yearly',
-      modelName: 'Order',
-      groupByKey: 'clientId'
+      modelName: 'Client',
+      sourceModelName: 'Order'
     }
   ];
 
@@ -277,5 +285,38 @@ module.exports = async function(app) {
   } catch (error) {
     logger.error(`Error while initializing metric definitions - ${error.message}`);
     throw error;
+  }
+
+  // Data conversion. Convert metric data of 'product_sale' if 'sourceInstanceId'
+  // is not set.
+  // NOTE: This code block should be removed after converting all environments.
+  const productSaleMID = uuidv5('product_sale', UUID_NAMESPACE);
+  let mData = await app.models.MetricData.findOne({ where: { metricId: productSaleMID, sourceInstanceId: null } });
+  if (mData) {
+    let mDataArray = await app.models.MetricData.find({ where: { metricId: productSaleMID, sourceInstanceId: null } });
+    logger.debug(`Converting ${mDataArray.length} metric data of 'product_sale'...`);
+    try {
+      await Promise.map(mDataArray, async (mData) => {
+        const orderItem = await app.models.OrderItem.findById(mData.instanceId);
+        if (!orderItem) {
+          await mData.destroy();
+          logger.debug(`Destroyed metric data(id: ${mData.id})`);
+        } else {
+          // Two properties to update:
+          // 1. update instanceId from OrderItem.id to OrderItem.productId
+          // 2. update sourceInstanceId to OrderItem.orderId
+          mData.instanceId = orderItem.productId;
+          mData.sourceInstanceId = orderItem.orderId;
+          await mData.save();
+          logger.debug(`Updated metric data(id: ${mData.id})`);
+        }
+      }, {
+        concurrency: 4
+      });
+    } catch (error) {
+      logger.error(`Error while converting metric data - ${error.message}`);
+      throw error;
+    }
+    logger.debug('Conversion done.');
   }
 };
