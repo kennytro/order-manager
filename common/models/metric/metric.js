@@ -462,12 +462,43 @@ module.exports = function(Metric) {
     }
   };
 
+  /**
+   * Remove old metric data of mock clients -
+   *  1. leaf level metric data older than 1 week.
+   *  2. Product metric data older than 3 months
+   *  3. Statements older than 3 months.
+   */
   Metric.removeOldMockData = async function(fireDate) {
     if (!yn(process.env.CREATE_MOCK_DATA)) {
       return;
     }
 
     debugMockData(`${moment(fireDate).format()}: Running Metric.removeOldMockData()`);
+    let mockClients = await app.models.Client.mockData();
+
+    // remove leaf level metric data of mock orders that are older than 7 days.
+    const sevenDaysAgo = moment().subtract(7, 'days').toDate();
+    let mockOrders = await app.models.Order.find({
+      where: { and: [
+        { clientId: { inq: mockClients.map(client => client.id) } },
+        { createdAt: { lt: sevenDaysAgo } }
+      ] },
+      fields: { id: true }
+    });
+    let orderLeafMetrics = await Metric.find({
+      where: { and: [
+        { level: 0 },
+        { sourceModelName: 'Order' }
+      ] },
+      fields: { id: true }
+    });
+    await app.models.MetricData.destroyAll({ and: [
+      { metricId: { inq: orderLeafMetrics.map(metric => metric.id) } },
+      { sourceInstanceId: { inq: mockOrders.map(order => order.id) } }
+    ] });
+    debugMockData(`Removed all leaf metric data of mock data older than ${sevenDaysAgo.toLocaleDateString('en-US')}`);
+
+    // remove product metric data that are older than 3 months.
     const threeMonthAgo = moment().subtract(3, 'months').toDate();
     let productMetrics = await Metric.find({ where: { modelName: 'Product' } });
     await app.models.MetricData.destroyAll({
@@ -476,8 +507,8 @@ module.exports = function(Metric) {
     });
     debugMockData(`Removed all product metric data older than ${threeMonthAgo.toLocaleDateString('en-US')}`);
 
-    let clients = await app.models.Client.mockData();
-    await app.models.Statement.removeOldData(clients, threeMonthAgo);
+    // remove statements of mock clients that are older than 3 months.
+    await app.models.Statement.removeOldData(mockClients, threeMonthAgo);
   };
 
   /**

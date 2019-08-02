@@ -208,6 +208,11 @@ module.exports = function(Statement) {
     debugMockData('Statement.mockData() - Ends');
   };
 
+  /**
+   * Delete statements of the given clients older than the cutoff data.
+   * @param{Client[]} clients - mock clients
+   * @param{Date} cutOffDate - delete statement if older than this date.
+   */
   Statement.removeOldData = async function(clients, cutOffDate) {
     if (!yn(process.env.CREATE_MOCK_DATA)) {
       return;
