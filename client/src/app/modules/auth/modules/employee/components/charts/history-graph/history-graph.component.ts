@@ -27,6 +27,8 @@ export class HistoryGraphComponent implements OnInit {
   @Input() metricName: string;
   private _metricDefinition: any;
 
+  @Input() chartType: string = 'LineChart';
+
   constructor(private _dataApi: DataApiService) { }
 
   ngOnInit() {
@@ -65,7 +67,7 @@ export class HistoryGraphComponent implements OnInit {
 
   private _initializeChart(metric) {
     this.historyChart = {
-      chartType: 'LineChart',
+      chartType: this.chartType,
       dataTable: [['', {role: 'annotation'}], ['', '']],
       options: {
         title: metric.displayName,
