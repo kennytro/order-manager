@@ -82,12 +82,6 @@
       "postgresql": {
         "columnName": "source_model_name"
       }
-    },
-    "groupByKey": {
-      "type": "string",
-      "postgresql": {
-        "columnName": "group_by_key"
-      }
     }
   },
   "validations": [],

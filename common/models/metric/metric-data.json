@@ -40,12 +40,6 @@
       "postgresql": {
         "columnName": "source_instance_id"
       }
-    },
-    "groupByValue": {
-      "type": "string",
-      "postgresql": {
-        "columnName": "group_by_value"
-      }
     }
   },
   "validations": [],
