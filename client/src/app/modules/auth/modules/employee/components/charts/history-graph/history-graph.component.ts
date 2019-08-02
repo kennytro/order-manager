@@ -3,7 +3,7 @@ import { GoogleChartInterface } from 'ng2-google-charts/google-charts-interfaces
 import { take } from 'rxjs/operators';
 import * as moment from 'moment';
 
-import { DataApiService } from '../../../../services/data-api.service';
+import { DataApiService } from '../../../services/data-api.service';
 
 @Component({
   selector: 'app-history-graph[metricName]',
@@ -26,6 +26,8 @@ export class HistoryGraphComponent implements OnInit {
 
   @Input() metricName: string;
   private _metricDefinition: any;
+
+  @Input() chartType: string = 'LineChart';
 
   constructor(private _dataApi: DataApiService) { }
 
@@ -65,7 +67,7 @@ export class HistoryGraphComponent implements OnInit {
 
   private _initializeChart(metric) {
     this.historyChart = {
-      chartType: 'LineChart',
+      chartType: this.chartType,
       dataTable: [['', {role: 'annotation'}], ['', '']],
       options: {
         title: metric.displayName,

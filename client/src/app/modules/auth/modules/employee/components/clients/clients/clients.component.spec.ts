@@ -7,6 +7,8 @@ import { of } from 'rxjs';
 
 import { AuthSharedModule } from '../../../../../shared/auth-shared.module';
 import { ClientsComponent } from './clients.component';
+import { HistoryGraphComponent } from '../../charts/history-graph/history-graph.component';
+
 import { DataApiService } from '../../../services/data-api.service';
 
 describe('ClientsComponent', () => {
@@ -15,16 +17,16 @@ describe('ClientsComponent', () => {
   ];
   let component: ClientsComponent;
   let fixture: ComponentFixture<ClientsComponent>;
-
+  let apiSpy: jasmine.SpyObj<DataApiService>;
   beforeEach(async(() => {
     const route = ({ data: of({ clients: testClients} ), snapshot: {} } as any) as ActivatedRoute;
     TestBed.configureTestingModule({
-      declarations: [ ClientsComponent ],
+      declarations: [ ClientsComponent, HistoryGraphComponent ],
       imports: [ NoopAnimationsModule, AuthSharedModule, RouterTestingModule ],
       providers: [
         { provide: ActivatedRoute, useValue: route },
         { provide: MatDialog, useValue: jasmine.createSpyObj('MatDialog', ['open']) },
-        { provide: DataApiService, useValue: jasmine.createSpyObj('DataApiService', ['find']) }
+        { provide: DataApiService, useValue: jasmine.createSpyObj('DataApiService', ['find', 'genericMethod']) }
       ]
     })
     .compileComponents();
@@ -33,6 +35,8 @@ describe('ClientsComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(ClientsComponent);
     component = fixture.componentInstance;
+    apiSpy = TestBed.get(DataApiService);
+    apiSpy.genericMethod.and.returnValue(of(null));
     fixture.detectChanges();
   });
 

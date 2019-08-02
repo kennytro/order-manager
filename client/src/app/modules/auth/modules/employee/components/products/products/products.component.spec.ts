@@ -7,7 +7,7 @@ import { of } from 'rxjs';
 
 import { AuthSharedModule } from '../../../../../shared/auth-shared.module';
 import { ProductsComponent } from './products.component';
-import { HistoryGraphComponent } from './history-graph/history-graph.component';
+import { HistoryGraphComponent } from '../../charts/history-graph/history-graph.component';
 import { DataApiService } from '../../../services/data-api.service';
 describe('ProductsComponent', () => {
   const testProducts = [

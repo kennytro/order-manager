@@ -2,6 +2,9 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material';
 import { ActivatedRoute } from '@angular/router';
 import { MatPaginator, MatSort, MatTableDataSource} from '@angular/material';
+import { SelectionModel } from '@angular/cdk/collections';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { NewClientComponent } from '../new-client/new-client.component';
 import { DataApiService } from '../../../services/data-api.service';
@@ -14,14 +17,26 @@ import { DataApiService } from '../../../services/data-api.service';
 export class ClientsComponent implements OnInit {
   // TO DO: get column names from service.
   displayedColumns: string[] = ['id', 'name', 'phone', 'deliveryRouteId', 'createdDate'];
+  selection: SelectionModel<any>;
+  clientSelected: any;
   private _clients: MatTableDataSource<any>;
+  private _unsubscribe = new Subject<boolean>();
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
 
   constructor(private _route: ActivatedRoute,
     private _newClientDialog: MatDialog,
-    private _dataApi: DataApiService) { }
+    private _dataApi: DataApiService) {
+      this.selection = new SelectionModel(false, []);
+      this.selection.onChange
+        .pipe(takeUntil(this._unsubscribe))
+        .subscribe((a) => {
+          if (a.added[0]) {
+            this.selectClient(a.added[0]);
+          }
+        });
+    }
 
   ngOnInit() {
     this._route.data.subscribe(routeData => {
@@ -29,6 +44,11 @@ export class ClientsComponent implements OnInit {
         this._setTableDataSource(routeData['clients']);
       }
     });
+  }
+
+  ngOnDestroy() {
+    this._unsubscribe.next(true);
+    this._unsubscribe.unsubscribe();
   }
 
   applyFilter(filterValue: string) {
@@ -62,6 +82,10 @@ export class ClientsComponent implements OnInit {
         this._setTableDataSource(clientArray);
       }
     })
+  }
+
+  selectClient(row) {
+    this.clientSelected = row;
   }
 
   private _setTableDataSource(clients: Array<any>) {

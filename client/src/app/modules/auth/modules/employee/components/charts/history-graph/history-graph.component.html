@@ -4,4 +4,6 @@
 <ng-template #elseBlock>
   <google-chart [data]="historyChart"></google-chart>
 </ng-template> -->
-<google-chart [data]="historyChart"></google-chart>
+<div *ngIf="instanceId">
+  <google-chart [data]="historyChart"></google-chart>
+</div>
