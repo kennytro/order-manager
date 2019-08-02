@@ -3,7 +3,7 @@ import { GoogleChartInterface } from 'ng2-google-charts/google-charts-interfaces
 import { take } from 'rxjs/operators';
 import * as moment from 'moment';
 
-import { DataApiService } from '../../../../services/data-api.service';
+import { DataApiService } from '../../../services/data-api.service';
 
 @Component({
   selector: 'app-history-graph[metricName]',

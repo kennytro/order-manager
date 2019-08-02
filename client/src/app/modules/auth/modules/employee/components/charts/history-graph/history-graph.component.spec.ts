@@ -3,9 +3,9 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 
-import { AuthSharedModule } from '../../../../../../shared/auth-shared.module';
+import { AuthSharedModule } from '../../../../../shared/auth-shared.module';
 import { HistoryGraphComponent } from './history-graph.component';
-import { DataApiService } from '../../../../services/data-api.service';
+import { DataApiService } from '../../../services/data-api.service';
 
 @Component({
   selector: "host-component",
