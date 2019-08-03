@@ -17,13 +17,19 @@ class FakeTodaysSnapshotsComponent { };
 })
 class FakeTotalOrdersComponent { };
 
+@Component({
+  selector: 'app-rank-graph',
+  template: '<p>Mock Rank Graph Component</p>'
+})
+class FakeRankGraphComponent { };
+
 describe('DashboardComponent', () => {
   let component: DashboardComponent;
   let fixture: ComponentFixture<DashboardComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ DashboardComponent, FakeTodaysSnapshotsComponent, FakeTotalOrdersComponent ],
+      declarations: [ DashboardComponent, FakeTodaysSnapshotsComponent, FakeTotalOrdersComponent, FakeRankGraphComponent ],
       imports: [ NoopAnimationsModule, AuthSharedModule ]
     })
     .compileComponents();

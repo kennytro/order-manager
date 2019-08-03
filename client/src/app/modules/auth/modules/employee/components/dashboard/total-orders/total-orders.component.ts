@@ -96,6 +96,7 @@ export class TotalOrdersComponent implements OnInit {
       options: {
         title: 'Total Orders Over Time',
         min: 0,
+        height: 400,
         vAxes: {
           0: { title: 'Amount', format:'$#,###.##' },
           1: { title: 'Order Count'}

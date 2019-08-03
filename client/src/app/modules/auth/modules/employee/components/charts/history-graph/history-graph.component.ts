@@ -56,7 +56,7 @@ export class HistoryGraphComponent implements OnInit {
               return moment(a.metricDate).isBefore(b.metricDate) ? -1 : 1;
             });
             data.forEach((data) => {
-              return this.historyChart.dataTable.push([moment(data.metricDate).format('MM/DD/YY'), Number(data.value)]);
+              this.historyChart.dataTable.push([moment(data.metricDate).format('MM/DD/YY'), Number(data.value)]);
             });
           }
 //          this.showSpinner = false;

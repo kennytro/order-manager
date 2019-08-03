@@ -22,7 +22,6 @@ import { DeliveryRoutesComponent } from './components/delivery-routes/delivery-r
 import { DeliveryRouteDetailComponent } from './components/delivery-routes/delivery-route-detail/delivery-route-detail.component';
 import { NewDeliveryRouteComponent } from './components/delivery-routes/new-delivery-route/new-delivery-route.component';
 import { ProductsComponent } from './components/products/products/products.component';
-import { HistoryGraphComponent } from './components/charts/history-graph/history-graph.component';
 import { ProductDetailComponent } from './components/products/product-detail/product-detail.component';
 import { NewProductComponent } from './components/products/new-product/new-product.component';
 import { OrderLayoutComponent } from './components/orders/order-layout/order-layout.component';
@@ -37,6 +36,8 @@ import { StatementsComponent } from './components/statements/statements/statemen
 import { NewStatementComponent } from './components/statements/new-statement/new-statement.component';
 import { EditAdjustComponent } from './components/statements/edit-adjust/edit-adjust.component';
 import { StatementDetailComponent } from './components/statements/statement-detail/statement-detail.component';
+import { HistoryGraphComponent } from './components/charts/history-graph/history-graph.component';
+import { RankGraphComponent } from './components/charts/rank-graph/rank-graph.component';
 
 // Services
 import { DataResolver } from './services/data.resolver';
@@ -80,7 +81,8 @@ import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV,
     ClosedOrdersComponent, OrderDetailComponent, NewOrderComponent,
     StatementsComponent, NewStatementComponent, EditAdjustComponent, StatementDetailComponent,
     PhoneNumberPipe,
-    HistoryGraphComponent
+    HistoryGraphComponent,
+    RankGraphComponent
   ],
   imports: [
     AuthSharedModule,

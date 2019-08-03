@@ -541,10 +541,7 @@ module.exports = function(Metric) {
     } else {
       whereFilter = metricIdClause;
     }
-    let metricdataArray = await app.models.MetricData.find({
-      where: whereFilter,
-      fields: { instanceId: false }
-    });
+    let metricdataArray = await app.models.MetricData.find({ where: whereFilter });
 
     // replace 'metricId' with name
     return _.each(metricdataArray, md => {
