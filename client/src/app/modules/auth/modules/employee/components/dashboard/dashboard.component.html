@@ -1,4 +1,12 @@
 <div fxLayout="column" fxLayoutGap="10px">
   <app-todays-snapshots></app-todays-snapshots>
   <app-total-orders></app-total-orders>
+  <div fxLayout="row wrap" fxLayoutGap="10px" fxLayoutAlign="center space-between">
+    <div fxFlex="1 0 300px">
+      <app-rank-graph metricName="client_sale_daily" chartTitle="Top Clients"></app-rank-graph>
+    </div>
+    <div fxFlex="1 0 300px">
+      <app-rank-graph metricName="product_sale_daily" chartTitle="Top Products"></app-rank-graph>
+    </div>
+  </div>
 </div>
