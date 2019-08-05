@@ -267,6 +267,66 @@ module.exports = async function(app) {
       timeRange: 'Yearly',
       modelName: 'Client',
       sourceModelName: 'Order'
+    },
+    // Delivery route specific metric
+    // total sales by delivery route
+    {
+      id: uuidv5('delivery_route_sale', UUID_NAMESPACE),
+      parentId: uuidv5('delivery_route_sale_daily', UUID_NAMESPACE),
+      level: 0,
+      name: 'delivery_route_sale',
+      description: 'Sale amount by delivery route',
+      displayName: 'Sale Amount By Delivery Route',
+      shortName: 'DRS',
+      unit: 'Currency',
+      unitLabel: 'Amount',
+      timeRange: 'None',
+      modelName: 'DeliveryRoute',
+      sourceModelName: 'Order'
+    },
+    {
+      id: uuidv5('delivery_route_sale_daily', UUID_NAMESPACE),
+      parentId: uuidv5('delivery_route_sale_monthly', UUID_NAMESPACE),
+      level: 1,
+      name: 'delivery_route_sale_daily',
+      description: 'Daily sale amount by delivery route',
+      displayName: 'Daily Sale Amount By Delivery Route',
+      shortName: 'DRSD',
+      unit: 'Currency',
+      unitLabel: 'Amount',
+      aggregationType: 'Sum',
+      timeRange: 'Daily',
+      modelName: 'DeliveryRoute',
+      sourceModelName: 'Order'
+    },
+    {
+      id: uuidv5('delivery_route_sale_monthly', UUID_NAMESPACE),
+      parentId: uuidv5('delivery_route_sale_yearly', UUID_NAMESPACE),
+      level: 2,
+      name: 'delivery_route_sale_monthly',
+      description: 'Monthly sale amount by delivery route',
+      displayName: 'Monthly Sale Amount By Delivery Route',
+      shortName: 'DRSM',
+      unit: 'Currency',
+      unitLabel: 'Amount',
+      aggregationType: 'Sum',
+      timeRange: 'Monthly',
+      modelName: 'DeliveryRoute',
+      sourceModelName: 'Order'
+    },
+    {
+      id: uuidv5('delivery_route_sale_yearly', UUID_NAMESPACE),
+      level: 3,
+      name: 'delivery_route_sale_yearly',
+      description: 'Yearly sale amount by delivery route',
+      displayName: 'Yearly Sale Amount By Delivery Route',
+      shortName: 'DRSY',
+      unit: 'Currency',
+      unitLabel: 'Amount',
+      aggregationType: 'Sum',
+      timeRange: 'Yearly',
+      modelName: 'DeliveryRoute',
+      sourceModelName: 'Order'
     }
   ];
 

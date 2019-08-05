@@ -1,12 +1,22 @@
 <div fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="center">
   <h3>{{chartTitle}}</h3>
-  <div fxLayout="row wrap" fxLayoutGap="20px">
+  <div fxLayout="row wrap" fxLayoutGap="100px">
     <div fxFlex="nogrow">
-      <mat-form-field>
+      <mat-form-field style="width: 100px">
         <mat-label>Day Range</mat-label>
         <mat-select [formControl]="rangeSelection">
           <mat-option *ngFor="let range of ranges" [value]="range.label">
             {{range.label}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div fxFlex="nogrow">
+      <mat-form-field style="width: 50px">
+        <mat-label>Limit</mat-label>
+        <mat-select [formControl]="limitSelection">
+          <mat-option *ngFor="let limit of limits" [value]="limit">
+            {{limit}}
           </mat-option>
         </mat-select>
       </mat-form-field>

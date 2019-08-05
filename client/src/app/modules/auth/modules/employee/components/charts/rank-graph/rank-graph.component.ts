@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ViewEncapsulation } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { GoogleChartInterface } from 'ng2-google-charts/google-charts-interfaces';
 import { Subject, of } from 'rxjs';
@@ -13,7 +13,8 @@ import { DataApiService } from '../../../services/data-api.service';
 @Component({
   selector: 'app-rank-graph',
   templateUrl: './rank-graph.component.html',
-  styleUrls: ['./rank-graph.component.css']
+  styleUrls: ['./rank-graph.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 export class RankGraphComponent implements OnInit {
   ranges = [
@@ -22,26 +23,48 @@ export class RankGraphComponent implements OnInit {
     { label: '90 Days', cutOffDate: moment().subtract(90, 'days').toDate() }    
   ];
   rangeSelection: FormControl;
+
+  limits = ['10', '20', '30'];
+  limitSelection: FormControl;
   rankChart: GoogleChartInterface;
 
   private _unsubscribe = new Subject<boolean>();
   private _instanceMap = new Map();
+  private _cutOffDate: Date;
+  private _limit: number;
 
   @Input() metricName: string;
   private _metricDefinition: any;
 
-  @Input() limit = 10;
   @Input() chartTitle: string;
   @Input() chartType: string = 'BarChart';
 
-  constructor(private _dataApi: DataApiService) { }
+  constructor(private _dataApi: DataApiService) {
+    this._limit = Number(this.limits[0]);
+    this._cutOffDate = this.ranges[0].cutOffDate;
+  }
 
   ngOnInit() {
-    this.rangeSelection = new FormControl('30 Days');
+    this.rangeSelection = new FormControl(this.ranges[0].label);
     this.rangeSelection.valueChanges
       .pipe(takeUntil(this._unsubscribe))
       .subscribe(rangeLabel => {
-        this._updateChart(rangeLabel);
+        let rangeInfo = this.ranges.find(element => element.label === rangeLabel);
+        if (this._cutOffDate !== rangeInfo.cutOffDate) {
+          this._cutOffDate = rangeInfo.cutOffDate;
+          this._updateChart(false);
+        }
+      });
+
+    this.limitSelection = new FormControl(this.limits[0]);
+    this.limitSelection.valueChanges
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe(limit => {
+        let newLimit = Number(limit);
+        if (this._limit !== newLimit) {
+          this._limit = newLimit;
+          this._updateChart(false);
+        }
       });
 
     this._dataApi.genericMethod('Metric', 'findOne', [{ where: { name: this.metricName } }])
@@ -52,10 +75,9 @@ export class RankGraphComponent implements OnInit {
           if (!this.chartTitle) {
             this.chartTitle = metric.displayName;
           }
-          this._initializeChart(metric, [['', {role: 'annotation'}], ['', '']]);
           this._setInstanceMap(metric)
           .subscribe(instanceCount => {
-            this._updateChart('30 Days');
+            this._updateChart(true);
           });
         }
       });
@@ -75,10 +97,10 @@ export class RankGraphComponent implements OnInit {
         // title: this.chartTitle,
         // width: 400,
         colors: [colorName],
-        chartArea: { top: 10 },
-        height: 400,
+        chartArea: { top: 10, left: 20 },
+        height: this._getChartHeight(dataTable.length),
         legend: { position: 'none' },
-        vAxis: { title: metric.modelName, textPosition: 'in' },
+        vAxis: { title: '', textPosition: 'in' },
         hAxis: { title: metric.unitLabel, format: (metric.unit === 'Currency') ? '$#' : undefined },
         animation: {
           duration: 1000,
@@ -101,42 +123,20 @@ export class RankGraphComponent implements OnInit {
     }
   }
 
-  private _updateChart(intervalLabel) {
-    let rangeInfo = this.ranges.find(element => element.label === intervalLabel);
+  private _updateChart(init: boolean) {
     this._dataApi.genericMethod('Metric', 'findMetricDataByName',
       [[this._metricDefinition.name],
-      { metricDate: { gt: rangeInfo.cutOffDate } }])
+      { metricDate: { gt: this._cutOffDate } }])
       .pipe(take(1))
       .subscribe(data => {
-        let grouped = groupBy(data, 'instanceId');
-        let ids = keys(grouped);
-        let newData = ids.map(id => {
-          let instanceName = this._instanceMap.get(id);
-          if (instanceName) {
-            let total = grouped[id].reduce((sum, mData) => sum + Number(mData.value), 0);
-            return { name: instanceName, value: total };
-          }
-          return null;
-        });
-        newData = compact(newData);
-        newData.sort((a, b) => b.value - a.value);
-        newData.splice(this.limit);
-        let newDataTable = [];
-        if (newData.length === 0) {
-          newDataTable = [['', {role: 'annotation'}], ['', '']];
+        let newDataTable = this._getDataTableFromMetricData(data);
+        if (init) {
+          this._initializeChart(this._metricDefinition, newDataTable);
         } else {
-          newDataTable = [[this._metricDefinition.modelName, this._metricDefinition.unitLabel]];
-          newData.forEach((data) => {
-            newDataTable.push([data.name, data.value]);
-          });
-
-        }
-        //this.showSpinner = false;
-        // HACK: delay draw() to give time for Google chart to initialize.
-        setTimeout(() => {
           this.rankChart.dataTable = newDataTable;
-          this.rankChart.component.draw();          
-        }, 400);
+          this.rankChart.options['height'] = this._getChartHeight(newDataTable.length);
+          this.rankChart.component.draw();
+        }
       });
   }
 
@@ -152,5 +152,46 @@ export class RankGraphComponent implements OnInit {
     }
     return 'blue';    // default color
   }
+
+  private _getChartHeight(rowCount: number) : number {
+    if (rowCount < 5) {
+      return 300;
+    }
+    if (rowCount < 10) {
+      return 400;
+    }
+    return 600;
+  }
+
+  /**
+   * Make a chart data table using metric data.
+   * @params{Object[]} metricData
+   * @returns{Object[]} chart data table
+   */
+  private _getDataTableFromMetricData(metricData: any[]) :any[] {
+    let grouped = groupBy(metricData, 'instanceId');
+    let ids = keys(grouped);
+    let newData = ids.map(id => {
+      let instanceName = this._instanceMap.get(id);
+      if (instanceName) {
+        let total = grouped[id].reduce((sum, mData) => sum + Number(mData.value), 0);
+        return { name: instanceName, value: total };
+      }
+      return null;
+    });
+    newData = compact(newData);
+    newData.sort((a, b) => b.value - a.value);
+    newData.splice(this._limit);
+    let newDataTable = [];
+    if (newData.length === 0) {
+      newDataTable = [['', {role: 'annotation'}], ['', '']];
+    } else {
+      newDataTable = [[this._metricDefinition.modelName, this._metricDefinition.unitLabel]];
+      newData.forEach((data) => {
+        newDataTable.push([data.name, data.value]);
+      });
+    }
+    return newDataTable;
+  } 
 
 }

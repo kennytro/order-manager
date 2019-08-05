@@ -7,10 +7,12 @@ module.exports = function(app) {
     return;  // skip if it's one off process or not a worker.
   }
 
-  // schedule jobs to run every minute
-  const everyMinRule = new scheduler.RecurrenceRule();
-  everyMinRule.second = 0;
-  scheduler.scheduleJob(everyMinRule, app.models.Metric.batchUpdate);
+  // schedule jobs to run every 10 seconds
+  scheduler.scheduleJob('*/10 * * * * *', app.models.Metric.batchUpdate);
+
+  // const everyMinRule = new scheduler.RecurrenceRule();
+  // everyMinRule.second = 0;
+  // scheduler.scheduleJob(everyMinRule, app.models.Metric.batchUpdate);
 
   if (yn(process.env.CREATE_MOCK_DATA)) {
     // schedule job to create mock data. This job runs 4 times everyday.
