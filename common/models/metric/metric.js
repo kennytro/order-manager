@@ -17,6 +17,7 @@ module.exports = function(Metric) {
   const CS_METRIC_ID = uuidv5('client_sale', METRIC_NS_UUID);
   const PS_METRIC_ID = uuidv5('product_sale', METRIC_NS_UUID);
   const PUP_METRIC_ID = uuidv5('product_unit_price', METRIC_NS_UUID);
+  const DRS_METRIC_ID = uuidv5('delivery_route_sale', METRIC_NS_UUID);
   const CONCURRENCY_LIMIT = process.env.CONCURRENCY_LIMIT ? parseInt(process.env.CONCURRENCY_LIMIT) : 3;  // avoid connection exhaustion
 
   /**
@@ -130,75 +131,9 @@ module.exports = function(Metric) {
   }
 
   /**
-   * Update client sale metrics
+   * Update product metrics of orders
    * @param {String} leafMetricId - Id of leaf metric
    * @param {Object[]} orders -     Array of changed orders
-  **/
-  async function updateClientSaleMetrics(leafMetricId, orders) {
-    if (_.isEmpty(orders)) {
-      return;
-    }
-    const leafMetric = await Metric.findById(leafMetricId);
-    if (!leafMetric) {
-      return;
-    }
-    debugBatch(`updateClientSaleMetrics(${leafMetric.name}) - Begins.`);
-    let metricDataArray = [];
-    // remove data of cancelled order
-    const cancelled = _.filter(orders, { status: 'Cancelled' });
-    if (!_.isEmpty(cancelled)) {
-      await app.models.MetricData.destroyAll({ and: [
-        { metricId: leafMetric.id },
-        { sourceInstanceId: { inq: _.map(cancelled, 'id') } }
-      ] });
-      debugBatch(`<${leafMetric.name}>: Removed metric data of ${JSON.stringify(_.map(cancelled, 'id'))}.`);
-      cancelled.forEach(order => metricDataArray.push({
-        instanceId: order.clientId,
-        metricDate: order.createdAt
-      }));
-    }
-
-    // upsert data of changed order
-    const changed = _.filter(orders, (o) => o.status !== 'Cancelled');
-    if (!_.isEmpty(changed)) {
-      await Promise.map(changed, async (order) => {
-        const metricData = await app.models.MetricData.findOne({
-          where: { and: [
-            { metricId: leafMetric.id },
-            { instanceId: order.clientId },
-            { sourceInstanceId: order.id }
-          ] }
-        });
-        if (metricData) {
-          await metricData.updateAttribute('value', Number(order.totalAmount));
-          debugBatch(`<${leafMetric.name}>: Updated metric data(${metricData.id}) value to ${metricData.value}.`);
-        } else {
-          const newMetricData = await app.models.MetricData.create({
-            metricId: leafMetric.id,
-            instanceId: order.clientId,
-            value: Number(order.totalAmount),
-            metricDate: order.createdAt,
-            sourceInstanceId: order.id
-          });
-          debugBatch(`<${leafMetric.name}>: Created new metric data(${newMetricData.id}) with value ${newMetricData.value}.`);
-        }
-      }, {
-        concurrency: CONCURRENCY_LIMIT
-      });
-      changed.forEach(order => metricDataArray.push({
-        instanceId: order.clientId,
-        metricDate: order.createdAt
-      }));
-    }
-
-    await updateAggregationMetric(leafMetric, metricDataArray);
-    debugBatch(`updateClientSaleMetrics(${leafMetric.name}) - Ends.`);
-  }
-
-  /**
-   * Update product metrics or orders
-   * @param {String} leafMetricId - Id of leaf metric
-   * @param {Object[]} products -     Array of changed orders
   **/
   async function updateProductSaleMetrics(leafMetricId, orders) {
     // product metrics of orders are updated only on 'Completed' orders
@@ -214,7 +149,7 @@ module.exports = function(Metric) {
     debugBatch(`updateProductSaleMetrics(${leafMetric.name}) - Begins.`);
     let metricDataArray = [];
     orders.forEach(function(order) {
-      let oItems = order.toJSON().orderItem;
+      let oItems = order.orderItem;
       oItems.forEach(function(orderItem) {      // assign order creation date to each order item.
         metricDataArray.push({
           metricId: leafMetricId,
@@ -257,6 +192,77 @@ module.exports = function(Metric) {
     });
     await updateAggregationMetric(leafMetric, metricDataArray);
     debugBatch(`updateProductSaleMetrics(${leafMetric.name}) - Ends.`);
+  }
+
+  /**
+   * Update sales metrics of orders
+   * @param {String} leafMetricId - Id of leaf metric
+   * @param {Object[]} orders -     Array of changed orders
+   * @param {String} instanceIdPath - path of order property to get instance ID.
+  **/
+  async function updateOrderSaleMetrics(leafMetricId, orders, instanceIdPath) {
+    if (_.isEmpty(orders)) {
+      return;
+    }
+    if (_.isUndefined(instanceIdPath) || _.isUndefined(_.get(orders[0], instanceIdPath))) {
+      throw Object.assign(new Error(`Invalid ID path(${instanceIdPath}) of Order model`),
+        { code: 'ERR_INVALID_ORDER_INSTANCE_ID_PATH' });
+    }
+    const leafMetric = await Metric.findById(leafMetricId);
+    if (!leafMetric) {
+      return;
+    }
+    debugBatch(`updateOrderSaleMetrics(${leafMetric.name}, ${instanceIdPath}) - Begins.`);
+    let metricDataArray = [];
+    // remove data of cancelled order
+    const cancelled = _.filter(orders, { status: 'Cancelled' });
+    if (!_.isEmpty(cancelled)) {
+      await app.models.MetricData.destroyAll({ and: [
+        { metricId: leafMetric.id },
+        { sourceInstanceId: { inq: _.map(cancelled, 'id') } }
+      ] });
+      debugBatch(`<${leafMetric.name}>: Removed metric data of ${JSON.stringify(_.map(cancelled, 'id'))}.`);
+      cancelled.forEach(order => metricDataArray.push({
+        instanceId: _.get(order, instanceIdPath),
+        metricDate: order.createdAt
+      }));
+    }
+
+    // upsert data of changed order
+    const changed = _.filter(orders, (o) => o.status !== 'Cancelled');
+    if (!_.isEmpty(changed)) {
+      await Promise.map(changed, async (order) => {
+        const metricData = await app.models.MetricData.findOne({
+          where: { and: [
+            { metricId: leafMetric.id },
+            { instanceId: _.get(order, instanceIdPath) },
+            { sourceInstanceId: order.id }
+          ] }
+        });
+        if (metricData) {
+          await metricData.updateAttribute('value', Number(order.totalAmount));
+          debugBatch(`<${leafMetric.name}>: Updated metric data(${metricData.id}) value to ${metricData.value}.`);
+        } else {
+          const newMetricData = await app.models.MetricData.create({
+            metricId: leafMetric.id,
+            instanceId: _.get(order, instanceIdPath),
+            value: Number(order.totalAmount),
+            metricDate: order.createdAt,
+            sourceInstanceId: order.id
+          });
+          debugBatch(`<${leafMetric.name}>: Created new metric data(${newMetricData.id}) with value ${newMetricData.value}.`);
+        }
+      }, {
+        concurrency: CONCURRENCY_LIMIT
+      });
+      changed.forEach(order => metricDataArray.push({
+        instanceId: _.get(order, instanceIdPath),
+        metricDate: order.createdAt
+      }));
+    }
+
+    await updateAggregationMetric(leafMetric, metricDataArray);
+    debugBatch(`updateOrderSaleMetrics(${leafMetric.name}, ${instanceIdPath}) - Ends.`);
   }
 
   /**
@@ -320,7 +326,7 @@ module.exports = function(Metric) {
     // get aggregation metrics. Create one if not exist.
     let aggrMDArray = await Promise.mapSeries(dataArray, async (mData) => {
       let metricDate = aggrMetric.getAggregationDate(mData.metricDate);
-      debugBatch(`<${aggrMetric.name}>: Metric date: ${metricDate} -`);
+      debugBatch(`<${aggrMetric.name}>: Metric date: ${moment(metricDate).format('MM/DD/YY')} -`);
       let aggrMD = await app.models.MetricData.findOne({
         where: { and: [
           { metricId: aggrMetric.id },
@@ -346,7 +352,7 @@ module.exports = function(Metric) {
     await Promise.map(aggrMDArray, async (aggrMD) => {
       // find all data of child metric.
       const [beginDate, endDate] = aggrMetric.getTimeRange(aggrMD.metricDate);
-      debugBatch(`<${aggrMetric.name}>: Updating aggregate metric data(id: ${aggrMD.id}, begin: ${beginDate}, end: ${endDate}) -`);
+      debugBatch(`<${aggrMetric.name}>: Updating aggregate metric data(id: ${aggrMD.id}, begin: ${moment(beginDate).format('MM/DD/YY')}, end: ${moment(endDate).format('MM/DD/YY')}) -`);
       const childrendMD = await app.models.MetricData.find({
         where: { and: [
           { metricId: metric.id },
@@ -378,7 +384,8 @@ module.exports = function(Metric) {
     }
 
     try {
-      let orders = await app.models.Order.find({ where: { id: { inq: orderIds } }, include: 'orderItem' });
+      let orders = await app.models.Order.find({ where: { id: { inq: orderIds } }, include: ['orderItem', 'client'] });
+      orders = _.map(orders, order => order.toJSON());
       if (debugBatch.enabled) {
         orders.forEach(function(order) {
           const id = order.id;
@@ -392,7 +399,8 @@ module.exports = function(Metric) {
       await Promise.all([
         updateSystemMetrics(TS_METRIC_ID, orders),
         updateSystemMetrics(TO_METRIC_ID, orders),
-        updateClientSaleMetrics(CS_METRIC_ID, orders),
+        updateOrderSaleMetrics(CS_METRIC_ID, orders, 'clientId'),
+        updateOrderSaleMetrics(DRS_METRIC_ID, orders, 'client.deliveryRouteId'),
         updateProductSaleMetrics(PS_METRIC_ID, orders)
         // updateOrderItemMetrics(PS_METRIC_ID, orders)
       ]);
