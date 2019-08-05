@@ -160,7 +160,10 @@ export class RankGraphComponent implements OnInit {
     if (rowCount < 10) {
       return 400;
     }
-    return 600;
+    if (rowCount < 20) {
+      return 800;
+    }
+    return 1000;
   }
 
   /**
