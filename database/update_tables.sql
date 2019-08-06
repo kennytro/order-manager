@@ -8,3 +8,5 @@ ALTER TABLE metric ADD COLUMN IF NOT EXISTS source_model_name text;
 ALTER TABLE metric_data ADD COLUMN IF NOT EXISTS source_instance_id integer;
 ALTER TABLE metric DROP COLUMN IF EXISTS group_by_key;
 ALTER TABLE metric_data DROP COLUMN IF EXISTS group_by_key;
+ALTER TABLE metric ADD COLUMN IF NOT EXISTS ad_hoc bool DEFAULT false;
+ALTER TABLE metric ADD COLUMN IF NOT EXISTS filter_by_model_name text;
