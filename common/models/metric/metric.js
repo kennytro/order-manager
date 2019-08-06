@@ -3,6 +3,7 @@ const _ = require('lodash');
 const appRoot = require('app-root-path');
 const debugBatch = require('debug')('order-manager:Metric:batch');
 const debugMockData = require('debug')('order-manager:Metric:mockData');
+const HttpErrors = require('http-errors');
 const Promise = require('bluebird');
 const moment = require('moment');
 const uuidv5 = require('uuid/v5');
@@ -556,6 +557,41 @@ module.exports = function(Metric) {
       md.metricId = _.find(metricIds, { id: md.metricId }).name;
     });
   };
+
+  Metric.findAdHocMetricData = async function(metric, whereFilter, instanceId) {
+    if (!metric.adHoc) {
+      throw new HttpErrors(400, `Invalid metric(name: ${metric.name}) - not an ad Hoc metric.`);
+    }
+    if (!instanceId) {
+      throw new HttpErrors(400, `Invalid instanceId(${instanceId}) - instance id is required.`);
+    }
+    whereFilter = await modifyWhereFilter(metric, whereFilter, instanceId);
+    const realMetricName = getUnderlyingMetricName(metric);
+    return await Metric.findMetricDataByName([realMetricName], whereFilter);
+  };
+
+  async function modifyWhereFilter(metric, whereFilter, instanceId) {
+    if (metric.name === 'client_sale_by_delivery_route_daily') {
+      let deliveryRoute = await app.models.DeliveryRoute.findById(instanceId,
+        { include:
+          {
+            relation: 'clients',
+            scope: { fields: ['id'] }
+          }
+        });
+      if (deliveryRoute) {
+        let clients = deliveryRoute.toJSON().clients;
+        whereFilter.instanceId = { inq: _.map(clients, 'id') };
+      }
+    }
+    return whereFilter;
+  }
+
+  function getUnderlyingMetricName(metric) {
+    if (metric.name === 'client_sale_by_delivery_route_daily') {
+      return 'client_sale_daily';
+    }
+  }
 
   Metric.prototype.getTimeRange = function(date) {
     if (this.timeRange === 'Daily') {

@@ -38,6 +38,21 @@ export class RankGraphComponent implements OnInit {
   @Input() chartTitle: string;
   @Input() chartType: string = 'BarChart';
 
+  private _instanceId: string;
+  @Input()
+  set instanceId(id: string) {
+    if (id && this._instanceId !== id) {
+      this._instanceId = id;
+      // update chart only if the chart component exists. otherwise
+      // ngOnInit() will update the chart later.
+      if (this.rankChart) {
+        this._updateChart(false);
+      }
+    }
+  }
+  get instanceId(): string { return this._instanceId; }
+
+
   constructor(private _dataApi: DataApiService) {
     this._limit = Number(this.limits[0]);
     this._cutOffDate = this.ranges[0].cutOffDate;
@@ -71,9 +86,6 @@ export class RankGraphComponent implements OnInit {
       .subscribe(metric => {
         if (metric) {
           this._metricDefinition = metric;
-          if (!this.chartTitle) {
-            this.chartTitle = metric.displayName;
-          }
           this._setInstanceMap(metric)
           .subscribe(instanceCount => {
             this._updateChart(true);
@@ -93,10 +105,10 @@ export class RankGraphComponent implements OnInit {
       chartType: this.chartType,
       dataTable: dataTable,
       options: {
-        // title: this.chartTitle,
+        title: (this.chartTitle) ? undefined : metric.displayName,
         // width: 400,
         colors: [colorName],
-        chartArea: { top: 10, left: 20 },
+        chartArea: { top: 20, left: 20 },
         height: this._getChartHeight(dataTable.length),
         legend: { position: 'none' },
         vAxis: { title: '', textPosition: 'in' },
@@ -123,20 +135,38 @@ export class RankGraphComponent implements OnInit {
   }
 
   private _updateChart(init: boolean) {
-    this._dataApi.genericMethod('Metric', 'findMetricDataByName',
-      [[this._metricDefinition.name],
-      { metricDate: { gt: this._cutOffDate } }])
-      .pipe(take(1))
-      .subscribe(data => {
-        let newDataTable = this._getDataTableFromMetricData(data);
-        if (init) {
-          this._initializeChart(this._metricDefinition, newDataTable);
-        } else {
-          this.rankChart.dataTable = newDataTable;
-          this.rankChart.options['height'] = this._getChartHeight(newDataTable.length);
-          this.rankChart.component.draw();
-        }
-      });
+    if (this._metricDefinition.adHoc) {
+      if (this._instanceId) {
+        this._dataApi.genericMethod('Metric', 'findAdHocMetricData',
+          [this._metricDefinition, { metricDate: { gt: this._cutOffDate } }, this._instanceId])
+        .pipe(take(1))
+        .subscribe(data => {
+          let newDataTable = this._getDataTableFromMetricData(data);
+          if (this.rankChart) {
+            this.rankChart.dataTable = newDataTable;
+            this.rankChart.options['height'] = this._getChartHeight(newDataTable.length);
+            this.rankChart.component.draw();            
+          } else {
+            this._initializeChart(this._metricDefinition, newDataTable);
+          }
+        });
+      }
+    } else {
+      this._dataApi.genericMethod('Metric', 'findMetricDataByName',
+        [[this._metricDefinition.name],
+        { metricDate: { gt: this._cutOffDate } }])
+        .pipe(take(1))
+        .subscribe(data => {
+          let newDataTable = this._getDataTableFromMetricData(data);
+          if (init) {
+            this._initializeChart(this._metricDefinition, newDataTable);
+          } else {
+            this.rankChart.dataTable = newDataTable;
+            this.rankChart.options['height'] = this._getChartHeight(newDataTable.length);
+            this.rankChart.component.draw();
+          }
+        });
+    }
   }
 
   private _getColorName(modelName: string) : string {

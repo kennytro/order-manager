@@ -82,6 +82,19 @@
       "postgresql": {
         "columnName": "source_model_name"
       }
+    },
+    "adHoc": {
+      "type": "boolean",
+      "default": false,
+      "postgresql": {
+        "columnName": "ad_hoc"
+      }
+    },
+    "filterByModelName": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "filter_by_model_name"
+      }
     }
   },
   "validations": [],

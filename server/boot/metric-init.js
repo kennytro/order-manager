@@ -327,6 +327,20 @@ module.exports = async function(app) {
       timeRange: 'Yearly',
       modelName: 'DeliveryRoute',
       sourceModelName: 'Order'
+    },
+    {
+      id: uuidv5('client_sale_by_delivery_route_daily', UUID_NAMESPACE),
+      level: 0,
+      name: 'client_sale_by_delivery_route_daily',
+      description: 'Client sale amount by delivery route',
+      displayName: 'Client Sale Amount By Delivery route',
+      shortName: 'CSBDR',
+      unit: 'Currency',
+      unitLabel: 'Amount',
+      timeRange: 'Daily',
+      modelName: 'Client',
+      adHoc: true,
+      filterByModelName: 'DeliveryRoute'
     }
   ];
 

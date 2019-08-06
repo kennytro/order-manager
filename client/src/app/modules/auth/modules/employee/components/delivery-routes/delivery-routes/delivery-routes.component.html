@@ -43,4 +43,7 @@
   <div fxFlex="1 0 400px">
     <app-history-graph metricName="delivery_route_sale_daily" chartType="ColumnChart" [instanceId]=deliveryRouteSelected?.id></app-history-graph>
   </div>
+  <div *ngIf="deliveryRouteSelected" fxFlex="1 0 400px">
+    <app-rank-graph metricName="client_sale_by_delivery_route_daily" [instanceId]=deliveryRouteSelected?.id></app-rank-graph>
+  </div>
 </div>

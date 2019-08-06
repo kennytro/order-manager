@@ -1,5 +1,7 @@
 <div fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="center">
-  <h3>{{chartTitle}}</h3>
+  <div *ngIf="chartTitle">
+    <h3>{{chartTitle}}</h3>
+  </div>
   <div fxLayout="row wrap" fxLayoutGap="100px">
     <div fxFlex="nogrow">
       <mat-form-field style="width: 100px">
