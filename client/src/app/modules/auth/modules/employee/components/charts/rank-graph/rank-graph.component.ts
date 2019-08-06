@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { GoogleChartInterface } from 'ng2-google-charts/google-charts-interfaces';
 import { Subject, of } from 'rxjs';
@@ -13,8 +13,7 @@ import { DataApiService } from '../../../services/data-api.service';
 @Component({
   selector: 'app-rank-graph',
   templateUrl: './rank-graph.component.html',
-  styleUrls: ['./rank-graph.component.css'],
-  encapsulation: ViewEncapsulation.None
+  styleUrls: ['./rank-graph.component.css']
 })
 export class RankGraphComponent implements OnInit {
   ranges = [

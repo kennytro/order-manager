@@ -64,13 +64,11 @@
     <mat-paginator [pageSizeOptions]="[50, 100, 200]"></mat-paginator>
   </div>
 </div>
-<div>
-  <mat-grid-list cols="2" rowHeight="2:1" gutterSize="10px">
-    <mat-grid-tile>
-      <app-history-graph metricName="product_unit_price" [instanceId]=productSelected?.id> [</app-history-graph>
-    </mat-grid-tile>
-    <mat-grid-tile>
-      <app-history-graph metricName="product_sale_daily" chartType="ColumnChart" [instanceId]=productSelected?.id></app-history-graph>
-    </mat-grid-tile>  
-  </mat-grid-list>
+<div fxLayout="row wrap" fxLayoutGap="10px" fxLayoutAlign="space-around center" style="margin-top: 10px">
+  <div fxFlex="1 0 400px">
+    <app-history-graph metricName="product_unit_price" [instanceId]=productSelected?.id> [</app-history-graph>
+  </div>
+  <div fxFlex="1 0 400px">
+    <app-history-graph metricName="product_sale_daily" chartType="ColumnChart" [instanceId]=productSelected?.id></app-history-graph>
+  </div>  
 </div>

@@ -7,6 +7,8 @@ import { of } from 'rxjs';
 
 import { AuthSharedModule } from '../../../../../shared/auth-shared.module';
 import { DeliveryRoutesComponent } from './delivery-routes.component';
+import { HistoryGraphComponent } from '../../charts/history-graph/history-graph.component';
+
 import { DataApiService } from '../../../services/data-api.service';
 describe('DeliveryRoutesComponent', () => {
   const testRoutes = [
@@ -14,16 +16,16 @@ describe('DeliveryRoutesComponent', () => {
   ];
   let component: DeliveryRoutesComponent;
   let fixture: ComponentFixture<DeliveryRoutesComponent>;
-
+  let apiSpy: jasmine.SpyObj<DataApiService>;
   beforeEach(async(() => {
     const route = ({ data: of({ routes: testRoutes} ), snapshot: {} } as any) as ActivatedRoute;
     TestBed.configureTestingModule({
-      declarations: [ DeliveryRoutesComponent ],
+      declarations: [ DeliveryRoutesComponent, HistoryGraphComponent ],
       imports: [ NoopAnimationsModule, AuthSharedModule, RouterTestingModule],
       providers: [
         { provide: ActivatedRoute, useValue: route },
         { provide: MatDialog, useValue: jasmine.createSpyObj('MatDialog', ['open']) },
-        { provide: DataApiService, useValue: jasmine.createSpyObj('DataApiService', ['find']) }
+        { provide: DataApiService, useValue: jasmine.createSpyObj('DataApiService', ['find', 'genericMethod']) }
       ]
     })
     .compileComponents();
@@ -32,6 +34,8 @@ describe('DeliveryRoutesComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(DeliveryRoutesComponent);
     component = fixture.componentInstance;
+    apiSpy = TestBed.get(DataApiService);
+    apiSpy.genericMethod.and.returnValue(of(null));
     fixture.detectChanges();
   });
 

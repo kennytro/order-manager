@@ -88,7 +88,7 @@ export class ProductsComponent implements OnInit {
 
   private _setTableDataSource(products: Array<any>) {
     products.forEach((product) => {
-      product.unitPriceFC = new FormControl(product.unitPrice);
+      product.unitPriceFC = new FormControl(Number(product.unitPrice).toFixed(2));
       product.unitPriceFC.valueChanges
         .pipe(takeUntil(this._unsubscribe), debounceTime(1000), distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)))
         .subscribe(value => {
