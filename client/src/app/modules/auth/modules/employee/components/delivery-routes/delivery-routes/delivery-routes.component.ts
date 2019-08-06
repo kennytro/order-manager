@@ -2,6 +2,9 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material';
 import { ActivatedRoute } from '@angular/router';
 import { MatPaginator, MatSort, MatTableDataSource} from '@angular/material';
+import { SelectionModel } from '@angular/cdk/collections';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { NewDeliveryRouteComponent } from '../new-delivery-route/new-delivery-route.component';
 import { DataApiService } from '../../../services/data-api.service';
@@ -13,14 +16,27 @@ import { DataApiService } from '../../../services/data-api.service';
 })
 export class DeliveryRoutesComponent implements OnInit {
   displayedColumns: string[] = ['id', 'name', 'description', 'driverName', 'driverPhone'];
+  selection: SelectionModel<any>;
+  deliveryRouteSelected: any;
+
   private _deliveryRoutes: MatTableDataSource<any>;
+  private _unsubscribe = new Subject<boolean>();
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
 
   constructor(private _route: ActivatedRoute,
     private _newDeliveryRouteDialog: MatDialog,
-    private _dataApi: DataApiService) { }
+    private _dataApi: DataApiService) {
+    this.selection = new SelectionModel(false, []);
+    this.selection.onChange
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((a) => {
+        if (a.added[0]) {
+          this.selectDeliveryRoute(a.added[0]);
+        }
+      });
+  }
 
   ngOnInit() {
     this._route.data.subscribe(routeData => {
@@ -28,6 +44,11 @@ export class DeliveryRoutesComponent implements OnInit {
         this._setTableDataSource(routeData['routes']);
       }
     });
+  }
+
+  ngOnDestroy() {
+    this._unsubscribe.next(true);
+    this._unsubscribe.unsubscribe();
   }
 
   applyFilter(filterValue: string) {
@@ -55,6 +76,10 @@ export class DeliveryRoutesComponent implements OnInit {
         this._setTableDataSource(deliveryRouteArray);
       }
     })
+  }
+
+  selectDeliveryRoute(row) {
+    this.deliveryRouteSelected = row;
   }
 
   private _setTableDataSource(routes: Array<any>) {
