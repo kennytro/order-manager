@@ -5,5 +5,19 @@
   <google-chart [data]="historyChart"></google-chart>
 </ng-template> -->
 <div *ngIf="instanceId">
-  <google-chart [data]="historyChart"></google-chart>
+  <div fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="center">
+    <div fxLayout="row wrap" fxLayoutGap="100px">
+      <div fxFlex="nogrow">
+        <mat-form-field style="width: 100px">
+          <mat-label>Day Range</mat-label>
+          <mat-select [formControl]="rangeSelection">
+            <mat-option *ngFor="let range of ranges" [value]="range.label">
+              {{range.label}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+    <google-chart [data]="historyChart"></google-chart>
+  </div>
 </div>
