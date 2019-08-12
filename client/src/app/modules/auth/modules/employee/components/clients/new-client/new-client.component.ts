@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialogRef, MatStepper, MatSnackBar } from '@angular/material';
 import { AbstractControl, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+
 import { DataApiService } from '../../../services/data-api.service';
 
 import reduce from 'lodash/reduce';
@@ -22,8 +25,11 @@ export class NewClientComponent implements OnInit {
   ];
   routeList = [];
   feeTypeList = ['Fixed', 'Rate'];      // TO DO: replace with real data  
+  feeScheduleList = ['Order', 'Statement'];
   clientFG: FormGroup;
   phoneMask: any[] = ['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/];
+
+  private _unsubscribe = new Subject<boolean>();
 
   constructor(
     private _dialogRef: MatDialogRef<NewClientComponent>,
@@ -62,10 +68,28 @@ export class NewClientComponent implements OnInit {
         this._formBuilder.group({
           deliveryRouteId: ['', Validators.required],
           feeType: ['', Validators.required],
-          feeValue: ['', Validators.required]
+          feeValue: ['', Validators.required],
+          feeSchedule: ['None']
         })
       ])
-    })
+    });
+    (<FormArray>this.clientFG.get('formArray')).at(2).get('feeType').valueChanges
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe(value => {
+          // fee schedule is only applicable with 'Fixed' fee.
+        if (value === 'Fixed') {
+          // set value to null to force user to select a schedule
+          (<FormArray>this.clientFG.get('formArray')).at(2).get('feeSchedule').setValue('');
+        } else {
+          // reset to 'None'
+          (<FormArray>this.clientFG.get('formArray')).at(2).get('feeSchedule').setValue('None');
+        }
+      });
+  }
+
+  ngOnDestroy() {
+    this._unsubscribe.next(true);
+    this._unsubscribe.unsubscribe();
   }
 
   /** Returns a FormArray with the name 'formArray'. */
@@ -77,10 +101,6 @@ export class NewClientComponent implements OnInit {
   }
   get orderFormGroup(): AbstractControl | null {
     return (<FormArray>this.clientFG.get('formArray')).at(2);
-  }
-
-  isReadyToSave(stepper: MatStepper): boolean {
-    return stepper.selectedIndex === 2 && this.orderFormGroup.get('feeTypeFC').value;
   }
 
   async create() {

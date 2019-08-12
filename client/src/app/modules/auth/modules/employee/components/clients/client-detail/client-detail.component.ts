@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material';
 import { FormControl, Validators } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { AlertService } from '../../../../../shared/services/alert.service';
 import { DataApiService } from '../../../services/data-api.service';
@@ -23,11 +25,14 @@ export class ClientDetailComponent implements OnInit {
   ];
   routeList = [];
   feeTypeList = ['Fixed', 'Rate'];      // TO DO: replace with real data
+  feeScheduleList = ['None', 'Order', 'Statement'];
   client: any;
   businessEmailFC = new FormControl('', [Validators.email]);
   personEmailFC = new FormControl('', [Validators.email]);
   personAltEmailFC = new FormControl('', [Validators.email]);
   phoneMask: any[] = ['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/];
+
+  private _unsubscribe = new Subject<boolean>();
 
   constructor(
     private _router: Router,
@@ -53,6 +58,11 @@ export class ClientDetailComponent implements OnInit {
     });
   }
 
+  ngOnDestroy() {
+    this._unsubscribe.next(true);
+    this._unsubscribe.unsubscribe();
+  }
+
   async save() {
     try {
       // preprocess values
@@ -60,7 +70,8 @@ export class ClientDetailComponent implements OnInit {
       this.client.contactPersonEmail = this.personEmailFC.value;
       this.client.contactPersonAltEmail = this.personAltEmailFC.value;
       await this._dataApi.upsert('Client', this.client).toPromise();
-      const snackBarRef = this._snackBar.open(`Client(id: ${this.client.id}) successfully saved`, 'Close');
+      const snackBarRef = this._snackBar.open(`Client(id: ${this.client.id}) successfully saved`, 'Close',
+        { duration: 3000 });
       snackBarRef.onAction().subscribe(() => {
         snackBarRef.dismiss();
       });

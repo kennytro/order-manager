@@ -154,3 +154,9 @@ p.thick {
 .fill-remaining-space {
   flex: 1 1 auto;
 }
+
+div.round-corners {
+  border-radius: 15px;
+  border: 1px solid #e6e6e6;
+  padding: 20px;
+}
