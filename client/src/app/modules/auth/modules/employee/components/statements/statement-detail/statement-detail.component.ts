@@ -77,6 +77,23 @@ export class StatementDetailComponent implements OnInit {
     return this.statement.userCreated.email;
   }
 
+  isFeeApplicable(): boolean {
+    return this.statement.client && this.statement.client.feeSchedule === 'Statement';
+  }
+
+  explainFee(): string {
+    let text = '';
+    if (this.statement.client) {
+      if (this.statement.client.feeType == 'Fixed') {
+        text = 'Fixed amount';
+      }
+      if (this.statement.client.feeType == 'Rate') {
+        text = `$${this.statement.subtotalAmount.toFixed(2)} x ${this.statement.client.feeValue}(%) = ${this.statement.feeAmount.toFixed(2)}`;
+      }
+    }
+    return text;
+  }
+
   editAdjustAmount() {
     const dialogConfig = new MatDialogConfig();
     dialogConfig.data = {
@@ -152,7 +169,7 @@ export class StatementDetailComponent implements OnInit {
   }
 
   private _updateTotalAmount() {
-    this.statement.totalAmount = Number(this.statement.subtotalAmount) + Number(this.statement.adjustAmount);
+    this.statement.totalAmount = Number(this.statement.subtotalAmount) + Number(this.statement.feeAmount) + Number(this.statement.adjustAmount);
   }
 
   private _updateForm() {
