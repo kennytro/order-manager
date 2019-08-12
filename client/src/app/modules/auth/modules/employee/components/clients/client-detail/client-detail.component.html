@@ -125,6 +125,9 @@
             <mat-option *ngFor="let route of routeList" [value]="route.id">{{route.id}} - {{route.name}}</mat-option>
           </mat-select>
         </mat-form-field>
+        <p style="color: orange">
+          <fa-icon icon="exclamation-circle"></fa-icon> Note: Fee setup change applies to future order/statement.
+        </p>
         <div fxLayout="row wrap" fxLayoutGap="20px" fxLayoutAlign="center space-between">
           <div fxFlex="1 0 100px">
             <mat-form-field appearance="outline">
