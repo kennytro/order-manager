@@ -15,7 +15,7 @@ import { DataApiService } from '../../../services/data-api.service';
 describe('OrderDetailComponent', () => {
   const testOrder = {
     id: '1000',
-    client: { id: '2000', name: 'testClient' },
+    client: { id: '2000', name: 'testClient', feeSchedule: 'Order', feeType: 'Fixed', feeValue: '20.00' },
     status: 'Submitted',
     subtotal: '100.00',
     fee: '5.00',
@@ -56,5 +56,8 @@ describe('OrderDetailComponent', () => {
   it('should get email', () => {
     expect(component.getEmailCreated()).toEqual(testOrder.userCreated.email, 'expected creator email');
     expect(component.getEmailUpdated()).toEqual(testOrder.userUpdated.email, 'expected updator email');
+  });
+  it('should get fee applicable', () => {
+    expect(component.isFeeApplicable()).toEqual(true, 'expected fee applicable');
   });
 });
