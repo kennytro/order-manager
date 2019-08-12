@@ -88,7 +88,7 @@ export class StatementDetailComponent implements OnInit {
         text = 'Fixed amount';
       }
       if (this.statement.client.feeType == 'Rate') {
-        text = `$${this.statement.subtotalAmount.toFixed(2)} x ${this.statement.client.feeValue}(%) = ${this.statement.feeAmount.toFixed(2)}`;
+        text = `$${this.statement.subtotalAmount} x ${this.statement.client.feeValue}(%) = ${this.statement.feeAmount}`;
       }
     }
     return text;

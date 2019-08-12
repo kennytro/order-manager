@@ -208,6 +208,26 @@ module.exports = {
 
     // add statement total amount
     summaryTable.table.body.push([
+      { colSpan: 3, fillColor: 'white', text: 'Subtotal', bold: true, alignment: 'right' },
+      '', '',
+      { text: formatCurrency(statement.subtotalAmount), fillColor: 'white', bold: true, alignment: 'right' }
+    ]);
+
+    if (statement.feeAmount > 0) {
+      summaryTable.table.body.push([
+        { colSpan: 3, fillColor: 'white', text: 'Fee', bold: true, alignment: 'right' },
+        '', '',
+        { text: formatCurrency(statement.feeAmount), fillColor: 'white', bold: true, alignment: 'right' }
+      ]);
+    }
+    if (statement.adjustAmount > 0) {
+      summaryTable.table.body.push([
+        { colSpan: 3, fillColor: 'white', text: 'Adjustment', bold: true, alignment: 'right' },
+        '', '',
+        { text: formatCurrency(statement.adjustAmount), fillColor: 'white', bold: true, alignment: 'right' }
+      ]);
+    }
+    summaryTable.table.body.push([
       { colSpan: 3, fillColor: 'white', text: 'Current Balance', bold: true, alignment: 'right' },
       '', '',
       { text: formatCurrency(statement.totalAmount), fillColor: 'white', bold: true, alignment: 'right' }
@@ -230,13 +250,13 @@ module.exports = {
       { text: 'DATE', style: 'tableHeader' },
       { text: 'ORDER #', style: 'tableHeader' },
       { text: 'ITEMS', style: 'tableHeader' },
-      { text: 'FEE', style: 'tableHeader' },
       { text: 'TOTAL', style: 'tableHeader' }
     ];
+
     docDefinition.content.push({ text: 'Account Activity Detail', bold: true, pageBreak: 'before' });
     let detailTable = {
       table: {
-        widths: ['auto', 'auto', '*', 'auto', 'auto'],
+        widths: ['auto', 'auto', '*', 'auto'],
         headerRows: 1,
         body: [detailTableHeader]
       }
@@ -261,7 +281,14 @@ module.exports = {
             return (rowIndex % 2 === 1) ? '#DCDCDC' : null;
           },
           hLineWidth: function(i, node) {
-            return (i === 1 || i === node.table.body.length - 1) ? 1 : 0;
+            if (i === 1) {
+              return 1;      // header row
+            }
+            // depending on fee schedule, summary row count varies.
+            if (client.feeSchedule === 'Order') {
+              return (i === node.table.body.length - 2) ? 1 : 0;
+            }
+            return (i === node.table.body.length - 1) ? 1 : 0;
           },
           vLineWidth: function() { return 0; }
         }
@@ -280,13 +307,19 @@ module.exports = {
         '', '',
         { text: formatCurrency(order.subtotal), fillColor: 'white', bold: true, alignment: 'right' }
       ]);
+      if (client.feeSchedule === 'Order') {
+        innerTable.table.body.push([
+          { colSpan: 3, fillColor: 'white', text: 'Fee', bold: true, alignment: 'right' },
+          '', '',
+          { text: formatCurrency(order.fee), fillColor: 'white', bold: true, alignment: 'right' }
+        ]);
+      }
 
       // complete outer table row
       return [
         moment(order.createdAt).format('MM/DD/YYYY'),
         order.id,
         innerTable,
-        { text: formatCurrency(order.fee), alignment: 'right' },
         { text: formatCurrency(order.totalAmount), alignment: 'right' }
       ];
     }));
@@ -351,11 +384,13 @@ module.exports = {
       '', '', '',
       { text: formatCurrency(order.subtotal), fillColor: 'white', bold: true, alignment: 'right' }
     ]);
-    itemTable.table.body.push([
-      { colSpan: 4, fillColor: 'white', text: 'Fee', bold: true, alignment: 'right' },
-      '', '', '',
-      { text: formatCurrency(order.fee), fillColor: 'white', bold: true, alignment: 'right' }
-    ]);
+    if (order.fee > 0) {
+      itemTable.table.body.push([
+        { colSpan: 4, fillColor: 'white', text: 'Fee', bold: true, alignment: 'right' },
+        '', '', '',
+        { text: formatCurrency(order.fee), fillColor: 'white', bold: true, alignment: 'right' }
+      ]);
+    }
     itemTable.table.body.push([
       { colSpan: 4, fillColor: 'white', text: 'Total', bold: true, alignment: 'right' },
       '', '', '',
