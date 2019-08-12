@@ -35,6 +35,13 @@
         "columnName": "subtotal_amount"
       }
     },
+    "feeAmount": {
+      "type": "number",
+      "default": 0,
+      "postgresql": {
+        "columnName": "fee_amount"
+      }
+    },
     "adjustAmount": {
       "type": "number",
       "postgresql": {

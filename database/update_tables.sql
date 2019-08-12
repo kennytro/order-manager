@@ -11,3 +11,4 @@ ALTER TABLE metric_data DROP COLUMN IF EXISTS group_by_key;
 ALTER TABLE metric ADD COLUMN IF NOT EXISTS ad_hoc bool DEFAULT false;
 ALTER TABLE metric ADD COLUMN IF NOT EXISTS filter_by_model_name text;
 ALTER TABLE client ADD COLUMN IF NOT EXISTS fee_schedule fee_schedule DEFAULT 'None';
+ALTER TABLE statement_t ADD COLUMN IF NOT EXISTS fee_amount numeric DEFAULT 0;

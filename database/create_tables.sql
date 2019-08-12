@@ -108,6 +108,7 @@ CREATE TABLE IF NOT EXISTS statement_t
   client_id integer REFERENCES client,
   statement_date date NOT NULL DEFAULT CURRENT_DATE, 
   subtotal_amount numeric DEFAULT 0,
+  fee_amount numeric DEFAULT 0,
   adjust_amount numeric DEFAULT 0,
   total_amount numeric DEFAULT 0,
   paid_amount numeric DEFAULT 0,
