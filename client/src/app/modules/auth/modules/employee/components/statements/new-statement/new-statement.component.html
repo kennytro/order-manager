@@ -88,7 +88,7 @@
               </div>
               <div *ngIf="isFeeApplicable()">
                 Fee: {{statement.feeAmount | currency}} <fa-icon icon="question-circle" matTooltip="{{explainFee()}}" matTooltipPosition="right">
-                </fa-icon>                  
+                </fa-icon>
               </div>
               <div>
                 Adjust: {{statement.adjustAmount | currency}} <a [routerLink]="" (click)="editAdjustAmount()"><fa-icon icon="edit"></fa-icon></a>

@@ -73,6 +73,23 @@ export class StatementDetailComponent implements OnInit {
       });    
   }
 
+  isFeeApplicable(): boolean {
+    return this.statement.client && this.statement.client.feeSchedule === 'Statement';
+  }
+
+  explainFee(): string {
+    let text = '';
+    if (this.statement.client) {
+      if (this.statement.client.feeType == 'Fixed') {
+        text = 'Fixed amount';
+      }
+      if (this.statement.client.feeType == 'Rate') {
+        text = `$${this.statement.subtotalAmount.toFixed(2)} x ${this.statement.client.feeValue}(%) = ${this.statement.feeAmount.toFixed(2)}`;
+      }
+    }
+    return text;
+  }
+
   close() {
     if (window.history.length > 1) {
       this._location.back();

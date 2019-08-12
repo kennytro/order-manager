@@ -63,7 +63,7 @@ const routes: Routes = [
             resolve: { statement: DataResolver },
             data: {
               modelName: 'Statement',
-              filter: { include: 'order' }
+              filter: { include: ['order', 'client'] }
             }
           }
         ]
