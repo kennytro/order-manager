@@ -62,6 +62,7 @@ CREATE TABLE IF NOT EXISTS client
   contact_person_alt_email text,
   fee_type fee_type DEFAULT 'Rate',
   fee_value numeric DEFAULT 0,
+  fee_schedule fee_schedule DEFAULT 'None',
   show_public bool DEFAULT false,
   delivery_route_id text REFERENCES delivery_route,
   created_date timestamptz DEFAULT now()
@@ -107,6 +108,7 @@ CREATE TABLE IF NOT EXISTS statement_t
   client_id integer REFERENCES client,
   statement_date date NOT NULL DEFAULT CURRENT_DATE, 
   subtotal_amount numeric DEFAULT 0,
+  fee_amount numeric DEFAULT 0,
   adjust_amount numeric DEFAULT 0,
   total_amount numeric DEFAULT 0,
   paid_amount numeric DEFAULT 0,

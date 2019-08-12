@@ -85,7 +85,10 @@ export class NewStatementComponent implements OnInit {
           this.clientList = clientsWithOrder.map(client => {
             return {
               id: client.id,
-              name: client.name
+              name: client.name,
+              feeSchedule: client.feeSchedule,
+              feeType: client.feeType,
+              feeValue: client.feeValue
             };
           });
         }
@@ -108,6 +111,23 @@ export class NewStatementComponent implements OnInit {
     this.isAllSelected() ?
       this.orderSelection.clear() :
       this.candidateOrders.data.forEach(row => this.orderSelection.select(row));
+  }
+
+  isFeeApplicable(): boolean {
+    return this.selectedClient && this.selectedClient.feeSchedule === 'Statement';
+  }
+
+  explainFee(): string {
+    let text = '';
+    if (this.isFeeApplicable()) {
+      if (this.selectedClient.feeType == 'Fixed') {
+        text = 'Fixed amount';
+      }
+      if (this.selectedClient.feeType == 'Rate') {
+        text = `$${this.statement.subtotalAmount.toFixed(2)} x ${this.selectedClient.feeValue}(%) = ${this.statement.feeAmount.toFixed(2)}`;
+      }
+    }
+    return text;
   }
 
   editAdjustAmount() {
@@ -152,6 +172,7 @@ export class NewStatementComponent implements OnInit {
     this.statement = {
       clientId: null,
       subtotalAmount: 0,
+      feeAmount: 0,
       adjustAmount: 0,
       totalAmount: 0,
       paidAmount: 0,
@@ -160,13 +181,27 @@ export class NewStatementComponent implements OnInit {
     };
   }
 
+  private _calculateFee(subtotal: number): number {
+    let newFee = 0;
+    if (this.isFeeApplicable()) {
+      if (this.selectedClient.feeType == 'Fixed') {
+        newFee = Number(this.selectedClient.feeValue);
+      }
+      if (this.selectedClient.feeType == 'Rate') {
+        newFee = subtotal * this.selectedClient.feeValue / 100.0;
+      }
+    }
+    return newFee;
+  }
+
   private _updateTotalAmount() {
     let newSubtotal = 0;
     this.orderSelection.selected.forEach(selected => {
       newSubtotal += Number(selected.totalAmount);
     });
     this.statement.subtotalAmount = newSubtotal;
-    this.statement.totalAmount = this.statement.subtotalAmount + this.statement.adjustAmount;
+    this.statement.feeAmount = this._calculateFee(newSubtotal);
+    this.statement.totalAmount = this.statement.subtotalAmount + this.statement.feeAmount + this.statement.adjustAmount;
   }
 
   private async _updateOrderList() {

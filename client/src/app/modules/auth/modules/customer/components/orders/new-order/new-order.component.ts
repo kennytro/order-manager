@@ -93,13 +93,19 @@ export class NewOrderComponent implements OnInit {
     return new MatTableDataSource([]);
   }
 
+  /* Fee is applicable only if fee schedule is 'Order'.
+   */ 
+  isFeeApplicable(): boolean {
+    return this._client && this._client.feeSchedule === 'Order';
+  }
+
   explainFee(): string {
     let text = '';
     if (this._client) {
-      if (this._client.feeType == 'Fixed') {
+      if (this._client.feeType === 'Fixed') {
         text = 'Fixed amount';
       }
-      if (this._client.feeType == 'Rate') {
+      if (this._client.feeType === 'Rate') {
         text = `$${this.order.subtotal.toFixed(2)} x ${this._client.feeValue}(%) = ${this.order.fee.toFixed(2)}`;
       }
     }
@@ -169,11 +175,11 @@ export class NewOrderComponent implements OnInit {
 
   private _calculateFee(subtotal: number): number {
     let newFee = 0;
-    if (this._client) {
-      if (this._client.feeType == 'Fixed') {
+    if (this.isFeeApplicable()) {
+      if (this._client.feeType === 'Fixed') {
         newFee = Number(this._client.feeValue);
       }
-      if (this._client.feeType == 'Rate') {
+      if (this._client.feeType === 'Rate') {
         newFee = subtotal * this._client.feeValue / 100.0;
       }
     }

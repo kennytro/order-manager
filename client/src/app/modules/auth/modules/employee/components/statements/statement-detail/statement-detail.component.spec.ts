@@ -30,12 +30,13 @@ describe('StatementDetailComponent', () => {
       id: '1000',
       statementDate: '1/1/2019',
       totalAmount: '1000.00',
+      feeAmount: '20.00',
       adjustAmount: '0.00',
       adjustReason: '',
       note: '',
       order: [],
-      client: { id: '1000', name: 'testClient' },
-      userCreated: { id: '1000', email: 'kenny@etr.com' }      
+      client: { id: '1000', name: 'testClient', feeSchedule: 'Statement', feeType: 'Fixed', feeValue: '20.00' },
+      userCreated: { id: '1000', email: 'kenny@etr.com' }
     };
     const testStmtInfo = {
       statement: testStatment,
@@ -77,5 +78,8 @@ describe('StatementDetailComponent', () => {
   });
   it('should get creator user email', () => {
     expect(component.getEmailCreated()).toEqual('kenny@etr.com');
+  });
+  it('should get fee applicable', () => {
+    expect(component.isFeeApplicable()).toEqual(true, 'expected fee applicable');
   });
 });

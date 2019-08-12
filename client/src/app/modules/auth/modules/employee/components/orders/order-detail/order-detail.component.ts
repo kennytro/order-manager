@@ -73,6 +73,11 @@ export class OrderDetailComponent implements OnInit {
     this._unsubscribe.unsubscribe();
   }  
 
+  /* Fee is applicable only if fee schedule is 'Order'. */ 
+  isFeeApplicable(): boolean {
+    return this.order.client && this.order.client.feeSchedule === 'Order';
+  }
+
   explainFee(): string {
     let text = '';
     if (this.order.client) {
@@ -204,7 +209,7 @@ export class OrderDetailComponent implements OnInit {
 
   private _calculateFee(subtotal: number): number {
     let newFee = 0;
-    if (this.order.client) {
+    if (this.isFeeApplicable()) {
       if (this.order.client.feeType == 'Fixed') {
         newFee = Number(this.order.client.feeValue);
       }

@@ -24,7 +24,7 @@ export class StatementResolver implements Resolve<any> {
             { 
               relation: 'client',
               scope: {
-                fields: ['id', 'name']
+                fields: ['id', 'name', 'feeSchedule', 'feeType', 'feeValue']
               }
             },
             { 

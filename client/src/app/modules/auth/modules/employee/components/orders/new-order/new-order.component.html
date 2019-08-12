@@ -81,7 +81,7 @@
               <div>
                 Subtotal: {{order.subtotal | currency}}
               </div>
-              <div>
+              <div *ngIf="isFeeApplicable()">
                 Fee: {{order.fee | currency}} <fa-icon icon="question-circle" matTooltip="{{explainFee()}}" matTooltipPosition="right">
                 </fa-icon>                  
               </div>
@@ -155,7 +155,7 @@
               <div>
                 Subtotal: {{order.subtotal | currency}}
               </div>
-              <div>
+              <div *ngIf="isFeeApplicable()">
                 Fee: {{order.fee | currency}} <fa-icon icon="question-circle" matTooltip="{{explainFee()}}" matTooltipPosition="right">
                 </fa-icon>                  
               </div>

@@ -94,6 +94,14 @@
         "columnName": "fee_value"
       }
     },
+    "feeSchedule": {
+      "type": "string",
+      "default": "None",
+      "description": "Applicable only if feeType is 'Fixed'. Schedule determines when fee is added to totalAmount. One of 'None', 'Order' or 'Statement'",
+      "postgresql": {
+        "columnName": "fee_schedule"
+      }
+    },
     "showPublic": {
       "type": "boolean",
       "postgresql": {

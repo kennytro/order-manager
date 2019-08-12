@@ -86,6 +86,10 @@
               <div>
                 Subtotal: {{statement.subtotalAmount | currency}}
               </div>
+              <div *ngIf="isFeeApplicable()">
+                Fee: {{statement.feeAmount | currency}} <fa-icon icon="question-circle" matTooltip="{{explainFee()}}" matTooltipPosition="right">
+                </fa-icon>
+              </div>
               <div>
                 Adjust: {{statement.adjustAmount | currency}} <a [routerLink]="" (click)="editAdjustAmount()"><fa-icon icon="edit"></fa-icon></a>
               </div>
@@ -149,6 +153,10 @@
             <div fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="center">
               <div>
                 Subtotal: {{statement.subtotalAmount | currency}}
+              </div>
+              <div *ngIf="isFeeApplicable()">
+                Fee: {{statement.feeAmount | currency}} <fa-icon icon="question-circle" matTooltip="{{explainFee()}}" matTooltipPosition="right">
+                </fa-icon>                  
               </div>
               <div>
                 Adjust: {{statement.adjustAmount | currency}}

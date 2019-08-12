@@ -61,6 +61,7 @@ export class NewOrderComponent implements OnInit {
           return {
             id: client.id,
             name: client.name,
+            feeSchedule: client.feeSchedule,
             feeType: client.feeType,
             feeValue: client.feeValue
           };
@@ -93,6 +94,11 @@ export class NewOrderComponent implements OnInit {
       return new MatTableDataSource(rows.filter(row => row.quantity.value > 0));
     }
     return new MatTableDataSource([]);
+  }
+
+  /* Fee is applicable only if fee schedule is 'Order'. */ 
+  isFeeApplicable(): boolean {
+    return this.selectedClient && this.selectedClient.feeSchedule === 'Order';
   }
 
   explainFee(): string {
@@ -171,7 +177,7 @@ export class NewOrderComponent implements OnInit {
 
   private _calculateFee(subtotal: number): number {
     let newFee = 0;
-    if (this.selectedClient) {
+    if (this.isFeeApplicable()) {
       if (this.selectedClient.feeType == 'Fixed') {
         newFee = Number(this.selectedClient.feeValue);
       }

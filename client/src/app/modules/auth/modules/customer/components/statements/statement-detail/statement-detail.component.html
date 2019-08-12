@@ -46,6 +46,10 @@
         <div>
           Subtotal: {{statement.subtotalAmount | currency}}
         </div>
+        <div *ngIf="isFeeApplicable()">
+          Fee: {{statement.feeAmount | currency}} <fa-icon icon="question-circle" matTooltip="{{explainFee()}}" matTooltipPosition="right">
+          </fa-icon>
+        </div>
         <div *ngIf="statement.adjustAmount!='0'">
           Adjust: {{statement.adjustAmount | currency}}
         </div>

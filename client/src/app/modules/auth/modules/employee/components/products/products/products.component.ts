@@ -94,7 +94,7 @@ export class ProductsComponent implements OnInit {
         .subscribe(value => {
           product.unitPrice = value;
           this._updateUnitPrice(product);
-        })
+        });
     });
     this._products = new MatTableDataSource(products);
     this._products.paginator = this.paginator;
