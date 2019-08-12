@@ -25,7 +25,7 @@ export class NewClientComponent implements OnInit {
   ];
   routeList = [];
   feeTypeList = ['Fixed', 'Rate'];      // TO DO: replace with real data  
-  feeScheduleList = ['Order', 'Statement'];
+  feeScheduleList = ['None', 'Order', 'Statement'];
   clientFG: FormGroup;
   phoneMask: any[] = ['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/];
 
@@ -67,24 +67,36 @@ export class NewClientComponent implements OnInit {
         }),
         this._formBuilder.group({
           deliveryRouteId: ['', Validators.required],
+          feeSchedule: ['', Validators.required],
           feeType: ['', Validators.required],
-          feeValue: ['', Validators.required],
-          feeSchedule: ['None']
+          feeValue: ['', Validators.required]
         })
       ])
     });
-    (<FormArray>this.clientFG.get('formArray')).at(2).get('feeType').valueChanges
+    // For 'None' fee schedule, disable other fee fields
+    (<FormArray>this.clientFG.get('formArray')).at(2).get('feeSchedule').valueChanges
       .pipe(takeUntil(this._unsubscribe))
       .subscribe(value => {
-          // fee schedule is only applicable with 'Fixed' fee.
-        if (value === 'Fixed') {
-          // set value to null to force user to select a schedule
-          (<FormArray>this.clientFG.get('formArray')).at(2).get('feeSchedule').setValue('');
+        if (value === 'None') {
+          (<FormArray>this.clientFG.get('formArray')).at(2).get('feeType').reset({ value: 'Fixed', disabled: true });
+          (<FormArray>this.clientFG.get('formArray')).at(2).get('feeValue').reset({ value: '0.00', disabled: true });
         } else {
-          // reset to 'None'
-          (<FormArray>this.clientFG.get('formArray')).at(2).get('feeSchedule').setValue('None');
+          (<FormArray>this.clientFG.get('formArray')).at(2).get('feeType').reset({ value: '', disabled: false });
+          (<FormArray>this.clientFG.get('formArray')).at(2).get('feeValue').reset({ value: '0', disabled: false });
         }
-      });
+      });    
+    // (<FormArray>this.clientFG.get('formArray')).at(2).get('feeType').valueChanges
+    //   .pipe(takeUntil(this._unsubscribe))
+    //   .subscribe(value => {
+    //       // fee schedule is only applicable with 'Fixed' fee.
+    //     if (value === 'Fixed') {
+    //       // set value to null to force user to select a schedule
+    //       (<FormArray>this.clientFG.get('formArray')).at(2).get('feeSchedule').setValue('');
+    //     } else {
+    //       // reset to 'None'
+    //       (<FormArray>this.clientFG.get('formArray')).at(2).get('feeSchedule').setValue('None');
+    //     }
+    //   });
   }
 
   ngOnDestroy() {

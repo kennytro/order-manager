@@ -63,6 +63,23 @@ export class ClientDetailComponent implements OnInit {
     this._unsubscribe.unsubscribe();
   }
 
+  onFeeScheduleChange(newValue) {
+    if (this.client) {
+      if (newValue === 'None') {
+        this.client.feeType = 'Fixed';
+        this.client.feeValue = '0.00';
+      } else {
+        this.client.feeType = '';
+        this.client.feeValue = '0';
+      }
+    }
+  }
+
+  invalid(): boolean {
+    // TO DO: use form group 'invalid' in HTML
+    return !this.client || !this.client.name || !this.client.feeType;
+  }
+
   async save() {
     try {
       // preprocess values

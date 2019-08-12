@@ -119,44 +119,40 @@
       </mat-step>
       <mat-step formGroupName="2" [stepControl]="orderFormGroup" [completed]="false">
         <ng-template matStepLabel><fa-icon icon="shopping-cart"></fa-icon> Order processing detail</ng-template>
-        <div fxLayout="row wrap" fxLayoutGap="20px" fxLayoutAlign="space-between stretch">
-          <div fxFlex="3 0 300px">
+        <mat-form-field appearance="outline">
+          <mat-label>Delivery Route</mat-label>
+          <mat-select placeholder="Select route" formControlName="deliveryRouteId" required>
+            <mat-option *ngFor="let route of routeList" [value]="route.id">{{route.id}} - {{route.name}}</mat-option>
+          </mat-select>
+          <mat-error>This field is required</mat-error>
+        </mat-form-field>
+        <div fxLayout="row wrap" fxLayoutGap="20px" fxLayoutAlign="center space-between">
+          <div fxFlex="1 0 100px">
             <mat-form-field appearance="outline">
-              <mat-label>Delivery Route</mat-label>
-              <mat-select placeholder="Select route" formControlName="deliveryRouteId" required>
-                <mat-option *ngFor="let route of routeList" [value]="route.id">{{route.id}} - {{route.name}}</mat-option>
+              <mat-label>Fee Schedule</mat-label>
+              <mat-select placeholder="Select fee schedule" matTooltip="Select when fee should be added." formControlName="feeSchedule" required>
+                <mat-option *ngFor="let feeSchedule of feeScheduleList" [value]="feeSchedule">{{ feeSchedule }}</mat-option>
               </mat-select>
               <mat-error>This field is required</mat-error>
             </mat-form-field>
           </div>
-          <div fxLayout="row wrap" fxLayoutGap="10px" fxLayoutAlign="space-between stretch">
-            <div fxFlex="1 0 100px">
-              <mat-form-field appearance="outline">
-                <mat-label>Fee Type</mat-label>
-                <mat-select placeholder="Select fee type" formControlName="feeType" required>
-                  <mat-option *ngFor="let feeType of feeTypeList" [value]="feeType">{{ feeType }}</mat-option>
-                </mat-select>
-                <mat-error>This field is required</mat-error>
-              </mat-form-field>
-            </div>
-            <div fxFlex="1 0 100px">
-              <mat-form-field appearance="outline">
-                <mat-label>Fee Value</mat-label>
-                <input matInput type="number" class="right" placeholder="Fee value" formControlName="feeValue">
-                <span matPrefix *ngIf="orderFormGroup.get('feeType').value==='Fixed'">$&nbsp;</span>
-                <span matSuffix *ngIf="orderFormGroup.get('feeType').value==='Rate'">%&nbsp;</span>
-                <mat-error>This field is required</mat-error>                
-              </mat-form-field>
-            </div>
-            <div fxFlex="1 0 100px" [hidden]="orderFormGroup.get('feeType').value!=='Fixed'">
-              <mat-form-field appearance="outline">
-                <mat-label>Fee Schedule</mat-label>
-                <mat-select placeholder="Select fee schedule" matTooltip="For 'Fixed' fee, you must select when it should be added." formControlName="feeSchedule" required>
-                  <mat-option *ngFor="let feeSchedule of feeScheduleList" [value]="feeSchedule">{{ feeSchedule }}</mat-option>
-                </mat-select>
-                <mat-error>This field is required</mat-error>
-              </mat-form-field>
-            </div>
+          <div fxFlex="1 0 100px">
+            <mat-form-field appearance="outline">
+              <mat-label>Fee Type</mat-label>
+              <mat-select placeholder="Select fee type" formControlName="feeType" required>
+                <mat-option *ngFor="let feeType of feeTypeList" [value]="feeType">{{ feeType }}</mat-option>
+              </mat-select>
+              <mat-error>This field is required</mat-error>
+            </mat-form-field>
+          </div>
+          <div fxFlex="1 0 100px">
+            <mat-form-field appearance="outline">
+              <mat-label>Fee Value</mat-label>
+              <input matInput type="number" class="right" placeholder="Fee value" formControlName="feeValue">
+              <span matPrefix *ngIf="orderFormGroup.get('feeType').value==='Fixed'">$&nbsp;</span>
+              <span matSuffix *ngIf="orderFormGroup.get('feeType').value==='Rate'">%&nbsp;</span>
+              <mat-error>This field is required</mat-error>
+            </mat-form-field>
           </div>
         </div>
         <div fxLayout="row" fxLayoutAlign="end" fxLayoutGap="20px">
