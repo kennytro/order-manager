@@ -19,6 +19,9 @@
         "columnName": "message_type"
       }
     },
+    "subject": {
+      "type": "string"
+    },    
     "body": {
       "type": "string"
     },
