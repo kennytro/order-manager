@@ -24,6 +24,7 @@ import { DeliveryRoutesComponent } from './components/delivery-routes/delivery-r
 import { DeliveryRouteDetailComponent } from './components/delivery-routes/delivery-route-detail/delivery-route-detail.component';
 import { ProductsComponent } from './components/products/products/products.component';
 import { ProductDetailComponent } from './components/products/product-detail/product-detail.component';
+import { MessagesComponent } from '../../shared/components/messages/messages/messages.component';
 
 import { DataResolver } from './services/data.resolver';
 import { DataArrayResolver } from './services/data-array.resolver';
@@ -284,6 +285,15 @@ const routes: Routes = [
             component: DeliveryRoutesComponent,
             resolve: { routes: DataArrayResolver },
             data: { arrayModelName: 'DeliveryRoute' }
+          }
+        ]
+      },
+      {
+        path: 'messages',
+        children: [
+          {
+            path: '',
+            component: MessagesComponent
           }
         ]
       }

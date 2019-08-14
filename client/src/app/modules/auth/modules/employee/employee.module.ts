@@ -59,7 +59,7 @@ import { PhoneNumberPipe } from '../../shared/pipes/phone-number.pipe';
 
 // Misc.
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV,
+import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV, faBell,
         faCaretDown, faCaretUp, faCartPlus, faChartLine, faCheckCircle, faCog,
         faEdit, faExclamationCircle,
         faFileAlt, faFileInvoice, faFileInvoiceDollar, faFilePdf, faFolderOpen, faKey,
@@ -115,7 +115,7 @@ import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV,
 })
 export class EmployeeModule {
   constructor() {
-    library.add(faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV,
+    library.add(faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV, faBell,
       faCaretDown, faCaretUp, faCartPlus, faChartLine, faCheckCircle, faCog,
       faEdit, faExclamationCircle,
       faFileAlt, faFileInvoice, faFileInvoiceDollar, faFilePdf, faFolderOpen, faKey,

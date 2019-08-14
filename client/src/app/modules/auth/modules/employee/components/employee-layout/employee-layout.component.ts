@@ -17,6 +17,7 @@ import { DataApiService } from '../../services/data-api.service';
   styleUrls: ['./employee-layout.component.css']
 })
 export class EmployeeLayoutComponent implements OnInit {
+  unreadMsgCount: string = '0';      // fa-layer-count [content] is a string.
   private _companyLogo: string;
   private _companyName: string;
   constructor(private _auth: AuthService,
