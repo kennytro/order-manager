@@ -14,6 +14,7 @@ require('dotenv').config();
 const logger = require(appRoot + '/config/winston.js');
 const tenantSettings = require(appRoot + '/config/tenant');
 const getPublicContent = require('./middleware/public-content');
+const submitInquiry = require('./middleware/inquiry');
 const checkJwt = require('./middleware/check-jwt');
 
 const app = module.exports = loopback();
@@ -97,6 +98,11 @@ app.get('/tenant', function(req, res, next) {
 // Getting public page content bypasses authentication.
 app.get('/public/:name', function(req, res, next) {
   getPublicContent(app, req, res, next);
+});
+
+// Post inquiry messsage
+app.post('/inquiry', function(req, res, next) {
+  submitInquiry(app, req, res, next);
 });
 
 // check JWT access token for all request hitting '/api'

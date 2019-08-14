@@ -76,6 +76,10 @@
     "dataSource": "OrderManager",
     "public": false
   },
+  "Message": {
+    "dataSource": "OrderManager",
+    "public": false
+  },
   "Metric": {
     "dataSource": "OrderManager",
     "public": false    

@@ -7,5 +7,6 @@ module.exports = {
   domainId: process.env.AUTH0_DOMAIN_ID,
   audience: process.env.AUTH0_AUDIENCE,
   timeZone: process.env.TZ || 'America/Los_Angeles',
-  companyName: process.env.COMPANY_NAME || 'Order Manager'
+  companyName: process.env.COMPANY_NAME || 'Order Manager',
+  reCAPTCHASiteKey: process.env.RECAPTCHA_SITE_KEY || '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
 };

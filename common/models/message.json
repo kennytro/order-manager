@@ -1,0 +1,63 @@
+{
+  "name": "Message",
+  "plural": "Messages",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true,
+    "postgresql": {
+      "schema": "public",
+      "table": "message"
+    }
+  },
+  "properties": {
+    "messageType": {
+      "type": "string",
+      "default": "Message",
+      "description": "One of 'Message', 'Alert' or 'Announcement'",
+      "postgresql": {
+        "columnName": "message_type"
+      }
+    },
+    "body": {
+      "type": "string"
+    },
+    "fromUser": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "from_user"
+      }
+    },
+    "toUser": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "to_user"
+      }
+    },
+    "createdAt": {
+      "type": "date",
+      "postgresql": {
+        "dataType": "timestamptz",
+        "columnName": "created_at"
+      }
+    },
+    "updatedAt": {
+      "type": "date",
+      "postgresql": {
+        "dataType": "timestamptz",
+        "columnName": "upated_at"
+      }
+    },
+    "expiresAt": {
+      "type": "date",
+      "postgresql": {
+        "dataType": "timestamptz",
+        "columnName": "expires_at"
+      }
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}  
+}
