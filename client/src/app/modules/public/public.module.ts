@@ -5,6 +5,7 @@ import { MatButtonModule, MatFormFieldModule, MatInputModule, MatSnackBarModule 
 import { ReactiveFormsModule } from '@angular/forms';
 import { RecaptchaModule, RecaptchaFormsModule } from 'ng-recaptcha';
 import { TextMaskModule } from 'angular2-text-mask';
+import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { PublicRoutingModule } from './public-routing.module';
 import { LoginComponent } from './components/login/login.component';
@@ -44,6 +45,7 @@ import { SafePipe } from './pipes/safe.pipe';
     ReactiveFormsModule,
     RecaptchaModule, RecaptchaFormsModule,
     TextMaskModule,
+    FlexLayoutModule,
     CommonModule,
     FontAwesomeModule,
     PublicRoutingModule
