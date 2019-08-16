@@ -1,0 +1,49 @@
+{
+  "name": "MessageRead",
+  "plural": "MessageRead",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true,
+    "postgresql": {
+      "schema": "public",
+      "table": "message_read"
+    }
+  },
+  "properties": {
+    "endUserId": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "end_user_id"
+      }
+    },
+    "messageId": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "message_id"
+      }
+    },
+    "lastRead": {
+      "type": "date",
+      "postgresql": {
+        "dataType": "timestamptz",
+        "columnName": "last_read"
+      }
+    }
+  },
+  "validations": [],
+  "relations": {
+    "message": {
+      "type": "belongsTo",
+      "model": "Message"
+    },
+    "endUser": {
+      "type": "hasOne",
+      "model": "EndUser",
+      "foreignKey": "id",
+      "primaryKey": "endUserId"
+    }
+  },
+  "acls": [],
+  "methods": {}  
+}

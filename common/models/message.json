@@ -60,7 +60,13 @@
     }
   },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "messageRead": {
+      "type": "hasMany",
+      "model": "MessageRead",
+      "foreignKey": "messageId"
+    }
+  },
   "acls": [],
   "methods": {}  
 }

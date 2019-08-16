@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog, MatSnackBar } from '@angular/material';
-import { take } from 'rxjs/operators';
+import { Subject, timer, of, Observable, Subscription } from 'rxjs';
+import { take, takeUntil, catchError } from 'rxjs/operators';
 
 import { SettingsComponent } from './settings/settings.component';
 import { ConfirmDialogComponent, DialogData } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -18,8 +19,14 @@ import { DataApiService } from '../../services/data-api.service';
 })
 export class EmployeeLayoutComponent implements OnInit {
   unreadMsgCount: string = '0';      // fa-layer-count [content] is a string.
+  private _unreadMsgCountTimerMaxPeriod: number = 60000;
+  private _unreadMsgCountTimerPeriod: number;
+  private _unreadMsgCountTimerSubscription: Subscription;
+
   private _companyLogo: string;
   private _companyName: string;
+  private _unsubscribe = new Subject<boolean>();  
+
   constructor(private _auth: AuthService,
     private _dataShare: RootScopeShareService,
     private _settingsDialog: MatDialog,
@@ -31,6 +38,13 @@ export class EmployeeLayoutComponent implements OnInit {
     const tenant = this._dataShare.getData('tenant');
     this._companyLogo = AWS_S3_PUBLIC_URL + tenant.id + '/favicon.png';   
     this._companyName = tenant.companyName;
+    this._unreadMsgCountTimerPeriod = 10000;    // initially 10 seconds.
+    this._setTimerForUnreadMessageCount(100, this._unreadMsgCountTimerPeriod);
+  }  
+
+  ngOnDestroy() {
+    this._unsubscribe.next(true);
+    this._unsubscribe.unsubscribe();
   }
 
   settings() {
@@ -102,4 +116,39 @@ export class EmployeeLayoutComponent implements OnInit {
   getUserPicture() {
     return this._auth.getUserProfile().pictureUrl;
   }  
+
+  private _setTimerForUnreadMessageCount(initDelay: number, period: number) {
+    if (this._unreadMsgCountTimerSubscription) {
+      this._unreadMsgCountTimerSubscription.unsubscribe();
+    }
+    this._unreadMsgCountTimerSubscription = timer(initDelay, period)
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe(() => {
+        this._updateUnreadMessageCount();
+      });
+  }
+
+  private _updateUnreadMessageCount() {
+    this._dataApi.genericMethod('Message', 'countUnread')
+      .pipe(take(1), catchError(err => {
+        console.error(`Cannot count unread message - ${err}`);
+        return of(-1);
+      }))
+      .subscribe(count => {
+        if (count < 0) {
+          // server is not healthy. increase update period unto 1 min.
+          if (this._unreadMsgCountTimerPeriod < this._unreadMsgCountTimerMaxPeriod) {
+            this._unreadMsgCountTimerPeriod += 10000;  // increase update period by 10 sec.
+            this._setTimerForUnreadMessageCount(this._unreadMsgCountTimerPeriod, this._unreadMsgCountTimerPeriod);          
+          }          
+        } else {
+          this.unreadMsgCount = count.toString();
+          if (this._unreadMsgCountTimerPeriod > 10000) {
+            // server is back. reset the period to 10 seconds.
+            this._unreadMsgCountTimerPeriod = 10000;
+            this._setTimerForUnreadMessageCount(this._unreadMsgCountTimerPeriod, this._unreadMsgCountTimerPeriod);
+          }
+        }
+      });
+  }
 }

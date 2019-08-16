@@ -195,8 +195,9 @@ CREATE TABLE IF NOT EXISTS message
 
 CREATE TABLE IF NOT EXISTS message_read
 (
+  id integer PRIMARY KEY DEFAULT nextval('generic_id_seq'),
   end_user_id integer REFERENCES end_user,
   message_id integer REFERENCES message,
-  last_read timestamptz,
+  last_read timestamptz DEFAULT now(),
   UNIQUE(end_user_id, message_id)
 );
