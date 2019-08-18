@@ -39,7 +39,7 @@ import { StatementDetailComponent } from './components/statements/statement-deta
 import { HistoryGraphComponent } from './components/charts/history-graph/history-graph.component';
 import { RankGraphComponent } from './components/charts/rank-graph/rank-graph.component';
 import { MessagesComponent } from './components/messages/messages/messages.component';
-
+import { MessageDetailComponent } from './components/messages/message-detail/message-detail.component';
 
 // Services
 import { DataResolver } from './services/data.resolver';
@@ -63,7 +63,7 @@ import { PhoneNumberPipe } from '../../shared/pipes/phone-number.pipe';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV, faBell,
         faCaretDown, faCaretUp, faCartPlus, faChartLine, faCheckCircle, faCog,
-        faEdit, faEnvelopeOpen, faExclamationCircle,
+        faEdit, faEnvelope, faEnvelopeOpen, faExclamationCircle,
         faFileAlt, faFileInvoice, faFileInvoiceDollar, faFilePdf, faFolderOpen, faKey,
         faLongArrowAltLeft, faLongArrowAltRight, faPlus, faQuestionCircle,
         faSearchDollar, faShoppingCart, faSignOutAlt, faStoreAlt,
@@ -85,7 +85,8 @@ import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV, faBell,
     PhoneNumberPipe,
     HistoryGraphComponent,
     RankGraphComponent,
-    MessagesComponent
+    MessagesComponent,
+    MessageDetailComponent
   ],
   imports: [
     AuthSharedModule,
@@ -108,19 +109,20 @@ import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV, faBell,
     PdfService
   ],
   entryComponents: [
-    SettingsComponent,
+    EditAdjustComponent,
+    MessageDetailComponent,    
     NewClientComponent,
-    NewUserComponent,
     NewDeliveryRouteComponent,
     NewProductComponent,
-    EditAdjustComponent
+    NewUserComponent,
+    SettingsComponent
   ]
 })
 export class EmployeeModule {
   constructor() {
     library.add(faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV, faBell,
       faCaretDown, faCaretUp, faCartPlus, faChartLine, faCheckCircle, faCog,
-      faEdit, faEnvelopeOpen, faExclamationCircle,
+      faEdit, faEnvelope, faEnvelopeOpen, faExclamationCircle,
       faFileAlt, faFileInvoice, faFileInvoiceDollar, faFilePdf, faFolderOpen, faKey,
       faLongArrowAltLeft, faLongArrowAltRight, faPlus, faQuestionCircle,
       faSearchDollar, faShoppingCart, faSignOutAlt, faStoreAlt,

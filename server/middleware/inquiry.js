@@ -106,10 +106,11 @@ module.exports = async function(app, req, res, next) {
   }
   try {
     await verifyReCAPTCHA(body.verifyToken, process.env.RECAPTCHA_SECRET);
+    let messageBody = formatInquiryBody(body.message);
     await app.models.Message.create({
       messageType: 'Inquiry',
-      subject: 'Prospect client inquiry',
-      body: formatInquiryBody(body.message),
+      subject: `Inquiry from ${messageBody['FIRST NAME']} ${messageBody['LAST NAME']}`,
+      body: messageBody,
       fromUser: 'Web',
       toUser: 'admin'
     });

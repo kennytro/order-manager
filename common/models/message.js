@@ -61,11 +61,11 @@ module.exports = function(Message) {
   };
 
   /**
-   * @param {String} - message ID
+   * @param {String[]} - array of message ID
    * @param {Object} metadata - must contain 'endUserId'.
    */
-  Message.markAsRead = async function(messageId, metadata) {
-    if (!messageId) {
+  Message.markAsRead = async function(messageIds, metadata) {
+    if (!messageIds || _.isEmpty(messageIds)) {
       throw new HttpErrors(400, 'cannot mark message as read - message id is missing');
     }
 
@@ -77,29 +77,55 @@ module.exports = function(Message) {
       throw new HttpErrors(400, `cannot mark message as read - user(id: ${metadata.endUserId}) is not found.`);
     }
 
-    try {
-      let message = await Message.findById(messageId);
-      if (message) {
-        let messageRead = await app.models.MessageRead.findOne({
-          where: {
-            endUserId: endUser.id,
-            messageId: messageId
-          }
-        });
-        let now = moment().toDate();
-        if (messageRead) {
-          await messageRead.updateAttribute('lastRead', now);
-        } else {
-          await app.models.MessageRead.create({
-            endUserId: endUser.id,
-            messageId: messageId,
-            lastRead: now
+    await Promise.map(messageIds, async (messageId) => {
+      try {
+        let message = await Message.findById(messageId);
+        if (message) {
+          let messageRead = await app.models.MessageRead.findOne({
+            where: {
+              endUserId: endUser.id,
+              messageId: messageId
+            }
           });
+          let now = moment().toDate();
+          if (messageRead) {
+            await messageRead.updateAttribute('lastRead', now);
+          } else {
+            await app.models.MessageRead.create({
+              endUserId: endUser.id,
+              messageId: messageId,
+              lastRead: now
+            });
+          }
+          debugMessage(`Marked message(id: ${messageId}) as read by user(id: ${endUser.id})`);
         }
-        debugMessage(`Marked message(id: ${messageId}) as read by user(id: ${endUser.id})`);
+      } catch (error) {
+        logger.error(`cannot mark message(id: ${messageId}) as read - ${error.message}`);
       }
+    });
+  };
+
+  /**
+   * @param {String[]} - array of message ID
+   * @param {Object} metadata - must contain 'endUserId'.
+   */
+  Message.deleteMessages = async function(messageIds, metadata) {
+    if (!messageIds || _.isEmpty(messageIds)) {
+      throw new HttpErrors(400, 'cannot delete message - message id is missing');
+    }
+
+    if (!metadata || !metadata.endUserId) {
+      throw new HttpErrors(400, 'cannot delete message - user id is missing');
+    }
+    const endUser = await app.models.EndUser.findById(metadata.endUserId);
+    if (!endUser) {
+      throw new HttpErrors(400, `cannot delete message - user(id: ${metadata.endUserId}) is not found.`);
+    }
+
+    try {
+      await Promise.map(messageIds, async (messageId) => await Message.destroyById(messageId));
     } catch (error) {
-      throw new HttpErrors(500, `cannot mark message(id: ${messageId}) as read - ${error.message}`);
+      throw new HttpErrors(500, `cannot delete message - ${error.message}`);
     }
   };
 
@@ -126,7 +152,6 @@ module.exports = function(Message) {
       return _.map(messages, message => {
         message.read = !_.isEmpty(message.toJSON().messageRead);
         message.unsetAttribute('messageRead');
-        console.log(`message = ${JSON.stringify(message, null, 4)}`);
         return message;
       });
     } catch (error) {
