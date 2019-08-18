@@ -1,3 +1,11 @@
 .mat-column-select {
   overflow: initial;
 }
+
+.read {
+  font-weight: normal;
+}
+
+.unread {
+  font-weight: 900;
+}
