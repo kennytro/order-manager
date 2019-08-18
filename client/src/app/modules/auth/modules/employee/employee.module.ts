@@ -38,6 +38,8 @@ import { EditAdjustComponent } from './components/statements/edit-adjust/edit-ad
 import { StatementDetailComponent } from './components/statements/statement-detail/statement-detail.component';
 import { HistoryGraphComponent } from './components/charts/history-graph/history-graph.component';
 import { RankGraphComponent } from './components/charts/rank-graph/rank-graph.component';
+import { MessagesComponent } from './components/messages/messages/messages.component';
+
 
 // Services
 import { DataResolver } from './services/data.resolver';
@@ -61,7 +63,7 @@ import { PhoneNumberPipe } from '../../shared/pipes/phone-number.pipe';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV, faBell,
         faCaretDown, faCaretUp, faCartPlus, faChartLine, faCheckCircle, faCog,
-        faEdit, faExclamationCircle,
+        faEdit, faEnvelopeOpen, faExclamationCircle,
         faFileAlt, faFileInvoice, faFileInvoiceDollar, faFilePdf, faFolderOpen, faKey,
         faLongArrowAltLeft, faLongArrowAltRight, faPlus, faQuestionCircle,
         faSearchDollar, faShoppingCart, faSignOutAlt, faStoreAlt,
@@ -82,7 +84,8 @@ import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV, faBell,
     StatementsComponent, NewStatementComponent, EditAdjustComponent, StatementDetailComponent,
     PhoneNumberPipe,
     HistoryGraphComponent,
-    RankGraphComponent
+    RankGraphComponent,
+    MessagesComponent
   ],
   imports: [
     AuthSharedModule,
@@ -117,7 +120,7 @@ export class EmployeeModule {
   constructor() {
     library.add(faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV, faBell,
       faCaretDown, faCaretUp, faCartPlus, faChartLine, faCheckCircle, faCog,
-      faEdit, faExclamationCircle,
+      faEdit, faEnvelopeOpen, faExclamationCircle,
       faFileAlt, faFileInvoice, faFileInvoiceDollar, faFilePdf, faFolderOpen, faKey,
       faLongArrowAltLeft, faLongArrowAltRight, faPlus, faQuestionCircle,
       faSearchDollar, faShoppingCart, faSignOutAlt, faStoreAlt,

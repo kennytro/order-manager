@@ -10,6 +10,10 @@ export class DataArrayResolver implements Resolve<Array<any>> {
   }
 
   async resolve(route: ActivatedRouteSnapshot) {
-    return await this._dataService.find(route.data['arrayModelName'], route.data['arrayFilter']).toPromise();
+    let modelName = route.data['arrayModelName'];
+    if (modelName === 'Message') {
+      return await this._dataService.genericMethod(modelName, 'getMessages').toPromise();
+    }
+    return await this._dataService.find(modelName, route.data['arrayFilter']).toPromise();
   }
 }

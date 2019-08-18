@@ -120,13 +120,13 @@ module.exports = function(Message) {
     try {
       let messages = await Message.find({
         where: { toUser: { inq: recipients } },
-        fields: { id: true, toUser: true },
         include: { relation: 'messageRead', scope: { where: { endUserId: endUser.id } } }
       });
 
       return _.map(messages, message => {
-        message.read = (message.toJSON().messageRead) ? true : false;
-        delete message.messageRead;
+        message.read = !_.isEmpty(message.toJSON().messageRead);
+        message.unsetAttribute('messageRead');
+        console.log(`message = ${JSON.stringify(message, null, 4)}`);
         return message;
       });
     } catch (error) {
