@@ -1,11 +1,11 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog, MatSort, MatTableDataSource, MatSnackBar } from '@angular/material';
+
 import { SelectionModel } from '@angular/cdk/collections';
 import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { take, takeUntil } from 'rxjs/operators';
 
-import { ConfirmDialogComponent, DialogData } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { MessageDetailComponent, MessageDialogData } from '../message-detail/message-detail.component';
 import { DataApiService } from '../../../services/data-api.service';
 
@@ -21,10 +21,10 @@ export class MessagesComponent implements OnInit {
 
   private _unsubscribe = new Subject<boolean>();
   @ViewChild(MatSort) sort: MatSort;
+
   constructor(
     private _route: ActivatedRoute,
     private _snackBar: MatSnackBar,
-    private _dialog: MatDialog,
     private _messageDialog: MatDialog,
     private _dataApi: DataApiService
   ) { }
@@ -76,24 +76,8 @@ export class MessagesComponent implements OnInit {
     return 'envelope';
   }
 
-  newMessage() {
-    const dialogData: MessageDialogData = {
-      new: true
-    };
-    const dialogRef = this._messageDialog.open(MessageDetailComponent, {
-      data: dialogData
-    });
-    dialogRef.afterClosed().subscribe(async result => {
-      if (result && result.action === 'saved') {
-        // refresh list to include the new message
-        await this._refreshMessages();
-      }
-    })
-  }
-
   readMessage(message) {
     const dialogData: MessageDialogData = {
-      new: false,
       message: message
     };
     const dialogRef = this._messageDialog.open(MessageDetailComponent, {
@@ -118,34 +102,7 @@ export class MessagesComponent implements OnInit {
   }
 
   delete() {
-    if (this.selections.selected.length == 0) {
-      return;
-    }
-    const dialogData: DialogData = {
-      title: 'Delete Message',
-      content: 'Do you want to delete the selected message(s)?',
-      confirmColor: 'warn',
-      confirmIcon: 'trash-alt',
-      confirmLabel: 'Delete'
-    };
-    const dialogRef = this._dialog.open(ConfirmDialogComponent, {
-      data: dialogData
-    });
-    dialogRef.afterClosed().subscribe( async result => {
-      if (result) {
-        let msgIds = this.selections.selected.map(msg => msg.id);
-        await this._dataApi.genericMethod('Message', 'deleteMessages', [msgIds]).toPromise();
-        const snackBarRef = this._snackBar.open(`Deleted ${msgIds.length} message(s)`, 'Close', {
-          duration: 3000
-        });
-        snackBarRef.onAction().subscribe(() => {
-          snackBarRef.dismiss();
-        });
-        // refresh list to remove deleted messages.
-        await this._refreshMessages();
-      }
-    });
-
+    // TO DO: mark message as deleted.
     console.log('delete selected messages');
   }
 

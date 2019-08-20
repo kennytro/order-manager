@@ -30,3 +30,8 @@
 .navbar-nav li a {
   line-height: 40px;
 }
+
+/* Adjust badge size. */
+:host ::ng-deep .fa-custom-counter {
+  transform: scale(0.8) translateX(50%) translateY(-50%);
+}
