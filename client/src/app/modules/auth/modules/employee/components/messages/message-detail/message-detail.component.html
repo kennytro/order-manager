@@ -1,4 +1,4 @@
-<h3 mat-dialog-title><fa-icon icon="envelope" size="2x"></fa-icon> {{prefix()}}Message</h3>
+<h3 mat-dialog-title><fa-icon icon="envelope" size="2x" style="margin-right: 15px"></fa-icon> {{prefix()}}Message</h3>
 <div mat-dialog-content>
   <div *ngIf="data.new; else elseBlock">
     <form [formGroup]="composeFG" class="form-container">
@@ -8,7 +8,11 @@
             <mat-form-field appearance="outline">
               <mat-label>Message Type</mat-label>
               <mat-select placeholder="Select message type" formControlName="messageType" required>
-                <mat-option *ngFor="let msgType of messageTypeList" [value]="msgType">{{ msgType }}</mat-option>
+                <mat-option *ngFor="let msgType of messageTypeList" [value]="msgType">
+                  <fa-icon icon="{{messageIcon(msgType)}}" style="margin-right: 15px">
+                  </fa-icon>
+                  {{ msgType }}
+                </mat-option>
               </mat-select>
               <mat-error>This field is required</mat-error>
             </mat-form-field>
@@ -55,7 +59,7 @@
     </form>
   </div>
   <ng-template #elseBlock>
-    <h2>{{data.message.messageType}}</h2>
+    <h2><fa-icon icon="{{messageIcon(data.message.messageType)}}" style="margin-right: 15px"></fa-icon>{{data.message.messageType}}</h2>
     <div fxLayout="row" fxLayoutAlign="space-between center">
       <p class="thick">Created By: {{data.message.fromUser}}</p>
       <p>Created At: {{data.message.createdAt | date: 'short'}}</p>

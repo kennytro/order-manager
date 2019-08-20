@@ -33,7 +33,7 @@
       </ng-container>
       <ng-container matColumnDef="type">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> TYPE </th>
-        <td mat-cell *matCellDef="let row"> {{row.messageType}} </td>
+        <td mat-cell *matCellDef="let row"><fa-icon icon="{{messageTypeIcon(row.messageType)}}" matTooltip="{{row.messageType}}" matTooltipPosition="right"></fa-icon></td>
       </ng-container>
       <ng-container matColumnDef="from">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> FROM </th>

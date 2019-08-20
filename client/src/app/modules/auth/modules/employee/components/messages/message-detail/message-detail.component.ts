@@ -67,6 +67,20 @@ export class MessageDetailComponent implements OnInit {
     return this.data.new ? 'New ' : '';
   }
 
+  messageIcon(mType: string): string {
+    switch (mType) {
+      case 'Announcement':
+        return 'bullhorn';
+      case 'Notice':
+        return 'exclamation-circle';
+      case 'Inquiry':
+        return 'question-circle';
+      default:
+        break;
+    }
+    return 'envelope';
+  }
+
   closeButtonLabel(): string{
     return this.data.new ? 'Cancel' : 'Close';
   }

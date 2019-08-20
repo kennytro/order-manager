@@ -62,6 +62,20 @@ export class MessagesComponent implements OnInit {
       this.messages.data.forEach(row => this.selections.select(row));
   }
 
+  messageTypeIcon(mType: string): string {
+    switch (mType) {
+      case 'Announcement':
+        return 'bullhorn';
+      case 'Notice':
+        return 'exclamation-circle';
+      case 'Inquiry':
+        return 'question-circle';
+      default:
+        break;
+    }
+    return 'envelope';
+  }
+
   newMessage() {
     const dialogData: MessageDialogData = {
       new: true
