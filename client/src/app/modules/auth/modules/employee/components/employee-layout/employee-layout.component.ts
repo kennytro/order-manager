@@ -60,7 +60,7 @@ export class EmployeeLayoutComponent implements OnInit {
           snackBarRef.dismiss();
         });
       return;
-    }    
+    }
     const dialogData: DialogData = {
       title: 'Change Password',
       content: 'We will send an email with a link to change password.',

@@ -111,7 +111,7 @@ module.exports = async function(app, req, res, next) {
       messageType: 'Inquiry',
       subject: `Inquiry from ${messageBody['FIRST NAME']} ${messageBody['LAST NAME']}`,
       body: messageBody,
-      fromUser: 'Web',
+      fromUser: 'Web user',
       toUser: 'admin'
     });
     res.send({ success: true, postTime: new Date(), errorMessage: null });

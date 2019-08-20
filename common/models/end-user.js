@@ -30,6 +30,13 @@ module.exports = function(EndUser) {
     admin: ['sendMeResetPasswordEmail']
   };
 
+  /**
+   * @returns {string[]} - array of employee roles.
+   */
+  EndUser.employeeRoles = function() {
+    return ['admin', 'manager'];
+  };
+
   /*
    * @param {string} role name
    * @returns {string[]} allowed method name array.
