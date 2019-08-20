@@ -113,8 +113,6 @@ export class MessageDetailComponent implements OnInit {
       } catch (err) {
         console.log(`error: failed to create a message - ${err.message}`);
       }
-
-      console.log('clicked save');
     }
   }
 
