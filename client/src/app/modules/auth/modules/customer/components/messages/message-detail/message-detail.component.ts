@@ -1,7 +1,6 @@
 import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA, MatSnackBar } from '@angular/material';
 
-
 import { ConfirmDialogComponent, DialogData } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { DataApiService } from '../../../services/data-api.service';
 
@@ -27,18 +26,31 @@ export class MessageDetailComponent implements OnInit {
   ngOnInit() {
   }
 
-  messageIcon(mType: string): string {
-    switch (mType) {
-      case 'Announcement':
-        return 'bullhorn';
-      case 'Notice':
-        return 'exclamation-circle';
-      case 'Inquiry':
-        return 'question-circle';
-      default:
-        break;
+  messageTitle(): string {
+    if (this.data.message.messageType) {
+      return this.data.message.messageType;
     }
-    return 'envelope';
+    return 'Message';
+  }
+
+  messageIcon(): string {
+    let icon = 'envelope';    // default
+    if (this.data.message) {
+      switch (this.data.message.messageType) {
+        case 'Announcement':
+          icon = 'bullhorn';
+          break;
+        case 'Notice':
+          icon = 'exclamation-circle';
+          break;
+        case 'Inquiry':
+          icon = 'question-circle';
+          break;
+        default:
+          break;
+      }
+    }
+    return icon;
   }
 
   close() {

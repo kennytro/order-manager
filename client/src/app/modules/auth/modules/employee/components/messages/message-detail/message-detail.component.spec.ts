@@ -1,6 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
 import { MatDialog, MatDialogRef, MatSnackBar, MAT_DIALOG_DATA } from '@angular/material';
 import { FormBuilder } from '@angular/forms';
 import { library } from '@fortawesome/fontawesome-svg-core';
@@ -22,7 +23,7 @@ describe('MessageDetailComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [MessageDetailComponent],
-      imports: [ NoopAnimationsModule, AuthSharedModule, RouterTestingModule],
+      imports: [ NoopAnimationsModule, AuthSharedModule, RouterTestingModule, CKEditorModule],
       providers: [
         { provide: MAT_DIALOG_DATA, useValue: msgData },
         { provide: MatDialogRef, useValue: jasmine.createSpyObj('MatDialogRef', ['close']) },

@@ -8,6 +8,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import * as moment from 'moment';
+import * as ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 import { ConfirmDialogComponent, DialogData } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { DataApiService } from '../../../services/data-api.service';
@@ -26,6 +27,12 @@ export class MessageDetailComponent implements OnInit {
   audienceList = ['Everyone', 'Customers', 'Employees'];
   messageTypeList = ['Announcement', 'Notice'];
   composeFG: FormGroup;
+  editor = ClassicEditor;
+  editorConfig = {
+    toolbar: [ 'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', '|', 'undo', 'redo' ]
+  };
+  editorData: string = '';
+
   private _unsubscribe = new Subject<boolean>();
   todayDate:Date = new Date();
   @ViewChild(MatDatepicker) datepicker: MatDatepicker<Date>;
@@ -45,7 +52,7 @@ export class MessageDetailComponent implements OnInit {
         messageType: ['', Validators.required],
         toUser: ['', Validators.required],
         subject: ['', Validators.required],
-        body: ['', Validators.required],
+//        body: ['', Validators.required],
         hasExpirationDate: false,
         expiresAt: [{ value: moment(), disabled: true }]
       });
@@ -63,22 +70,34 @@ export class MessageDetailComponent implements OnInit {
     this._unsubscribe.unsubscribe();
   }
 
-  prefix(): string {
-    return this.data.new ? 'New ' : '';
+  messageTitle(): string {
+    if (this.data.new) {
+      return 'New Message';
+    }
+    if (this.data.message.messageType) {
+      return this.data.message.messageType;
+    }
+    return 'Message';
   }
 
-  messageIcon(mType: string): string {
-    switch (mType) {
-      case 'Announcement':
-        return 'bullhorn';
-      case 'Notice':
-        return 'exclamation-circle';
-      case 'Inquiry':
-        return 'question-circle';
-      default:
-        break;
+  messageIcon(): string {
+    let icon = 'envelope';    // default
+    if (this.data.message) {
+      switch (this.data.message.messageType) {
+        case 'Announcement':
+          icon = 'bullhorn';
+          break;
+        case 'Notice':
+          icon = 'exclamation-circle';
+          break;
+        case 'Inquiry':
+          icon = 'question-circle';
+          break;
+        default:
+          break;
+      }
     }
-    return 'envelope';
+    return icon;
   }
 
   closeButtonLabel(): string{
@@ -103,6 +122,7 @@ export class MessageDetailComponent implements OnInit {
         delete newMessage.expiresAt;
       }
       delete newMessage.hasExpirationDate;
+      newMessage['body'] = this.editorData;
       try {
         let deliveryRoute = await this._dataApi.genericMethod('Message', 'createNewGroupMessage', [userGroup, newMessage]).toPromise();
         const snackBarRef = this._snackBar.open('Message successfully saved',

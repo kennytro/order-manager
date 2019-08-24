@@ -1,4 +1,4 @@
-<h3 mat-dialog-title><fa-icon icon="envelope" size="2x" style="margin-right: 15px"></fa-icon> {{prefix()}}Message</h3>
+<h3 mat-dialog-title><fa-icon icon="{{messageIcon()}}" size="2x" style="margin-right: 15px"></fa-icon> {{messageTitle()}}</h3>
 <div mat-dialog-content>
   <div *ngIf="data.new; else elseBlock">
     <form [formGroup]="composeFG" class="form-container">
@@ -49,23 +49,22 @@
             <mat-error>This field is required</mat-error>
           </mat-form-field>  
         </div>
-        <div style="min-width: 800px;">
-          <mat-form-field appearance="fill">
-            <mat-label>Message</mat-label>
-            <textarea matInput style="min-height: 400px" cdkTextareaAutosize placeholder="Your message" formControlName="body"></textarea>
-          </mat-form-field>
+        <div>
+          <ckeditor [editor]="editor" [(ngModel)]="editorData" [ngModelOptions]="{standalone: true}" [config]="editorConfig"></ckeditor>
         </div>
       </div>
     </form>
   </div>
   <ng-template #elseBlock>
-    <h2><fa-icon icon="{{messageIcon(data.message.messageType)}}" style="margin-right: 15px"></fa-icon>{{data.message.messageType}}</h2>
-    <div fxLayout="row" fxLayoutAlign="space-between center">
-      <p class="thick">Created By: {{data.message.fromUser}}</p>
-      <p>Created At: {{data.message.createdAt | date: 'short'}}</p>
+    <div fxLayout="column" fxLayoutGap="5px" fxLayoutAlign="center space-between">
+      <div fxLayout="row" fxLayoutAlign="space-between center">
+        <p class="thick">Created By: {{data.message.fromUser}}</p>
+        <p>Created At: {{data.message.createdAt | date: 'short'}}</p>
+      </div>
+      <p class="thick">Subject: {{data.message.subject}}</p>
+      <div innerHtml="{{data.message.body}}" class="message-viewer">
+      </div>
     </div>
-    <p class="thick">Subject: {{data.message.subject}}</p>
-    <p class="message-body">{{data.message.body}}</p>
   </ng-template>
 </div>
 <mat-divider></mat-divider>

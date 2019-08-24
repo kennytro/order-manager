@@ -1,6 +1,7 @@
 // Modules
 import { NgModule } from '@angular/core';
 import { ImageCropperModule } from 'ngx-image-cropper';
+import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
 
 import { AuthSharedModule } from '../../shared/auth-shared.module';
 import { SharedModule } from '../../../../shared/shared.module';
@@ -91,6 +92,7 @@ import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV, faBell, faBullh
   imports: [
     AuthSharedModule,
     ImageCropperModule,
+    CKEditorModule,
     SharedModule,
     EmployeeRoutingModule
   ],

@@ -1,5 +1,6 @@
-.message-body {
+div.message-viewer {
   min-width: 800px;
   min-height: 400px;
-  white-space: pre-wrap;
+  border: 1px solid #e6e6e6;
+  padding: 20px;
 }
