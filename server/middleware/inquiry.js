@@ -87,9 +87,11 @@ async function verifyReCAPTCHA(token, secret) {
  */
 function formatInquiryBody(message) {
   let lines = [];
+  lines.push('<table>');
   _.forEach(message, function(value, key) {
-    lines.push(`${_.upperCase(key)}: \t${value}`);
+    lines.push(`<tr><th>${_.upperCase(key)}</th><td><div class="message-body">${value}</div></td></tr>`);
   });
+  lines.push('</table>');
   return lines.join('\n');
 }
 
@@ -109,7 +111,7 @@ module.exports = async function(app, req, res, next) {
     let messageBody = formatInquiryBody(body.message);
     await app.models.Message.createNewGroupMessage('admin', {
       messageType: 'Inquiry',
-      subject: `Inquiry from ${messageBody['FIRST NAME']} ${messageBody['LAST NAME']}`,
+      subject: `Inquiry from ${body.message['firstName']} ${body.message['lastName']}`,
       body: messageBody,
       fromUser: 'Web user'
     }, null);

@@ -160,3 +160,7 @@ div.round-corners {
   border: 1px solid #e6e6e6;
   padding: 20px;
 }
+
+div.message-body {
+  white-space: pre-wrap;
+}
