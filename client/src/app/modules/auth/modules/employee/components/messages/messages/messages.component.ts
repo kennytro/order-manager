@@ -101,8 +101,8 @@ export class MessagesComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe(async result => {
       if (!result || result.action === 'read') {
-        if (!message.read) {      // message was previuosly unread.
-          message.read = true;
+        if (!message.isRead) {      // message was previuosly unread.
+          message.isRead = true;
           await this._dataApi.genericMethod('Message', 'markAsRead', [[message.id]]).toPromise();
         }
       }
@@ -113,9 +113,10 @@ export class MessagesComponent implements OnInit {
     });
   }
 
-  markAsRead() {
-    console.log('mark selected messages as read');
-  }
+  // Not implemented, yet.
+  // markAsRead() {
+  //   console.log('mark selected messages as read');
+  // }
 
   delete() {
     if (this.selections.selected.length == 0) {
@@ -145,8 +146,6 @@ export class MessagesComponent implements OnInit {
         await this._refreshMessages();
       }
     });
-
-    console.log('delete selected messages');
   }
 
   private async _refreshMessages() {

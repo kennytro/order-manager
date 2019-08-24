@@ -184,20 +184,11 @@ CREATE TABLE IF NOT EXISTS message
 (
   id integer PRIMARY KEY DEFAULT nextval('generic_id_seq'),
   message_type message_type DEFAULT 'Message',
+  from_user text,
+  to_user_id integer REFERENCES end_user,
   subject text,
   body text,
-  from_user text,
-  to_user text,
   created_at timestamptz DEFAULT now(),
-  updated_at timestamptz DEFAULT now(),
-  expires_at timestamptz DEFAULT 'infinity'
-);
-
-CREATE TABLE IF NOT EXISTS message_read
-(
-  id integer PRIMARY KEY DEFAULT nextval('generic_id_seq'),
-  end_user_id integer REFERENCES end_user,
-  message_id integer REFERENCES message,
-  last_read timestamptz DEFAULT now(),
-  UNIQUE(end_user_id, message_id)
+  expires_at timestamptz DEFAULT 'infinity',
+  is_read bool DEFAULT false
 );

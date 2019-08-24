@@ -96,14 +96,15 @@ export class MessageDetailComponent implements OnInit {
   async save() {
     if (this.data.new) {
       let newMessage = this.composeFG.value;
-      newMessage.toUser = newMessage.toUser.toLowerCase();
+      let userGroup = newMessage.toUser.toLowerCase();
       // remove properties that we don't save
+      delete newMessage.toUser;
       if (!newMessage.hasExpirationDate) {
         delete newMessage.expiresAt;
       }
       delete newMessage.hasExpirationDate;
       try {
-        let deliveryRoute = await this._dataApi.genericMethod('Message', 'createNewMessage', [newMessage]).toPromise();
+        let deliveryRoute = await this._dataApi.genericMethod('Message', 'createNewGroupMessage', [userGroup, newMessage]).toPromise();
         const snackBarRef = this._snackBar.open('Message successfully saved',
           'Close', { duration: 3000 });
         snackBarRef.onAction().subscribe(() => {
@@ -140,7 +141,6 @@ export class MessageDetailComponent implements OnInit {
           this._dialogRef.close({ action: 'deleted' });
         }
       });
-
     }
   }
 }

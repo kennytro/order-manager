@@ -6,6 +6,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { take, takeUntil } from 'rxjs/operators';
 
+import { ConfirmDialogComponent, DialogData } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { MessageDetailComponent, MessageDialogData } from '../message-detail/message-detail.component';
 import { DataApiService } from '../../../services/data-api.service';
 
@@ -25,6 +26,7 @@ export class MessagesComponent implements OnInit {
   constructor(
     private _route: ActivatedRoute,
     private _snackBar: MatSnackBar,
+    private _dialog: MatDialog,
     private _messageDialog: MatDialog,
     private _dataApi: DataApiService
   ) { }
@@ -85,8 +87,8 @@ export class MessagesComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe(async result => {
       if (!result || result.action === 'read') {
-        if (!message.read) {      // message was previuosly unread.
-          message.read = true;
+        if (!message.isRead) {      // message was previuosly unread.
+          message.isRead = true;
           await this._dataApi.genericMethod('Message', 'markAsRead', [[message.id]]).toPromise();
         }
       }
@@ -97,13 +99,39 @@ export class MessagesComponent implements OnInit {
     });
   }
 
-  markAsRead() {
-    console.log('mark selected messages as read');
-  }
+  // Not implemented, yet.
+  // markAsRead() {
+  //   console.log('mark selected messages as read');
+  // }
 
   delete() {
-    // TO DO: mark message as deleted.
-    console.log('delete selected messages');
+    if (this.selections.selected.length == 0) {
+      return;
+    }
+    const dialogData: DialogData = {
+      title: 'Delete Message',
+      content: 'Do you want to delete the selected message(s)?',
+      confirmColor: 'warn',
+      confirmIcon: 'trash-alt',
+      confirmLabel: 'Delete'
+    };
+    const dialogRef = this._dialog.open(ConfirmDialogComponent, {
+      data: dialogData
+    });
+    dialogRef.afterClosed().subscribe( async result => {
+      if (result) {
+        let msgIds = this.selections.selected.map(msg => msg.id);
+        await this._dataApi.genericMethod('Message', 'deleteMessages', [msgIds]).toPromise();
+        const snackBarRef = this._snackBar.open(`Deleted ${msgIds.length} message(s)`, 'Close', {
+          duration: 3000
+        });
+        snackBarRef.onAction().subscribe(() => {
+          snackBarRef.dismiss();
+        });
+        // refresh list to remove deleted messages.
+        await this._refreshMessages();
+      }
+    });
   }
 
   private async _refreshMessages() {

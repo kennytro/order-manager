@@ -107,13 +107,12 @@ module.exports = async function(app, req, res, next) {
   try {
     await verifyReCAPTCHA(body.verifyToken, process.env.RECAPTCHA_SECRET);
     let messageBody = formatInquiryBody(body.message);
-    await app.models.Message.create({
+    await app.models.Message.createNewGroupMessage('admin', {
       messageType: 'Inquiry',
       subject: `Inquiry from ${messageBody['FIRST NAME']} ${messageBody['LAST NAME']}`,
       body: messageBody,
-      fromUser: 'Web user',
-      toUser: 'admin'
-    });
+      fromUser: 'Web user'
+    }, null);
     res.send({ success: true, postTime: new Date(), errorMessage: null });
   } catch (error) {
     res.send({ success: false, postTime: null, errorMessage: error.message });

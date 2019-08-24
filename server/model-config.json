@@ -80,10 +80,6 @@
     "dataSource": "OrderManager",
     "public": false
   },
-  "MessageRead": {
-    "dataSource": "OrderManager",
-    "public": false
-  },
   "Metric": {
     "dataSource": "OrderManager",
     "public": false    

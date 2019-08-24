@@ -4,8 +4,8 @@ declare interface Message {
   subject: string,
   body: string,
   fromUser: string,
-  toUser: string,
+  toUserId: number,
   createdAt: Date,
-  updatedAt: Date,
-  read?: boolean
+  expiresAt: Date,
+  isRead: boolean
 }

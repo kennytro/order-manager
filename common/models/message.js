@@ -9,44 +9,41 @@ const app = require(appRoot + '/server/server');
 const logger = require(appRoot + '/config/winston');
 
 module.exports = function(Message) {
+  // supported user groups.
+  const USER_GROUPS = ['everyone', 'customers', 'employees', 'admin', 'manager'];
+
   /**
-   * @param {Object} endUser - EndUser instance
-   * @returns {String[]} recipients = list of applicable role/id for messages.
+   * @param{String} user keyword
+   * @returns{String[]} - array of user ids.
    */
-  function getRecipients(endUser) {
-    if (!endUser) {
+  async function getUserIdsByKeyword(toUser) {
+    toUser = toUser.toLowerCase();
+    if (!USER_GROUPS.includes(toUser)) {
       return [];
     }
-    let recipients = ['everyone'];
-    if (endUser.role === 'customer') {
-      recipients.push('customers');
-    }
-    if (_.includes(app.models.EndUser.employeeRoles(), endUser.role)) {
-      recipients.push('employees');
-    }
-    return recipients.concat([endUser.role, endUser.id]);
-  }
-
-  /* Override 'destroyById()' on Message to update all MessageRead
-   * that references message that is about to be deleted.
-   */
-  Message.on('dataSourceAttached', function(obj) {
-    Message.destroyById = async function(id, callback) {
-      callback = callback || function() { };
-      try {
-        await app.dataSources.OrderManager.transaction(async models => {
-          const { Message, MessageRead } = models;
-          let target = await Message.findById(id);
-          if (target) {
-            await MessageRead.destroyAll({ messageId: id });
-            await target.destroy();
-          }
-        });
-      } catch (error) {
-        callback(error);
-      }
+    let filter = {
+      fields: { id: true }
     };
-  });
+    switch (toUser) {
+      case 'customers':
+        filter['where'] = { role: 'customer' };
+        break;
+      case 'employees':
+        filter['where'] = { role: { inq: ['admin', 'manager'] } };
+        break;
+      case 'admin':
+        filter['where'] = { role: 'admin' };
+        break;
+      case 'manager':
+        filter['where'] = { role: 'manager' };
+        break;
+      case 'everyone':
+      default:
+        break;
+    };
+    let users = await app.models.EndUser.find(filter);
+    return users.map(user => user.id);
+  }
 
   /**
    * @param {Object} metadata - must contain 'endUserId'
@@ -60,19 +57,11 @@ module.exports = function(Message) {
     if (!endUser) {
       throw new HttpErrors(400, `cannot count unread message - user(id: ${metadata.endUserId}) is not found.`);
     }
-    let recipients = getRecipients(endUser); // ['everyone', endUser.id, endUser.role];
     try {
-      let messages = await Message.find({
-        where: { toUser: { inq: recipients } },
-        fields: { id: true, toUser: true },
-        include: { relation: 'messageRead', scope: { where: { endUserId: endUser.id } } }
+      return await Message.count({
+        toUserId: endUser.id,
+        isRead: false
       });
-      return _.reduce(messages, (sum, message) => {
-        if (_.isEmpty(message.toJSON().messageRead)) {
-          sum++;
-        }
-        return sum;
-      }, 0);
     } catch (error) {
       throw new HttpErrors(500, `cannot count unread message - ${error.message}`);
     }
@@ -95,51 +84,53 @@ module.exports = function(Message) {
       throw new HttpErrors(400, `cannot mark message as read - user(id: ${metadata.endUserId}) is not found.`);
     }
 
-    await Promise.map(messageIds, async (messageId) => {
-      try {
-        let message = await Message.findById(messageId);
-        if (message) {
-          let messageRead = await app.models.MessageRead.findOne({
-            where: {
-              endUserId: endUser.id,
-              messageId: messageId
-            }
-          });
-          let now = moment().toDate();
-          if (messageRead) {
-            await messageRead.updateAttribute('lastRead', now);
-          } else {
-            await app.models.MessageRead.create({
-              endUserId: endUser.id,
-              messageId: messageId,
-              lastRead: now
-            });
-          }
-          debugMessage(`Marked message(id: ${messageId}) as read by user(id: ${endUser.id})`);
-        }
-      } catch (error) {
-        logger.error(`cannot mark message(id: ${messageId}) as read - ${error.message}`);
-      }
-    });
+    try {
+      await Message.updateAll({
+        id: { inq: messageIds },
+        toUserId: endUser.id
+      }, {
+        isRead: true
+      });
+      debugMessage(`Marked ${messageIds.length} messages as read by user(id: ${endUser.id})`);
+    } catch (error) {
+      logger.error(`cannot mark messages as read - ${error.message}`);
+    }
   };
 
-  Message.createNewMessage = async function(messageData, metadata) {
+  /**
+   * @param {String} - recipient user group.
+   * @param {Object} - message data
+   * @param {Object} metadata - must contain 'endUserId'.
+   */
+  Message.createNewGroupMessage = async function(userGroup, messageData, metadata) {
     if (!messageData || _.isEmpty(messageData)) {
       throw new HttpErrors(400, 'cannot create a message - message data is missing');
     }
 
-    if (!metadata || !metadata.endUserId) {
-      throw new HttpErrors(400, 'cannot create a message - user id is missing');
+    if (!userGroup || !USER_GROUPS.includes(userGroup)) {
+      throw new HttpErrors(400, 'cannot create a message - recipient group is missing or not supported.');
     }
 
-    const endUser = await app.models.EndUser.findById(metadata.endUserId);
-    if (!endUser) {
-      throw new HttpErrors(400, `cannot delete message - user(id: ${metadata.endUserId}) is not found.`);
-    }
     try {
-      messageData.fromUser = endUser.email;
-      let newMsg = await Message.create(messageData);
-      debugMessage(`Created message(id: ${newMsg.id}) by user(id: ${endUser.id})`);
+      if (!messageData.fromUser) {
+        if (!metadata || !metadata.endUserId) {
+          throw new HttpErrors(400, 'cannot create a message - user id is missing');
+        }
+
+        const endUser = await app.models.EndUser.findById(metadata.endUserId);
+        if (!endUser) {
+          throw new HttpErrors(400, `cannot create message - user(id: ${metadata.endUserId}) is not found.`);
+        }
+        messageData.fromUser = endUser.email;
+      }
+
+      const userIds = await getUserIdsByKeyword(userGroup);
+      let messages = userIds.map((id) => {
+        return _.assign({}, messageData, { toUserId: id });
+      });
+
+      await Message.create(messages);
+      debugMessage(`Created messages by user(${messageData.fromUser})`);
     } catch (error) {
       throw new HttpErrors(500, `cannot create a message - ${error.message}`);
     }
@@ -163,7 +154,10 @@ module.exports = function(Message) {
     }
 
     try {
-      await Promise.map(messageIds, async (messageId) => await Message.destroyById(messageId));
+      await Message.destroyAll({
+        id: { inq: messageIds },
+        toUserId: endUser.id
+      });
       debugMessage(`Deleted ${messageIds.length} messages by user(id: ${endUser.id})`);
     } catch (error) {
       throw new HttpErrors(500, `cannot delete message - ${error.message}`);
@@ -173,7 +167,7 @@ module.exports = function(Message) {
   /**
    * @param {Object} filter for 'Message.find()'
    * @param {Object} metadata - must contain 'endUserId'
-   * @returns {Object[]} messages - must assign 'read' boolean.
+   * @returns {Object[]} messages.
    */
   Message.getMessages = async function(metadata) {
     if (!metadata || !metadata.endUserId) {
@@ -183,18 +177,8 @@ module.exports = function(Message) {
     if (!endUser) {
       throw new HttpErrors(400, `cannot get message - user(id: ${metadata.endUserId}) is not found.`);
     }
-    let recipients = getRecipients(endUser); // ['everyone', 'employees', endUser.role, endUser.id];
     try {
-      let messages = await Message.find({
-        where: { toUser: { inq: recipients } },
-        include: { relation: 'messageRead', scope: { where: { endUserId: endUser.id } } }
-      });
-
-      return _.map(messages, message => {
-        message.read = !_.isEmpty(message.toJSON().messageRead);
-        message.unsetAttribute('messageRead');
-        return message;
-      });
+      return await Message.find({ where: { toUserId: endUser.id } });
     } catch (error) {
       throw new HttpErrors(500, `cannot get message - ${error.message}`);
     }
