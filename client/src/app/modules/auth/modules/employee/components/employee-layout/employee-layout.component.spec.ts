@@ -3,7 +3,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatDialog, MatSnackBar } from '@angular/material';
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faKey, faSignOutAlt, faChartLine, faUsers, faTruck } from '@fortawesome/free-solid-svg-icons';
+import { faBell, faKey, faSignOutAlt, faChartLine, faUsers, faTruck } from '@fortawesome/free-solid-svg-icons';
 
 import { AuthSharedModule } from '../../../../shared/auth-shared.module';
 import { AWS_S3_PUBLIC_URL } from '../../../../../../shared/base.url';
@@ -27,7 +27,7 @@ describe('EmployeeLayoutComponent', () => {
   let fixture: ComponentFixture<EmployeeLayoutComponent>;
   let authSpy: jasmine.SpyObj<AuthService>;
   let apiSpy: jasmine.SpyObj<RootScopeShareService>;
-  library.add(faKey, faSignOutAlt, faChartLine, faUsers, faTruck);
+  library.add(faBell, faKey, faSignOutAlt, faChartLine, faUsers, faTruck);
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [ EmployeeLayoutComponent ],

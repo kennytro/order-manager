@@ -1,6 +1,6 @@
+<div fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="space-around center">
 <div><h1>Contact Us</h1></div>
-<form [formGroup]="contactFG" class="form-container">
-  <div fxLayout="column" fxLayoutGap="10px">
+  <form [formGroup]="contactFG" class="form-container">
     <div style="width: 300px">
       <mat-form-field appearance="outline">
         <mat-label>First Name</mat-label>
@@ -29,11 +29,14 @@
     <div>
       <mat-form-field class="full-width">
         <mat-label>Note</mat-label>
-        <textarea matInput placeholder="Note/Comment" formControlName="note"></textarea>
+        <textarea matInput cdkTextareaAutosize placeholder="Note/Comment" formControlName="note"></textarea>
       </mat-form-field>
     </div>
-  </div>
-  <div>
-    <button mat-raised-button class="action" color="green" [disabled]="contactFG.invalid" (click)="submit()">Submit</button>
-  </div>
-</form>
+    <div>
+      <re-captcha formControlName="reCAPTCHA" (resolved)="reCAPTCHAresolved($event)" siteKey="{{captchaSiteKey}}"></re-captcha>
+    </div>
+    <div style="margin-top: 10px">
+      <button mat-raised-button class="action" color="green" [disabled]="contactFG.invalid || submitted" (click)="submit()">Submit</button>
+    </div>
+  </form>
+</div>

@@ -7,6 +7,8 @@ import { NewOrderComponent } from './components/orders/new-order/new-order.compo
 import { OrderDetailComponent } from './components/orders/order-detail/order-detail.component';
 import { StatementsComponent } from './components/statements/statements/statements.component';
 import { StatementDetailComponent } from './components/statements/statement-detail/statement-detail.component';
+import { MessagesComponent } from './components/messages/messages/messages.component';
+
 import { DataResolver } from './services/data.resolver';
 import { DataArrayResolver } from './services/data-array.resolver';
 import { OrderResolver } from './services/order.resolver';
@@ -65,6 +67,17 @@ const routes: Routes = [
               modelName: 'Statement',
               filter: { include: ['order', 'client'] }
             }
+          }
+        ]
+      },
+      {
+        path: 'messages',
+        children: [
+          {
+            path: '',
+            component: MessagesComponent,
+            resolve: { messages: DataArrayResolver },
+            data: { arrayModelName: 'Message' }
           }
         ]
       }

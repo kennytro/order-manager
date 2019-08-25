@@ -14,6 +14,8 @@ import { NewOrderComponent } from './components/orders/new-order/new-order.compo
 import { OrderDetailComponent } from './components/orders/order-detail/order-detail.component';
 import { StatementsComponent } from './components/statements/statements/statements.component';
 import { StatementDetailComponent } from './components/statements/statement-detail/statement-detail.component';
+import { MessagesComponent } from './components/messages/messages/messages.component';
+import { MessageDetailComponent } from './components/messages/message-detail/message-detail.component';
 
 // Services
 import { FileService } from '../../shared/services/file.service';
@@ -23,7 +25,9 @@ import { DataApiService } from './services/data-api.service';
 import { OrderResolver } from './services/order.resolver';
 // Misc.
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faBars, faCartPlus, faChartLine, faCog, faExclamationCircle,
+import { faBars, faBell, faBullhorn,
+  faCartPlus, faChartLine, faCog,
+  faEnvelope, faExclamationCircle,
   faFileInvoiceDollar, faFilePdf,
   faKey, faLongArrowAltLeft, faLongArrowAltRight, faPlus, faQuestionCircle,
   faSignOutAlt, faShoppingCart, faTrashAlt, faUsers } from '@fortawesome/free-solid-svg-icons';
@@ -32,7 +36,7 @@ import { faBars, faCartPlus, faChartLine, faCog, faExclamationCircle,
   declarations: [CustomerLayoutComponent, SettingsComponent,
     DashboardComponent, TotalOrdersComponent, TodaysSnapshotsComponent,
     OrdersComponent, NewOrderComponent, OrderDetailComponent,
-    StatementsComponent, StatementDetailComponent/* ConfirmDialogComponent */ ],
+    StatementsComponent, StatementDetailComponent, MessagesComponent, MessageDetailComponent/* ConfirmDialogComponent */ ],
   imports: [
     AuthSharedModule,
     CustomerRoutingModule
@@ -45,12 +49,15 @@ import { faBars, faCartPlus, faChartLine, faCog, faExclamationCircle,
     OrderResolver
   ],
   entryComponents: [
+    MessageDetailComponent,
     SettingsComponent
   ]
 })
 export class CustomerModule {
   constructor() {
-    library.add(faBars, faCartPlus, faChartLine, faCog, faExclamationCircle,
+    library.add(faBars, faBell, faBullhorn, 
+    faCartPlus, faChartLine, faCog, 
+    faEnvelope, faExclamationCircle,
     faFileInvoiceDollar, faFilePdf,
     faKey, faLongArrowAltLeft, faLongArrowAltRight, faPlus, faQuestionCircle,
     faSignOutAlt, faShoppingCart, faTrashAlt, faUsers);

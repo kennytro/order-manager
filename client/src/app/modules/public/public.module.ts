@@ -3,7 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { MatButtonModule, MatFormFieldModule, MatInputModule, MatSnackBarModule } from '@angular/material';
 import { ReactiveFormsModule } from '@angular/forms';
+import { RecaptchaModule, RecaptchaFormsModule } from 'ng-recaptcha';
 import { TextMaskModule } from 'angular2-text-mask';
+import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { PublicRoutingModule } from './public-routing.module';
 import { LoginComponent } from './components/login/login.component';
@@ -16,6 +18,7 @@ import { ContactUsComponent } from './components/contact-us/contact-us.component
 
 import { LocalScopeShareService } from './services/local-scope-share.service';
 import { ContentService } from './services/content.service';
+import { MessageService } from './services/message.service';
 import { PublicHomeResolver } from './services/public-home.resolver';
 import { ClientResolver } from './services/client.resolver';
 import { ProductResolver } from './services/product.resolver';
@@ -40,7 +43,9 @@ import { SafePipe } from './pipes/safe.pipe';
   imports: [
     MatButtonModule, MatFormFieldModule, MatInputModule, MatSnackBarModule,
     ReactiveFormsModule,
+    RecaptchaModule, RecaptchaFormsModule,
     TextMaskModule,
+    FlexLayoutModule,
     CommonModule,
     FontAwesomeModule,
     PublicRoutingModule
@@ -48,6 +53,7 @@ import { SafePipe } from './pipes/safe.pipe';
   providers: [
     LocalScopeShareService,
     ContentService,
+    MessageService,
     PublicHomeResolver,
     ClientResolver,
     ProductResolver,

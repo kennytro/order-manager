@@ -18,4 +18,7 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'metric_time_range_type') THEN
     CREATE TYPE metric_time_range_type as ENUM('None', 'Daily', 'Monthly', 'Yearly');
   END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'message_type') THEN
+    CREATE TYPE message_type as ENUM('Message', 'Inquiry', 'Announcement', 'Memo', 'Notice', 'Alert');
+  END IF;  
 END$$;

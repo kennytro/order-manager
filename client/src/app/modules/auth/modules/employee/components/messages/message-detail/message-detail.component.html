@@ -1,0 +1,79 @@
+<h3 mat-dialog-title><fa-icon icon="{{messageIcon()}}" size="2x" style="margin-right: 15px"></fa-icon> {{messageTitle()}}</h3>
+<div mat-dialog-content>
+  <div *ngIf="data.new; else elseBlock">
+    <form [formGroup]="composeFG" class="form-container">
+      <div fxLayout="column" fxLayoutGap="5px" fxLayoutAlign="center space-between">
+        <div fxLayout="row" fxLayoutGap="20px" fxLayoutAlign="start center">
+          <div fxFlex="0 0 150px">
+            <mat-form-field appearance="outline">
+              <mat-label>Message Type</mat-label>
+              <mat-select placeholder="Select message type" formControlName="messageType" required>
+                <mat-option *ngFor="let msgType of messageTypeList" [value]="msgType">
+                  <fa-icon icon="{{messageIcon(msgType)}}" style="margin-right: 15px">
+                  </fa-icon>
+                  {{ msgType }}
+                </mat-option>
+              </mat-select>
+              <mat-error>This field is required</mat-error>
+            </mat-form-field>
+          </div>
+          <div fxFlex="0 0 150px">
+            <mat-form-field appearance="outline">
+              <mat-label>Audience</mat-label>
+              <mat-select placeholder="Select audience type" formControlName="toUser" required>
+                <mat-option *ngFor="let audience of audienceList" [value]="audience">{{ audience }}</mat-option>
+              </mat-select>
+              <mat-error>This field is required</mat-error>
+            </mat-form-field>
+          </div>
+          <div fxFlex="1 0 300px">
+            <div fxLayout="row wrap" fxLayoutGap="10px" fxLayoutAlign="end center">
+              <div fxFlex="0 0 150px">
+                <mat-slide-toggle formControlName="hasExpirationDate" color="primary" matTooltip="Delete this message after expiration date">Auto Delete?</mat-slide-toggle>
+              </div>
+              <div *ngIf="composeFG.get('hasExpirationDate').value" fxFlex="0 0 150px">
+                <mat-form-field>
+                    <mat-label>Expiration Date</mat-label>
+                    <input matInput [matDatepicker]="dp" [min]="todayDate" placeholder="Choose a date" formControlName="expiresAt">
+                    <mat-datepicker-toggle matSuffix [for]="dp"></mat-datepicker-toggle>
+                    <mat-datepicker #dp></mat-datepicker>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <mat-form-field>
+            <mat-label>Subject</mat-label>
+            <input matInput formControlName="subject" required="">
+            <mat-error>This field is required</mat-error>
+          </mat-form-field>  
+        </div>
+        <div>
+          <ckeditor [editor]="editor" [(ngModel)]="editorData" [ngModelOptions]="{standalone: true}" [config]="editorConfig"></ckeditor>
+        </div>
+      </div>
+    </form>
+  </div>
+  <ng-template #elseBlock>
+    <div fxLayout="column" fxLayoutGap="5px" fxLayoutAlign="center space-between">
+      <div fxLayout="row" fxLayoutAlign="space-between center">
+        <p class="thick">Created By: {{data.message.fromUser}}</p>
+        <p>Created At: {{data.message.createdAt | date: 'short'}}</p>
+      </div>
+      <p class="thick">Subject: {{data.message.subject}}</p>
+      <div innerHtml="{{data.message.body}}" class="message-viewer">
+      </div>
+    </div>
+  </ng-template>
+</div>
+<mat-divider></mat-divider>
+<div mat-dialog-actions fxLayout="row" fxLayoutAlign="end">
+  <button mat-raised-button class="action" (click)="close()">{{closeButtonLabel()}}</button>
+  <div *ngIf="data.new">
+    <button mat-raised-button class="action" [disabled]="composeFG.invalid" (click)="save()" color="green">Save</button>
+  </div>
+  <div *ngIf="!data.new">
+    <button mat-raised-button class="action" (click)="delete()" color="warn"><fa-icon icon="exclamation-circle"></fa-icon> Delete</button>
+  </div>
+</div>

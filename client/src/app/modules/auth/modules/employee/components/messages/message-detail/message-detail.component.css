@@ -1,0 +1,10 @@
+:host ::ng-deep .ck-editor__editable_inline {
+  min-height: 500px;
+}
+
+div.message-viewer {
+  min-width: 800px;
+  min-height: 400px;
+  border: 1px solid #e6e6e6;
+  padding: 20px;
+}

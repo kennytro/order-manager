@@ -1,0 +1,16 @@
+<h3 mat-dialog-title><fa-icon icon="{{messageIcon()}}" size="2x" style="margin-right: 15px"></fa-icon> {{messageTitle()}}</h3>
+<div mat-dialog-content>
+  <div fxLayout="column" fxLayoutGap="5px" fxLayoutAlign="center space-between">
+    <div fxLayout="row" fxLayoutAlign="space-between center">
+      <p class="thick">Created By: {{data.message.fromUser}}</p>
+      <p>Created At: {{data.message.createdAt | date: 'short'}}</p>
+    </div>
+    <div><p class="thick">Subject: {{data.message.subject}}</p></div>
+    <div innerHtml="{{data.message.body}}" class="message-viewer"></div>
+  </div>
+</div>
+<mat-divider></mat-divider>
+<div mat-dialog-actions fxLayout="row" fxLayoutAlign="end">
+  <button mat-raised-button class="action" (click)="close()">Close</button>
+  <button mat-raised-button class="action" (click)="delete()" color="warn"><fa-icon icon="exclamation-circle"></fa-icon> Delete</button> 
+</div>

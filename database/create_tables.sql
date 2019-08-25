@@ -179,3 +179,16 @@ CREATE TABLE IF NOT EXISTS metric_data
   metric_date timestamptz DEFAULT now(),
   source_instance_id integer
 );
+
+CREATE TABLE IF NOT EXISTS message
+(
+  id integer PRIMARY KEY DEFAULT nextval('generic_id_seq'),
+  message_type message_type DEFAULT 'Message',
+  from_user text,
+  to_user_id integer REFERENCES end_user,
+  subject text,
+  body text,
+  created_at timestamptz DEFAULT now(),
+  expires_at timestamptz DEFAULT 'infinity',
+  is_read bool DEFAULT false
+);

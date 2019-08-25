@@ -1,0 +1,72 @@
+{
+  "name": "Message",
+  "plural": "Messages",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true,
+    "postgresql": {
+      "schema": "public",
+      "table": "message"
+    }
+  },
+  "properties": {
+    "messageType": {
+      "type": "string",
+      "default": "Message",
+      "description": "One of 'Message', 'Alert' or 'Announcement'",
+      "postgresql": {
+        "columnName": "message_type"
+      }
+    },
+    "fromUser": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "from_user"
+      }
+    },
+    "toUserId": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "to_user_id"
+      }
+    },
+    "subject": {
+      "type": "string"
+    },    
+    "body": {
+      "type": "string"
+    },
+    "createdAt": {
+      "type": "date",
+      "postgresql": {
+        "dataType": "timestamptz",
+        "columnName": "created_at"
+      }
+    },
+    "expiresAt": {
+      "type": "date",
+      "postgresql": {
+        "dataType": "timestamptz",
+        "columnName": "expires_at"
+      }
+    },
+    "isRead": {
+      "type": "boolean",
+      "postgresql": {
+        "columnName": "is_read"
+      }
+    }
+  },
+  "validations": [],
+  "relations": {
+    "toUser": {
+      "type": "hasOne",
+      "model": "EndUser",
+      "foreignKey": "id",
+      "primaryKey": "toUserId"
+    }
+  },
+  "acls": [],
+  "methods": {}  
+}
