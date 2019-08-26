@@ -172,6 +172,7 @@ When back end server starts up for the first time, it needs to create an adminis
 
 ## ReCAPTCHA settings
 The "Contact Us" page in the public module of client has a checkbox widget that detects if end-user is a real human or a bot. The widget requires 2 environment variables in the back-end.
+
 |NAME|REQUIRED?|DEFAULT|DESCRIPTION|
 |----|---------|-------:|-----------|
 |RECAPTCHA_SITE_KEY|Y||ReCAPTCHA site key to enable bot detection on 'Contact Us' page.|
