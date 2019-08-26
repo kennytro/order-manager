@@ -9,6 +9,8 @@ import { of } from 'rxjs';
 
 import { AuthSharedModule } from '../../../../../shared/auth-shared.module';
 import { UsersComponent } from './users.component';
+import { UserLogsComponent } from './user-logs/user-logs.component';
+
 import { AuthService } from '../../../../../../../services/auth.service';
 import { DataApiService } from '../../../services/data-api.service';
 
@@ -32,7 +34,7 @@ describe('UsersComponent', () => {
     const msbSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
 
     TestBed.configureTestingModule({
-      declarations: [ UsersComponent ],
+      declarations: [ UsersComponent, UserLogsComponent ],
       imports: [ NoopAnimationsModule, AuthSharedModule, RouterTestingModule],
       providers: [
         { provide: ActivatedRoute, useValue: route },

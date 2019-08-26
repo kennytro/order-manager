@@ -26,6 +26,7 @@ module.exports = async function(app) {
     clientSecret: CLIENT_SECRET
   });
 
+  app.auth0MgmtClient = management;
   await createAdminUser(management);
   await createRules(management);
   /*

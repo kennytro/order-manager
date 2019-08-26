@@ -9,9 +9,15 @@ Use 'Username-Password-Authentication' connection type.
 Toggle 'Disable Sing Ups' since we only allow invited users.
 
 ## Applications
-Create two applications, one for 'SINGLE PAGE APPLICATION' type and another one for 'MACHINE TO MACHINE' type. SPA type application authorized front end application, and MTM type application authrozies back end server. SPA app settings are set in environment variables which back end server provides to front end app. MTM app settings are used by back end server to initialize Auth0 environment.
+Create two applications, one for 'SINGLE PAGE APPLICATION' type and another one for 'MACHINE TO MACHINE' type. SPA type application authorizes front end application, and MTM type application authrozies back end server. SPA app settings are set in environment variables which back end server provides to front end app. MTM app settings are used by back end server to initialize Auth0 environment.
 
 For the SPA application, disable social connection such as google.
+
+For the MTM application, you need to select the following scopes for the API assigned to it:
+ - read/update/delete/create:users
+ - read/update/delete/create:rules
+ - read:logs
+
 ## API
 Create an API audience. Enable 'Allow Skipping User Consent' and 'Authorize' the MTM application. 
 ## Rules

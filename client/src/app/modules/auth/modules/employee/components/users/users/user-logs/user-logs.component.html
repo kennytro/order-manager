@@ -1,0 +1,10 @@
+<div *ngIf="logTable">
+  <h3>Recent User Auth</h3>
+  <p></p>
+  <div *ngIf="logTable.dataTable.length > 0; else noData">
+    <google-chart [data]="logTable"></google-chart>
+  </div>
+  <ng-template #noData>
+    <p>No Data</p>
+  </ng-template>
+</div>

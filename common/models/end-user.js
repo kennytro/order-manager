@@ -7,11 +7,24 @@ const auth0ManagementClient = require('auth0').ManagementClient;
 const tenantSettings = require(appRoot + '/config/tenant');
 const logger = require(appRoot + '/config/winston');
 const app = require(appRoot + '/server/server');
+const Auth0EventMap = require(appRoot + '/common/util/auth0-event-code-map');
 
 module.exports = function(EndUser) {
   const CLIENT_ID = process.env.AUTH0_API_CLIENT_ID;
   const CLIENT_SECRET = process.env.AUTH0_API_CLIENT_SECRET;
   const DEFAULT_PW = process.env.DEFAULT_PW;
+
+  /**
+   * Helper function that checks Auth0 management client and throws
+   * an error if it's not set up.
+   */
+  function checkAuth0Client() {
+    if (!app.auth0MgmtClient) {
+      let error =  new Error('Auth0 management client is not set');
+      error.status = 500;
+      throw error;
+    }
+  }
 
   /* clientId is required is user role is customer.
    */
@@ -27,7 +40,7 @@ module.exports = function(EndUser) {
   const AllowedMethodsByRole = {
     customer: ['sendMeResetPasswordEmail', 'getMyUser', 'saveProductExclusionList'],
     manager: ['sendMeResetPasswordEmail'],
-    admin: ['sendMeResetPasswordEmail']
+    admin: ['sendMeResetPasswordEmail', 'getAuth0Logs']
   };
 
   /**
@@ -72,14 +85,20 @@ module.exports = function(EndUser) {
   ** @returns {EndUser} newUser
   */
   EndUser.createNewUser = async function(userObject) {
-    const management = new auth0ManagementClient({
-      domain: tenantSettings.domainId,
-      clientId: CLIENT_ID,
-      clientSecret: CLIENT_SECRET
-    });
+    checkAuth0Client();
+    // if (!app.auth0MgmtClient) {
+    //   let error =  new Error('Auth0 management client is not set');
+    //   error.status = 500;
+    //   throw error;
+    // }
+    // const management = new auth0ManagementClient({
+    //   domain: tenantSettings.domainId,
+    //   clientId: CLIENT_ID,
+    //   clientSecret: CLIENT_SECRET
+    // });
     let auth0User = null;
     try {
-      auth0User = await management.createUser({
+      auth0User = await app.auth0MgmtClient.createUser({
         connection: tenantSettings.connection,
         email: userObject.email,
         password: DEFAULT_PW,
@@ -94,7 +113,7 @@ module.exports = function(EndUser) {
         logger.error(`Error while creating Auth0 user(email: ${userObject.email}, clientId: ${userObject.clientId}) - ${error.message}`);
         throw error;
       }
-      let users = await management.getUsersByEmail(userObject.email);
+      let users = await app.auth0MgmtClient.getUsersByEmail(userObject.email);
       auth0User = users[0];
       debugAuth0(`User(email: ${userObject.email}, auth0 id: ${auth0User.user_id}) already exists.`);
     }
@@ -114,11 +133,18 @@ module.exports = function(EndUser) {
   };
 
   EndUser.updateUser = async function(userObject) {
-    const management = new auth0ManagementClient({
-      domain: tenantSettings.domainId,
-      clientId: CLIENT_ID,
-      clientSecret: CLIENT_SECRET
-    });
+    checkAuth0Client();
+
+    // if (!app.auth0MgmtClient) {
+    //   let error =  new Error('Auth0 management client is not set');
+    //   error.status = 500;
+    //   throw error;
+    // }
+    // const management = new auth0ManagementClient({
+    //   domain: tenantSettings.domainId,
+    //   clientId: CLIENT_ID,
+    //   clientSecret: CLIENT_SECRET
+    // });
     let existingUser = await EndUser.findById(userObject.id);
     if (!existingUser) {
       logger.info(`EndUser(id: ${userObject.id}) does not exist.`);
@@ -126,7 +152,7 @@ module.exports = function(EndUser) {
     }
     if (existingUser.clientId !== userObject.clientId) {
       try {
-        await management.updateAppMetadata({ id: existingUser.authId },
+        await app.auth0MgmtClient.updateAppMetadata({ id: existingUser.authId },
           {
             clientId: userObject.clientId,
             roles: [userObject.role]
@@ -144,7 +170,7 @@ module.exports = function(EndUser) {
       logger.error(`Error while upserting user(id: ${userObject.id} - ${error.message}`);
       // we must role back Auth0 user app metadata
       if (existingUser.clientId !== userObject.clientId) {
-        await management.updateAppMetadata({ id: existingUser.authId },
+        await app.auth0MgmtClient.updateAppMetadata({ id: existingUser.authId },
           {
             clientId: existingUser.clientId,
             roles: [existingUser.role]
@@ -159,19 +185,26 @@ module.exports = function(EndUser) {
   */
 
   EndUser.deleteUser = async function(id) {
+    checkAuth0Client();
+
+    // if (!app.auth0MgmtClient) {
+    //   let error =  new Error('Auth0 management client is not set');
+    //   error.status = 500;
+    //   throw error;
+    // }
     let user = await EndUser.findById(id);
     if (!user) {
       logger.info(`EndUser(id: ${id}) does not exist.`);
       return;
     }
-    const management = new auth0ManagementClient({
-      domain: tenantSettings.domainId,
-      clientId: CLIENT_ID,
-      clientSecret: CLIENT_SECRET
-    });
+    // const management = new auth0ManagementClient({
+    //   domain: tenantSettings.domainId,
+    //   clientId: CLIENT_ID,
+    //   clientSecret: CLIENT_SECRET
+    // });
     try {
       if (user.authId) {
-        await management.deleteUser({ id: user.authId });
+        await app.auth0MgmtClient.deleteUser({ id: user.authId });
         debugAuth0(`successfully deleted user(id: ${id}, auth0Id: ${user.authId}`);
       }
       await EndUser.destroyById(id);
@@ -229,5 +262,36 @@ module.exports = function(EndUser) {
    */
   EndUser.saveProductExclusionList = async function(exList) {
     // TODO: CODE HERE
+  };
+
+  /**
+   * Get Auth0 logs of given user ID.
+   * @param {string} - auth0 user ID
+   * @returns {Object[]} - Array of log record.
+   */
+  EndUser.getAuth0Logs = async function(authId) {
+    checkAuth0Client();
+    try {
+      let logs = await app.auth0MgmtClient.getUserLogs({
+        id: authId
+      });
+      return logs.map(log => {
+        let fromLoc = _.get(log, ['location_info', 'city_name'], '') + '/' + _.get(log, ['location_info', 'country_code'], '');
+        if (fromLoc === '/') {
+          fromLoc = 'N/A';
+        }
+        return {
+          date: log.date,
+          type: log.type,
+          description: Auth0EventMap.get(log.type),
+          // ip: log.ip,
+          // userAgent: log.user_agent,
+          from: fromLoc
+        };
+      });
+    } catch (error) {
+      logger.error(`Error while getting user(id: ${authId}) log - ${error.message}`);
+      throw error;
+    }
   };
 };
