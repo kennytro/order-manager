@@ -5,6 +5,7 @@ Single page application that manages order, invoice, statement, etc. The applica
 - Database: postgres
 - File server: AWS S3
 - Authentication: Auth0(^2.14.0)
+- Bot detection: GoogleReCAPTCHA(^5.0.0)
 
 The application serves public content that is both static(static HTML tags) and dynamic(rendered by Angular engine), and secured content which requires user authentication.
 
@@ -22,3 +23,5 @@ AUTH0_API_CLIENT_SECRET|N||Client secret of the machine to machine type applicat
 ADMIN_EMAIL|N||Email of the default administrator user
 ADMIN_PW|N||Password of the default administrator user
 DEFAULT_PW|Y||Password of newly created user. This is a temporary password because new user receives email with a link to reset password.
+RECAPTCHA_SITE_KEY|Y||ReCAPTCHA site key to enable bot detection on 'Contact Us' page.
+RECAPTCHA_SECRET|Y||ReCAPTCHA secret for verifying user response.

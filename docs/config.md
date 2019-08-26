@@ -170,6 +170,13 @@ When back end server starts up for the first time, it needs to create an adminis
 |AWS_ACCESS_KEY_ID|Y||IAM user's access key(found under Users-><tenant id>->Security credentials)|
 |AWS_SECRET_ACCESS_KEY|Y||IAM user's access secret|
 
+## ReCAPTCHA settings
+The "Contact Us" page in the public module of client has a checkbox widget that detects if end-user is a real human or a bot. The widget requires 2 environment variables in the back-end.
+|NAME|REQUIRED?|DEFAULT|DESCRIPTION|
+|----|---------|-------:|-----------|
+|RECAPTCHA_SITE_KEY|Y||ReCAPTCHA site key to enable bot detection on 'Contact Us' page.|
+|RECAPTCHA_SECRET|Y||ReCAPTCHA secret for verifying user response.|
+
 
 ## Resource settings
 
