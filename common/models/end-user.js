@@ -99,12 +99,14 @@ module.exports = function(EndUser) {
       debugAuth0(`User(email: ${userObject.email}, auth0 id: ${auth0User.user_id}) already exists.`);
     }
     try {
+      userObject.authId = auth0User.user_id;
+      let newUser = await EndUser.upsertWithWhere({ email: userObject.email }, userObject);
+
       if (!auth0User.email_verified) {
-        EndUser.sendPasswordResetEmail(userObject.email);
+        EndUser.sendMeResetPasswordEmail(newUser.authId);  // send email asynchronously
       }
 
-      userObject.authId = auth0User.user_id;
-      return await EndUser.upsertWithWhere({ email: userObject.email }, userObject);
+      return newUser;
     } catch (error) {
       logger.error(`Error while creating user(email: ${userObject.email}, clientId: ${userObject.clientId}) - ${error.message}`);
       throw error;
@@ -227,27 +229,5 @@ module.exports = function(EndUser) {
    */
   EndUser.saveProductExclusionList = async function(exList) {
     // TODO: CODE HERE
-  };
-
-  /**
-   * @param {string} email
-   * DEPRECATED. Use 'sendMeResetPasswordEmail'
-   */
-  EndUser.sendPasswordResetEmail = function(email) {
-    const options = {
-      method: 'POST',
-      url: 'https://' + tenantSettings.domainId + '/dbconnections/change_password',
-      headers: { 'content-type': 'application/json' },
-      body: {
-        client_id: CLIENT_ID,
-        email: email,
-        connection: tenantSettings.connection
-      },
-      json: true
-    };
-    request(options, function(error, response, body) {
-      if (error) throw new Error(error);
-      logger.info(body);
-    });
   };
 };
