@@ -17,6 +17,7 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { TodaysSnapshotsComponent } from './components/dashboard/todays-snapshots/todays-snapshots.component';
 import { TotalOrdersComponent } from './components/dashboard/total-orders/total-orders.component';
 import { UsersComponent } from './components/users/users/users.component';
+import { UserLogsComponent } from './components/users/users/user-logs/user-logs.component';
 import { UserDetailComponent } from './components/users/user-detail/user-detail.component';
 import { NewUserComponent } from './components/users/new-user/new-user.component';
 import { DeliveryRoutesComponent } from './components/delivery-routes/delivery-routes/delivery-routes.component';
@@ -87,7 +88,8 @@ import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV, faBell, faBullh
     HistoryGraphComponent,
     RankGraphComponent,
     MessagesComponent,
-    MessageDetailComponent
+    MessageDetailComponent,
+    UserLogsComponent
   ],
   imports: [
     AuthSharedModule,

@@ -159,20 +159,6 @@ module.exports = function(CustomerData) {
     }
   };
 
-  // TO DO: replace this function with genericMethod.
-  CustomerData.resetPassword = async function(idToken) {
-    try {
-      let decoded = await verifyIdToken(idToken, 'EndUser', 'sendPasswordResetEmail');
-      let endUser = await app.models.EndUser.findOne({ where: { authId: decoded.sub } });
-      if (endUser) {
-        await app.models.EndUser.sendPasswordResetEmail(endUser.email);
-      }
-    } catch (error) {
-      logger.error(`Cannot reset user password - ${error.message}`);
-      throw error;
-    }
-  };
-
   CustomerData.remoteMethod('genericFind', {
     http: { path: '/find', verb: 'get' },
     accepts: [
@@ -222,11 +208,5 @@ module.exports = function(CustomerData) {
       { arg: 'params', type: 'array', default: '[]' }
     ],
     returns: { type: 'object', root: true }
-  });
-  CustomerData.remoteMethod('resetPassword', {
-    http: { path: '/resetPassword', verb: 'post' },
-    accepts: [
-      { arg: 'idToken', type: 'string', required: true }
-    ]
   });
 };

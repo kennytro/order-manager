@@ -171,19 +171,6 @@ module.exports = function(EmployeeData) {
     }
   };
 
-  EmployeeData.resetPassword = async function(idToken) {
-    try {
-      let decoded = await verifyIdToken(idToken, 'EndUser', 'sendPasswordResetEmail');
-      let endUser = await app.models.EndUser.findOne({ where: { authId: decoded.sub } });
-      if (endUser) {
-        await app.models.EndUser.sendPasswordResetEmail(endUser.email);
-      }
-    } catch (error) {
-      logger.error(`Cannot reset user password - ${error.message}`);
-      throw error;
-    }
-  };
-
   EmployeeData.remoteMethod('genericFind', {
     http: { path: '/find', verb: 'get' },
     accepts: [
@@ -238,12 +225,6 @@ module.exports = function(EmployeeData) {
       { arg: 'methodName', type: 'string', required: true },
       { arg: 'params', type: 'array', default: '[]' },
       { arg: 'res', type: 'object', 'http': { source: 'res' } }
-    ]
-  });
-  EmployeeData.remoteMethod('resetPassword', {
-    http: { path: '/resetPassword', verb: 'post' },
-    accepts: [
-      { arg: 'idToken', type: 'string', required: true }
     ]
   });
 };

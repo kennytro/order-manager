@@ -1,7 +1,9 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { MatDialog, MatPaginator, MatSort, MatTableDataSource, MatSnackBar } from '@angular/material';
-import { take } from 'rxjs/operators';
+import { SelectionModel } from '@angular/cdk/collections';
+import { Subject } from 'rxjs';
+import { take, takeUntil } from 'rxjs/operators';
 
 import { NewUserComponent } from '../new-user/new-user.component';
 import { AuthService } from '../../../../../../../services/auth.service';
@@ -16,6 +18,9 @@ export class UsersComponent implements OnInit {
   // TO DO: get column names from service.
   displayedColumns: string[] = ['id', 'email', 'role', 'clientId', 'createdDate'];
   private _users: MatTableDataSource<any>;
+  selection: SelectionModel<any>;
+  userSelected: any;
+  private _unsubscribe = new Subject<boolean>();
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -25,7 +30,16 @@ export class UsersComponent implements OnInit {
     private _dataApi: DataApiService,
     private _auth: AuthService,
     private _snackBar: MatSnackBar
-  ) { }
+  ) {
+    this.selection = new SelectionModel(false, []);
+    this.selection.onChange
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((a) => {
+        if (a.added[0]) {
+          this.selectUser(a.added[0]);
+        }
+      });
+   }
 
   ngOnInit() {
     this._route.data
@@ -35,6 +49,15 @@ export class UsersComponent implements OnInit {
         this._setTableDataSource(routeData['users']);
       }
     });    
+  }
+
+  ngOnDestroy() {
+    this._unsubscribe.next(true);
+    this._unsubscribe.unsubscribe();
+  }
+
+  selectUser(row) {
+    this.userSelected = row;
   }
 
   applyFilter(filterValue: string) {

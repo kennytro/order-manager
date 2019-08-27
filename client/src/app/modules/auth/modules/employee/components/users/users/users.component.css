@@ -1,0 +1,8 @@
+.users-container {
+  max-height: 500px;
+  overflow: auto;
+}
+
+.mat-row.selected {
+   background: #eafaea;
+}

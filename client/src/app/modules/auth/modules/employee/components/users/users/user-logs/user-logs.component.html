@@ -1,0 +1,32 @@
+<h4>Recent User Activities</h4>
+<mat-form-field style="width: 100px">
+  <mat-label>Limit</mat-label>
+  <mat-select [formControl]="limitSelection">
+    <mat-option *ngFor="let limit of limits" [value]="limit">
+      {{limit}}
+    </mat-option>
+  </mat-select>
+</mat-form-field>
+<div *ngIf="logs?.data.length > 0; else noData">
+  <div class="table-responsive">
+    <table mat-table [dataSource]="logs" >
+      <ng-container matColumnDef="type">
+        <th mat-header-cell *matHeaderCellDef> TYPE </th>
+        <td mat-cell *matCellDef="let row"><fa-icon icon="{{typeIcon(row.dataType)}}"></fa-icon> </td>
+      </ng-container>
+      <ng-container matColumnDef="event">
+        <th mat-header-cell *matHeaderCellDef> EVENT </th>
+        <td mat-cell *matCellDef="let row">{{row.event}}</td>
+      </ng-container>
+      <ng-container matColumnDef="date">
+        <th mat-header-cell *matHeaderCellDef> TIME </th>
+        <td mat-cell *matCellDef="let row">{{fromNow(row.date)}}</td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>      
+  </div>
+</div>
+<ng-template #noData>
+  <p>No Data</p>
+</ng-template>
