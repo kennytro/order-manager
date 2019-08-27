@@ -2,7 +2,9 @@
 const appRoot = require('app-root-path');
 const request = require('request');
 const debugAuth0 = require('debug')('order-manager:EndUser:auth0');
+const HttpErrors = require('http-errors');
 const _ = require('lodash');
+const moment = require('moment');
 const auth0ManagementClient = require('auth0').ManagementClient;
 const tenantSettings = require(appRoot + '/config/tenant');
 const logger = require(appRoot + '/config/winston');
@@ -265,33 +267,88 @@ module.exports = function(EndUser) {
   };
 
   /**
-   * Get Auth0 logs of given user ID.
-   * @param {string} - auth0 user ID
+   * Get logs of given user ID.
+   * @param {number} - user ID,
+   * @param {limit} - max # of logs to return.
    * @returns {Object[]} - Array of log record.
    */
-  EndUser.getAuth0Logs = async function(authId) {
+  EndUser.getLogs = async function(userId, limit = 30) {
     checkAuth0Client();
     try {
-      let logs = await app.auth0MgmtClient.getUserLogs({
-        id: authId
-      });
-      return logs.map(log => {
+      const user = await EndUser.findById(userId);
+      if (!user) {
+        throw new HttpErrors(404, `cannot find user(id: ${userId})`);
+      }
+      let orders = [];
+      let statements = [];
+      let auth0logs = [];
+      // same 'where' and 'limit' filters are used for both Order and Statement.
+      const findFilter = {
+        where: { or: [{ createdBy: userId }, { updatedBy: userId }] },
+        limit: limit
+      };
+      if (user.role === 'customer') {
+        [orders, auth0logs] = await Promise.all([
+          app.models.Order.find(findFilter),
+          app.auth0MgmtClient.getUserLogs({ id: user.authId })
+        ]);
+      } else {
+        [orders, statements, auth0logs] = await Promise.all([
+          app.models.Order.find(findFilter),
+          app.models.Statement.find(findFilter),
+          app.auth0MgmtClient.getUserLogs({ id: user.authId })
+        ]);
+      }
+
+      let logs = [];
+      logs = logs.concat(transformInstances(orders, 'Order', user.id));
+      logs = logs.concat(transformInstances(statements, 'Statement', user.id));
+      logs = logs.concat(auth0logs.map(log => {
+        let eventDesc = Auth0EventMap.get(log.type);
         let fromLoc = _.get(log, ['location_info', 'city_name'], '') + '/' + _.get(log, ['location_info', 'country_code'], '');
-        if (fromLoc === '/') {
-          fromLoc = 'N/A';
+        if (fromLoc !== '/') {
+          eventDesc = eventDesc + ` (location: ${fromLoc})`;
         }
         return {
-          date: log.date,
-          type: log.type,
-          description: Auth0EventMap.get(log.type),
-          // ip: log.ip,
-          // userAgent: log.user_agent,
-          from: fromLoc
+          date: moment(log.date).toDate(),
+          dataType: 'User',
+          event: eventDesc
         };
+      }));
+      logs.sort(function(a, b) {
+        return moment(a.date).isAfter(b.date) ? -1 : 1;
       });
+      return logs.slice(0, limit);
     } catch (error) {
-      logger.error(`Error while getting user(id: ${authId}) log - ${error.message}`);
+      logger.error(`Error while getting user(id: ${userId}) log - ${error.message}`);
       throw error;
+    }
+
+    /**
+     * transform array of instances to contain only 'date', 'type' and 'event'
+     * @param {Object[]}
+     * @param {String} model name
+     * @userId {Number} user ID
+     */
+    function transformInstances(instances, modelName, userId) {
+      let returnData = [];
+      instances.forEach(instance => {
+        if (instance.createdBy === userId) {
+          returnData.push({
+            date: instance.createdAt,
+            dataType: modelName,
+            event: `Created ${modelName.toLowerCase()}(ID: ${instance.id})`
+          });
+        }
+        if (instance.updatedBy === userId) {
+          returnData.push({
+            date: instance.updatedAt,
+            dataType: modelName,
+            event: `Updated ${modelName.toLowerCase()}(ID: ${instance.id})`
+          });
+        }
+      });
+      return returnData;
     }
   };
 };

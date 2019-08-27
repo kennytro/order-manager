@@ -1,6 +1,9 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { GoogleChartInterface } from 'ng2-google-charts/google-charts-interfaces';
-import { take } from 'rxjs/operators';
+import { MatTableDataSource } from '@angular/material';
+import { FormControl } from '@angular/forms';
+
+import { Subject } from 'rxjs';
+import { take, takeUntil } from 'rxjs/operators';
 import * as moment from 'moment';
 
 import { DataApiService } from '../../../../services/data-api.service';
@@ -11,62 +14,70 @@ import { DataApiService } from '../../../../services/data-api.service';
   styleUrls: ['./user-logs.component.css']
 })
 export class UserLogsComponent implements OnInit {
-  logTable: GoogleChartInterface;
-  private _authId: string;
+  limits = [10, 30, 50];
+  limitSelection: FormControl;
+  private _limit;
+
+  displayedColumns: string[] = ['type', 'event', 'date'];  
+  logs: MatTableDataSource<any>;
+
+  private _unsubscribe = new Subject<boolean>();
+
+  private _userId: string;
   @Input()
-  set authId(id: string) {
-    if (this._authId !== id) {
-      this._authId = id;
+  set userId(id: string) {
+    if (this._userId !== id) {
+      this._userId = id;
       this._updateChart();
     }
   }
-  get authId(): string { return this._authId; }
+  get userId(): string { return this._userId; }
 
-  constructor(private _dataApi: DataApiService) { }
+  constructor(private _dataApi: DataApiService) {
+    this._limit = this.limits[0];
+  }
 
   ngOnInit() {
+    this.limitSelection = new FormControl(this.limits[0]);
+    this.limitSelection.valueChanges
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe(limit => {
+        if (this._limit !== limit) {
+          this._limit = limit;
+          this._updateChart();
+        }
+      });
+  }
+
+  ngOnDestroy() {
+    this._unsubscribe.next(true);
+    this._unsubscribe.unsubscribe();
+  }
+
+  fromNow(date): string {
+    return moment(date).fromNow();
+  }
+
+  typeIcon(dataType: string): string {
+    if (dataType === 'Order') {
+      return "shopping-cart";
+    }
+    if (dataType === 'Statement') {
+      return 'file-invoice-dollar';
+    }
+    if (dataType === 'User') {
+      return 'user'
+    }
+    return 'question-circle';
   }
 
   private _updateChart() {
-    if (this._authId) {
-      this._dataApi.genericMethod('EndUser', 'getAuth0Logs', [this._authId])
+    if (this._userId) {
+      this._dataApi.genericMethod('EndUser', 'getLogs', [this._userId, this._limit])
         .pipe(take(1))
         .subscribe(data => {
-          let newDataTable = this._getDataTableFromLogs(data);
-          if (this.logTable) {
-            this.logTable.dataTable = newDataTable;
-            this.logTable.component.draw();
-          } else {
-            this._initializeChart(newDataTable);
-          }
+          this.logs = new MatTableDataSource(data);
         });
     }
   }
-
-  private _initializeChart(dataTable) {
-    this.logTable = {
-      chartType: 'Table',
-      dataTable: dataTable,
-      options: { width: '100%', allowHtml: true}
-    };
-  }
-
-  /**
-   * Make a chart data table using metric data.
-   * @params{Object[]} metricData
-   * @returns{Object[]} chart data table
-   */
-  private _getDataTableFromLogs(logs: any[]) :any[] {    
-    let newDataTable = [];
-    if (logs.length > 0) {
-      newDataTable = [['Date', 'Type', 'Description', 'From']];
-      logs.sort(function(a, b) { 
-        return moment(a.date).isAfter(b.date) ? -1 : 1;
-      });
-      logs.forEach((data) => {
-        newDataTable.push([moment(data.date).fromNow(), data.type, data.description, data.from]);
-      });
-    }    
-    return newDataTable;
-  }  
 }

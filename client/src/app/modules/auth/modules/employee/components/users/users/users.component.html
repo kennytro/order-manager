@@ -39,8 +39,6 @@
     <mat-paginator [pageSizeOptions]="[25, 50, 100]"></mat-paginator>
   </div>
 </div>
-<div fxLayout="row wrap" fxLayoutGap="10px" fxLayoutAlign="start center" style="margin-top: 10px">
-  <div *ngIf="userSelected">
-    <app-user-logs [authId]=userSelected?.authId></app-user-logs>
-  </div>
+<div *ngIf="userSelected">
+  <app-user-logs [userId]=userSelected?.id></app-user-logs>
 </div>
