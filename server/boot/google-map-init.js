@@ -6,14 +6,13 @@ const debugInit = require('debug')('order-manager:Map:init');
 const logger = require(appRoot + '/config/winston');
 
 module.exports = async function(app) {
-  if (process.env.ONE_OFF) {
+  if (process.env.ONE_OFF || !process.env.GOOGLE_GEOCODE_API_KEY) {
     return; // skip initialization for one off process.
   };
 
   const MAX_FAILURE_COUNT = 10;
-  const mapAPIKey = process.env.GOOGLE_GEOCODE_API_KEY;
   const googleMapClient = require('@google/maps').createClient({
-    key: mapAPIKey,
+    key: process.env.GOOGLE_GEOCODE_API_KEY,
     Promise: Promise
   });
 
