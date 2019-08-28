@@ -8,5 +8,6 @@ module.exports = {
   audience: process.env.AUTH0_AUDIENCE,
   timeZone: process.env.TZ || 'America/Los_Angeles',
   companyName: process.env.COMPANY_NAME || 'Order Manager',
-  reCAPTCHASiteKey: process.env.RECAPTCHA_SITE_KEY || '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
+  reCAPTCHASiteKey: process.env.RECAPTCHA_SITE_KEY || '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI',
+  mapAPIKey: process.env.GOOGLE_MAP_API_KEY
 };

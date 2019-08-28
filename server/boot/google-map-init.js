@@ -6,9 +6,13 @@ const debugInit = require('debug')('order-manager:Map:init');
 const logger = require(appRoot + '/config/winston');
 
 module.exports = async function(app) {
-  if (process.env.ONE_OFF || !process.env.GOOGLE_GEOCODE_API_KEY) {
+  if (process.env.ONE_OFF) {
     return; // skip initialization for one off process.
   };
+
+  if (!process.env.GOOGLE_GEOCODE_API_KEY) {
+    logger.warn('Google geocode API key is not set. Address translation to geocode will not be available.');
+  }
 
   const MAX_FAILURE_COUNT = 10;
   const googleMapClient = require('@google/maps').createClient({
