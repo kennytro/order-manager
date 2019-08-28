@@ -10,6 +10,9 @@
       "table": "client"
     }
   },
+  "mixins": {
+    "Location": true
+  },
   "properties": {
     "name": {
       "type": "string",
@@ -119,6 +122,12 @@
       "postgresql": {
         "dataType": "timestamptz",
         "columnName": "created_date"
+      }
+    },
+    "settings": {
+      "type": "object",
+      "postgresql": {
+        "dataType": "json"
       }
     }
   },

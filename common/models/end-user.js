@@ -13,7 +13,7 @@ const Auth0EventMap = require(appRoot + '/common/util/auth0-event-code-map');
 
 module.exports = function(EndUser) {
   const CLIENT_ID = process.env.AUTH0_API_CLIENT_ID;
-  const CLIENT_SECRET = process.env.AUTH0_API_CLIENT_SECRET;
+  // const CLIENT_SECRET = process.env.AUTH0_API_CLIENT_SECRET;
   const DEFAULT_PW = process.env.DEFAULT_PW;
 
   /**

@@ -65,7 +65,8 @@ CREATE TABLE IF NOT EXISTS client
   fee_schedule fee_schedule DEFAULT 'None',
   show_public bool DEFAULT false,
   delivery_route_id text REFERENCES delivery_route,
-  created_date timestamptz DEFAULT now()
+  created_date timestamptz DEFAULT now(),
+  settings jsonb
 );
 ALTER SEQUENCE client_id_seq OWNED BY client.id;
 
