@@ -185,6 +185,8 @@ The "Delivery Routes" page contains a component that renders Google map with mar
 
 Through 'Google Cloud Platform' dashboard, the map API key should be restricted to only allowed in HTTP referers with certain domain.
 
+Make sure the project that has API keys is linked to a billing account, otherwise you will get "timeout" error when calling the APIs.
+
 |NAME|REQUIRED?|DEFAULT|DESCRIPTION|
 |----|---------|-------:|-----------|
 |RECAPTCHA_SITE_KEY|Y||ReCAPTCHA site key to enable bot detection on 'Contact Us' page.|
