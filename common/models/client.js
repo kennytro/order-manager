@@ -149,9 +149,8 @@ module.exports = function(Client) {
         result.error_message = 'Cannot find geometry location data';
       }
     } catch (err) {
-      logger.debug(`error message = ${JSON.stringify(err)}`);
-      logger.error(`Failed to get Google map geo code(address: ${address}) - ${err.json.error_message}`);
-      result.error_message = err.json.error_message;
+      logger.error(`Failed to get Google map geo code(address: ${address}) - ${err}`);
+      result.error_message = err;
     }
     return result;
   };
