@@ -4,9 +4,9 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { MatButtonModule, MatFormFieldModule, MatInputModule, MatSnackBarModule } from '@angular/material';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RecaptchaModule, RecaptchaFormsModule } from 'ng-recaptcha';
-import { TextMaskModule } from 'angular2-text-mask';
 import { FlexLayoutModule } from '@angular/flex-layout';
 
+import { SharedModule } from '../../shared/shared.module';
 import { PublicRoutingModule } from './public-routing.module';
 import { LoginComponent } from './components/login/login.component';
 import { PublicLayoutComponent } from './components/public-layout/public-layout.component';
@@ -44,7 +44,7 @@ import { SafePipe } from './pipes/safe.pipe';
     MatButtonModule, MatFormFieldModule, MatInputModule, MatSnackBarModule,
     ReactiveFormsModule,
     RecaptchaModule, RecaptchaFormsModule,
-    TextMaskModule,
+    SharedModule,
     FlexLayoutModule,
     CommonModule,
     FontAwesomeModule,

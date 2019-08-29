@@ -176,13 +176,21 @@ When back end server starts up for the first time, it needs to create an adminis
 |AWS_ACCESS_KEY_ID|Y||IAM user's access key(found under Users-><tenant id>->Security credentials)|
 |AWS_SECRET_ACCESS_KEY|Y||IAM user's access secret|
 
-## ReCAPTCHA settings
+## Google service settings
+### ReCAPTCHA
 The "Contact Us" page in the public module of client has a checkbox widget that detects if end-user is a real human or a bot. The widget requires 2 environment variables in the back-end.
+
+### Google Map
+The "Delivery Routes" page contains a component that renders Google map with markers representing clients. There are two API keys in order to use Google map - Geocoding API key(for translating street address to geo coordinates) and map API key(for getting map rendered in our page)
+
+Through 'Google Cloud Platform' dashboard, the map API key should be restricted to only allowed in HTTP referers with certain domain.
 
 |NAME|REQUIRED?|DEFAULT|DESCRIPTION|
 |----|---------|-------:|-----------|
 |RECAPTCHA_SITE_KEY|Y||ReCAPTCHA site key to enable bot detection on 'Contact Us' page.|
 |RECAPTCHA_SECRET|Y||ReCAPTCHA secret for verifying user response.|
+|GOOGLE_GEOCODE_API_KEY|Y||Google Geocoding API key. When a resource with address(e.g. Client) is updated in the back-end, its street address is sent to Google using this key. In return, the location's coordinates are saved in DB|
+|GOOGLE_MAP_API_KEY|Y||The API key to use in 'angular-google-maps' package.|
 
 
 ## Resource settings
