@@ -6,7 +6,7 @@ import {
   MatMenuModule,
   MatPaginatorModule, MatProgressSpinnerModule,
   MatRadioModule,
-  MatSelectModule, MatSlideToggleModule, MatSnackBarModule, MatSortModule, MatStepperModule,
+  MatSelectModule, MatSidenavModule, MatSlideToggleModule, MatSnackBarModule, MatSortModule, MatStepperModule,
   MatTableModule, MatTabsModule, MatToolbarModule, MatTooltipModule
 } from '@angular/material';
 import { MatMomentDateModule } from '@angular/material-moment-adapter';
@@ -31,6 +31,7 @@ const modules = [
   MatProgressSpinnerModule,
   MatRadioModule,
   MatSelectModule,
+  MatSidenavModule,
   MatSlideToggleModule,
   MatSnackBarModule,
   MatSortModule,

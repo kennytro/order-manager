@@ -1,8 +1,14 @@
 .delivery-routes-container {
-  max-height: 500px;
-  overflow: auto;
+  min-height: 400px;
+  max-height: 700px;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .mat-row.selected {
    background: #eafaea;
+}
+
+.map-drawer {
+  padding: 20px;
 }

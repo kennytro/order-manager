@@ -1,0 +1,7 @@
+.route-map {
+  min-width: 300px
+}
+
+agm-map {
+  height: 300px;
+}

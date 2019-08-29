@@ -1,11 +1,14 @@
 'use strict';
 const appRoot = require('app-root-path');
 const debugMockData = require('debug')('order-manager:Client:mockData');
+const debugMap = require('debug')('order-manager:Map:update');
 const Promise = require('bluebird');
 const yn = require('yn');
 const _ = require('lodash');
 const app = require(appRoot + '/server/server');
 const metricSetting = require(appRoot + '/config/metric');
+const logger = require(appRoot + '/config/winston');
+
 module.exports = function(Client) {
   const REDIS_CLIENT_DELETED_KEY = metricSetting.redisClientDeletedSetKey;
 
@@ -40,6 +43,44 @@ module.exports = function(Client) {
         callback(error);
       }
     };
+  });
+
+  /* Before client is saved, we translate address to geo coordinates.
+   */
+  Client.observe('before save', async function(ctx) {
+    if (app.mapClient) {
+      if (ctx.instance) {
+        let client = ctx.instance;
+        if (client.hasFullAddress && !client.hasCoordinates && client.retryGeoCoding()) {
+          let result = await Client.getGeoCodes(client.address, app.mapClient);
+          if (result.coordinates) {
+            debugMap(`Client(id: ${client.id}) has new coordinates(${JSON.stringify(result.coordinates)})`);
+            client.coordinates = result.coordinates;
+          } else {
+            client.coordinateFailCount = client.coordinateFailCount + 1;
+            debugMap(`Client(id: ${client.id}) has new coordinate fail count(${client.coordinateFailCount})`);
+          }
+        }
+      } else if (ctx.currentInstance && ctx.data) {
+        let client = ctx.currentInstance;
+        if (!client.sameAddress(ctx.data) &&
+          ctx.data.addressStreet &&
+          ctx.data.addressCity &&
+          ctx.data.addressState &&
+          ctx.data.addressZip) {
+          let newAddress = ctx.data.addressStreet + ' ' + ctx.data.addressCity + ' ' + ctx.data.addressState + ' ' + ctx.data.addressZip;
+          debugMap(`Client(id: ${ctx.currentInstance.id}) has new address(${newAddress})`);
+          let result = await Client.getGeoCodes(newAddress, app.mapClient);
+          if (result.coordinates) {
+            debugMap(`Client(id: ${client.id}) has new coordinates(${JSON.stringify(result.coordinates)})`);
+            _.set(ctx.data, ['settings', 'location'], result.coordinates);
+          } else {
+            _.set(ctx.data, ['settings', 'location', 'failureCount'], 0);
+            debugMap(`Client(id: ${client.id}) has new coordinate fail count(1)`);
+          }
+        }
+      }
+    }
   });
 
   const AllowedMethodsByRole = {
@@ -82,6 +123,36 @@ module.exports = function(Client) {
       const client2 = client.toJSON();
       return !_.isEmpty(client2.orders);
     });
+  };
+
+  /**
+   * Use Google Geocoding API to translate client address to geographic
+   * coordinates.
+   * @param {String} - address
+   * @param {Object} - map client
+   * @returns {Object} - {error_message:String, coordinates:Object}
+   */
+  Client.getGeoCodes = async function(address, mapClient) {
+    let result = {
+      error_message: null,
+      coordinates: null
+    };
+    try {
+      debugMap(`Getting geo code for ${address}`);
+      let response = await mapClient.geocode({ address: address }).asPromise();
+      let geocode = _.get(response, 'json.results[0].geometry.location');
+      if (geocode) {
+        debugMap(`Address(${address}) has geo code(${JSON.stringify(geocode, null, 4)})`);
+        result.coordinates = geocode;
+      } else {
+        logger.error(`Can't find geometry location from ${JSON.stringify(response.json.results, null, 4)}`);
+        result.error_message = 'Cannot find geometry location data';
+      }
+    } catch (err) {
+      logger.error(`Failed to get Google map geo code(address: ${address}) - ${err.json.error_message}`);
+      result.error_message = err.json.error_message;
+    }
+    return result;
   };
 
   /**
@@ -158,5 +229,27 @@ module.exports = function(Client) {
       app.redis.sadd(REDIS_CLIENT_DELETED_KEY, this.id);
     }
     */
+  };
+
+  /**
+   * checks if given client data has same address.
+   * @returns {Boolean} - TRUE if address is same.
+   */
+  Client.prototype.sameAddress = function(clientData) {
+    return this.addressStreet === clientData.addressStreet &&
+      this.addressCity === clientData.addressCity &&
+      this.addressState === clientData.addressState &&
+      this.addressZip === clientData.addressZip;
+  };
+
+  /**
+   * Can we run this client through Google Geocoding service?
+   * If this client has failed more than max count(10), then we
+   * give up unless its address changes.
+   * @returns {Boolean} - TRUE if this client should use Geocoding.
+   */
+  Client.prototype.retryGeoCoding = function() {
+    const MAX_FAILURE_COUNT = 10;
+    return this.coordinateFailCount <= MAX_FAILURE_COUNT;
   };
 };

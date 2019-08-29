@@ -2,6 +2,7 @@
 import { NgModule } from '@angular/core';
 import { ImageCropperModule } from 'ngx-image-cropper';
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
+import { AgmCoreModule, LAZY_MAPS_API_CONFIG } from '@agm/core';
 
 import { AuthSharedModule } from '../../shared/auth-shared.module';
 import { SharedModule } from '../../../../shared/shared.module';
@@ -57,6 +58,7 @@ import { AlertService } from '../../shared/services/alert.service';
 import { FileService } from '../../shared/services/file.service';
 import { DataApiService } from './services/data-api.service';
 import { ProductService } from './services/product.service';
+import { AgmConfig } from './services/agm-config';
 
 // Pipes
 import { PhoneNumberPipe } from '../../shared/pipes/phone-number.pipe';
@@ -67,10 +69,11 @@ import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV, faBell, faBullh
         faCaretDown, faCaretUp, faCartPlus, faChartLine, faCheckCircle, faCog,
         faEdit, faEnvelope, faEnvelopeOpen, faExclamationCircle,
         faFileAlt, faFileInvoice, faFileInvoiceDollar, faFilePdf, faFolderOpen, faKey,
-        faLongArrowAltLeft, faLongArrowAltRight, faPlus, faQuestionCircle,
+        faLongArrowAltLeft, faLongArrowAltRight, faMapMarkedAlt, faPlus, faQuestionCircle,
         faSearchDollar, faShoppingCart, faSignOutAlt, faStoreAlt,
         faTag, faTags, faTimesCircle, faTrashAlt, faTruck, faTruckLoading,
         faUndoAlt, faUser, faUserPlus, faUsers } from '@fortawesome/free-solid-svg-icons';
+import { RouteMapComponent } from './components/delivery-routes/delivery-routes/route-map/route-map.component';
 
 @NgModule({
   declarations: [
@@ -89,14 +92,16 @@ import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV, faBell, faBullh
     RankGraphComponent,
     MessagesComponent,
     MessageDetailComponent,
-    UserLogsComponent
+    UserLogsComponent,
+    RouteMapComponent
   ],
   imports: [
     AuthSharedModule,
     ImageCropperModule,
     CKEditorModule,
     SharedModule,
-    EmployeeRoutingModule
+    EmployeeRoutingModule,
+    AgmCoreModule.forRoot()
   ],
   providers: [
     DataResolver,
@@ -110,7 +115,11 @@ import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV, faBell, faBullh
     FileService,
     DataApiService,
     ProductService,
-    PdfService
+    PdfService,
+     {
+       provide: LAZY_MAPS_API_CONFIG,
+       useClass: AgmConfig
+     }
   ],
   entryComponents: [
     EditAdjustComponent,
@@ -128,7 +137,7 @@ export class EmployeeModule {
       faCaretDown, faCaretUp, faCartPlus, faChartLine, faCheckCircle, faCog,
       faEdit, faEnvelope, faEnvelopeOpen, faExclamationCircle,
       faFileAlt, faFileInvoice, faFileInvoiceDollar, faFilePdf, faFolderOpen, faKey,
-      faLongArrowAltLeft, faLongArrowAltRight, faPlus, faQuestionCircle,
+      faLongArrowAltLeft, faLongArrowAltRight, faMapMarkedAlt, faPlus, faQuestionCircle,
       faSearchDollar, faShoppingCart, faSignOutAlt, faStoreAlt,
       faTag, faTags, faTimesCircle, faTrashAlt, faTruck, faTruckLoading,
       faUndoAlt, faUser, faUserPlus, faUsers);

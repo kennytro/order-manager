@@ -14,7 +14,6 @@ module.exports = async function(app) {
     logger.warn('Google geocode API key is not set. Address translation to geocode will not be available.');
   }
 
-  const MAX_FAILURE_COUNT = 10;
   const googleMapClient = require('@google/maps').createClient({
     key: process.env.GOOGLE_GEOCODE_API_KEY,
     Promise: Promise
@@ -31,22 +30,7 @@ module.exports = async function(app) {
   try {
     let clients = await getClientsMissingCoordinates();
     await Promise.each(clients, async (client) => {
-      try {
-        debugInit(`Getting geo code for ${client.address}`);
-        let response = await app.mapClient.geocode({ address: client.address }).asPromise();
-        let geocode = _.get(response, 'json.results[0].geometry.location');
-        if (!geocode) {
-          logger.error(`Can't find geometry location from ${JSON.stringify(response.json.results, null, 4)}`);
-        } else {
-          debugInit(`Client(id: ${client.id}) has geo code(${JSON.stringify(geocode, null, 4)})`);
-          client.coordinates = geocode;
-        }
-      } catch (err) {
-        logger.error(`Failed to get Google map geo code(address: ${client.address}) - ${err.json.error_message}`);
-        client.coordinateFailCount = client.coordinateFailCount + 1;
-        debugInit(`Client(id: ${client.id}) has new failure count ${client.coordinateFailCount}`);
-      }
-
+      // Client.observer('before save') updates Geo codes
       await client.save();
     });
   } catch (error) {
@@ -62,8 +46,7 @@ module.exports = async function(app) {
     let clients = await app.models.Client.find();
     clients = clients.filter(client => {
       if (client.hasFullAddress && !client.hasCoordinates) {
-        let failCount = client.coordinateFailCount;
-        if (failCount <= MAX_FAILURE_COUNT) {
+        if (client.retryGeoCoding()) {
           return true;
         }
         logger.info(`Client(id: ${client.id}) has reached max failure count to get location coordinates.`);

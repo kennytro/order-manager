@@ -1,0 +1,29 @@
+<div class="route-map" *ngIf="deliveryRoute; else noRouteSelected">
+  <h4>Delivery Route:{{deliveryRoute.name}}</h4>
+  <agm-map [latitude]="latitude()" [longitude]="longitude()" [zoom]="11" [streetViewControl]="false">
+    <agm-marker *ngFor="let m of markers; let i = index"
+      (markerClick)="clickedMarker(m.label, i)"
+      [latitude]="m.lat"
+      [longitude]="m.lng"
+      [label]="m.label"
+      [markerDraggable]="false"
+    >
+    </agm-marker>
+    <agm-marker
+      [latitude]="businessMarker.lat"
+      [longitude]="businessMarker.lng"
+      [iconUrl]="homeIcon"
+      [markerDraggable]="false">
+    </agm-marker>
+<!--     <agm-rectangle
+      [north]="max('lat')"
+      [east]="max('lng')"
+      [south]="min('lat')"
+      [west]="min('lng')"
+    ></agm-rectangle> -->
+  </agm-map>
+</div>
+<ng-template #noRouteSelected>
+  <p>Select a delivery route</p>
+</ng-template>
+
