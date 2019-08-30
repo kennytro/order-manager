@@ -32,11 +32,11 @@ export class EmployeeDataApi extends BaseLoopBackApi {
          * (The remote method definition does not provide any description.)
          * </em>
    *
-   * @param {string} idToken 
-   *
    * @param {string} modelName 
    *
    * @param {object} filter 
+   *
+   * @param {string} accessToken 
    *
    * @returns {object[]} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -47,14 +47,13 @@ export class EmployeeDataApi extends BaseLoopBackApi {
    * This usually means the response is a `EmployeeData` object.)
    * </em>
    */
-  public genericFind(idToken: any, modelName: any, filter: LoopBackFilter = {}, customHeaders?: Function): Observable<any> {
+  public genericFind(modelName: any, filter: LoopBackFilter = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "GET";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/EmployeeData/find";
     let _routeParams: any = {};
     let _postBody: any = {};
     let _urlParams: any = {};
-    if (typeof idToken !== 'undefined' && idToken !== null) _urlParams.idToken = idToken;
     if (typeof modelName !== 'undefined' && modelName !== null) _urlParams.modelName = modelName;
     if (typeof filter !== 'undefined' && filter !== null) _urlParams.filter = filter;
     let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
@@ -66,13 +65,13 @@ export class EmployeeDataApi extends BaseLoopBackApi {
          * (The remote method definition does not provide any description.)
          * </em>
    *
-   * @param {string} idToken 
-   *
    * @param {string} modelName 
    *
    * @param {string} id 
    *
    * @param {object} filter 
+   *
+   * @param {string} accessToken 
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -83,7 +82,7 @@ export class EmployeeDataApi extends BaseLoopBackApi {
    * This usually means the response is a `EmployeeData` object.)
    * </em>
    */
-  public genericFindById(idToken: any, modelName: any, id: any, filter: LoopBackFilter = {}, customHeaders?: Function): Observable<any> {
+  public genericFindById(modelName: any, id: any, filter: LoopBackFilter = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "GET";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/EmployeeData/findById/:id";
@@ -92,7 +91,6 @@ export class EmployeeDataApi extends BaseLoopBackApi {
     };
     let _postBody: any = {};
     let _urlParams: any = {};
-    if (typeof idToken !== 'undefined' && idToken !== null) _urlParams.idToken = idToken;
     if (typeof modelName !== 'undefined' && modelName !== null) _urlParams.modelName = modelName;
     if (typeof filter !== 'undefined' && filter !== null) _urlParams.filter = filter;
     let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
@@ -105,8 +103,6 @@ export class EmployeeDataApi extends BaseLoopBackApi {
          * </em>
    *
    * @param {object} data Request data.
-   *
-   *  - `idToken` – `{string}` - 
    *
    *  - `modelName` – `{string}` - 
    *
@@ -121,14 +117,13 @@ export class EmployeeDataApi extends BaseLoopBackApi {
    * This usually means the response is a `EmployeeData` object.)
    * </em>
    */
-  public genericUpsert(idToken: any, modelName: any, modelObj: any, customHeaders?: Function): Observable<any> {
+  public genericUpsert(modelName: any, modelObj: any, customHeaders?: Function): Observable<any> {
     let _method: string = "PUT";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/EmployeeData/upsert";
     let _routeParams: any = {};
     let _postBody: any = {};
     let _urlParams: any = {};
-    if (typeof idToken !== 'undefined' && idToken !== null) _urlParams.idToken = idToken;
     if (typeof modelName !== 'undefined' && modelName !== null) _urlParams.modelName = modelName;
     if (typeof modelObj !== 'undefined' && modelObj !== null) _urlParams.modelObj = modelObj;
     let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
@@ -140,11 +135,11 @@ export class EmployeeDataApi extends BaseLoopBackApi {
          * (The remote method definition does not provide any description.)
          * </em>
    *
-   * @param {string} idToken 
-   *
    * @param {string} modelName 
    *
    * @param {string} id 
+   *
+   * @param {string} accessToken 
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -152,7 +147,7 @@ export class EmployeeDataApi extends BaseLoopBackApi {
    *
    * This method returns no data.
    */
-  public genericDestroyById(idToken: any, modelName: any, id: any, customHeaders?: Function): Observable<any> {
+  public genericDestroyById(modelName: any, id: any, customHeaders?: Function): Observable<any> {
     let _method: string = "DELETE";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/EmployeeData/delete/:id";
@@ -161,7 +156,6 @@ export class EmployeeDataApi extends BaseLoopBackApi {
     };
     let _postBody: any = {};
     let _urlParams: any = {};
-    if (typeof idToken !== 'undefined' && idToken !== null) _urlParams.idToken = idToken;
     if (typeof modelName !== 'undefined' && modelName !== null) _urlParams.modelName = modelName;
     let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
     return result;
@@ -173,8 +167,6 @@ export class EmployeeDataApi extends BaseLoopBackApi {
          * </em>
    *
    * @param {object} data Request data.
-   *
-   *  - `idToken` – `{string}` - 
    *
    *  - `modelName` – `{string}` - 
    *
@@ -191,14 +183,13 @@ export class EmployeeDataApi extends BaseLoopBackApi {
    * This usually means the response is a `EmployeeData` object.)
    * </em>
    */
-  public genericMethod(idToken: any, modelName: any, methodName: any, params: any = {}, customHeaders?: Function): Observable<any> {
+  public genericMethod(modelName: any, methodName: any, params: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/EmployeeData/method";
     let _routeParams: any = {};
     let _postBody: any = {};
     let _urlParams: any = {};
-    if (typeof idToken !== 'undefined' && idToken !== null) _urlParams.idToken = idToken;
     if (typeof modelName !== 'undefined' && modelName !== null) _urlParams.modelName = modelName;
     if (typeof methodName !== 'undefined' && methodName !== null) _urlParams.methodName = methodName;
     if (typeof params !== 'undefined' && params !== null) _urlParams.params = params;
@@ -211,13 +202,13 @@ export class EmployeeDataApi extends BaseLoopBackApi {
          * (The remote method definition does not provide any description.)
          * </em>
    *
-   * @param {string} idToken 
-   *
    * @param {string} modelName 
    *
    * @param {string} methodName 
    *
    * @param {any} params 
+   *
+   * @param {string} accessToken 
    *
    * @param {object} res 
    *
@@ -227,14 +218,13 @@ export class EmployeeDataApi extends BaseLoopBackApi {
    *
    * This method returns no data.
    */
-  public genericGetFile(idToken: any, modelName: any, methodName: any, params: any = {}, res: any = {}, customHeaders?: Function): Observable<any> {
+  public genericGetFile(modelName: any, methodName: any, params: any = {}, res: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "GET";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/EmployeeData/file";
     let _routeParams: any = {};
     let _postBody: any = {};
     let _urlParams: any = {};
-    if (typeof idToken !== 'undefined' && idToken !== null) _urlParams.idToken = idToken;
     if (typeof modelName !== 'undefined' && modelName !== null) _urlParams.modelName = modelName;
     if (typeof methodName !== 'undefined' && methodName !== null) _urlParams.methodName = methodName;
     if (typeof params !== 'undefined' && params !== null) _urlParams.params = params;

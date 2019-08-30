@@ -42,7 +42,7 @@ module.exports = function(EndUser) {
   const AllowedMethodsByRole = {
     customer: ['sendMeResetPasswordEmail', 'getMyUser', 'saveProductExclusionList'],
     manager: ['sendMeResetPasswordEmail'],
-    admin: ['sendMeResetPasswordEmail', 'getAuth0Logs']
+    admin: ['sendMeResetPasswordEmail', 'getLogs']
   };
 
   /**

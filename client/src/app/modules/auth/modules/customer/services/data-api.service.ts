@@ -16,30 +16,22 @@ export class DataApiService {
   }
 
   find(modelName: string, filter: object = {}): Observable<any> {
-    return this._dataApi.genericFind(this._getIdToken(),
-      modelName, filter);
+    return this._dataApi.genericFind(modelName, filter);
   }
 
   findById(modelName: string, id: string, filter:object = {}): Observable<any> {
-    return this._dataApi.genericFindById(this._getIdToken(),
-      modelName, id, filter);
+    return this._dataApi.genericFindById(modelName, id, filter);
   }
 
   upsert(modelName: string, modelObj: object): Observable<any> {
-    return this._dataApi.genericUpsert(this._getIdToken(),
-      modelName, modelObj);
+    return this._dataApi.genericUpsert(modelName, modelObj);
   }
 
   destroyById(modelName: string, id: string): Observable<any> {
-    return this._dataApi.genericDestroyById(this._getIdToken(),
-      modelName, id);
+    return this._dataApi.genericDestroyById(modelName, id);
   }
 
   genericMethod(modelName: string, methodName: string, param?: Array<any>): Observable<any> {
-    return this._dataApi.genericMethod(this._getIdToken(), modelName, methodName, param || []);
-  }
-
-  private _getIdToken() {
-    return this._cookieService.get('idToken');
+    return this._dataApi.genericMethod(modelName, methodName, param || []);
   }
 }

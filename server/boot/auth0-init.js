@@ -107,9 +107,11 @@ module.exports = async function(app) {
   const namespace = 'https://om.com/';
   if (user.user_metadata) {
     context.idToken[namespace + 'user_metadata'] = user.user_metadata;
+    context.accessToken[namespace + 'user_metadata'] = user.user_metadata;
   }
   if (user.app_metadata) {
     context.idToken[namespace + 'app_metadata'] = user.app_metadata;
+    context.accessToken[namespace + 'app_metadata'] = user.app_metadata;
   }
   callback(null, user, context);
 }`,

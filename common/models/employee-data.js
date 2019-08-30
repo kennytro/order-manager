@@ -83,9 +83,9 @@ module.exports = function(EmployeeData) {
     }
   }
 
-  EmployeeData.genericFind = async function(idToken, modelName, filter) {
+  EmployeeData.genericFind = async function(modelName, filter, accessToken) {
     try {
-      await verifyIdToken(idToken, modelName);
+      await verifyIdToken(accessToken, modelName);
       return await app.models[modelName].find(filter || {});
     } catch (error) {
       logger.error(`Cannot find ${modelName} - ${error.message}`);
@@ -93,9 +93,9 @@ module.exports = function(EmployeeData) {
     }
   };
 
-  EmployeeData.genericFindById = async function(idToken, modelName, id, filter) {
+  EmployeeData.genericFindById = async function(modelName, id, filter, accessToken) {
     try {
-      await verifyIdToken(idToken, modelName);
+      await verifyIdToken(accessToken, modelName);
       return await app.models[modelName].findById(id, filter);
     } catch (error) {
       logger.error(`Cannot find by id (model: ${modelName}, id: ${id}) - ${error.message}`);
@@ -103,9 +103,9 @@ module.exports = function(EmployeeData) {
     }
   };
 
-  EmployeeData.genericUpsert = async function(idToken, modelName, modelObj) {
+  EmployeeData.genericUpsert = async function(modelName, modelObj, accessToken) {
     try {
-      await verifyIdToken(idToken, modelName);
+      await verifyIdToken(accessToken, modelName);
       if (modelName === 'EndUser' && _.isUndefined(modelObj.id)) {
         return await app.models.EndUser.createNewUser(modelObj);
       }
@@ -116,9 +116,9 @@ module.exports = function(EmployeeData) {
     }
   };
 
-  EmployeeData.genericDestroyById = async function(idToken, modelName, id) {
+  EmployeeData.genericDestroyById = async function(modelName, id, accessToken) {
     try {
-      await verifyIdToken(idToken, modelName);
+      await verifyIdToken(accessToken, modelName);
       if (modelName === 'Order') {
         let error = new Error('You cannot delete Order instance.(Tip: you can cancel order instead');
         error.status = 405;  // Method Not Allowed
@@ -134,9 +134,10 @@ module.exports = function(EmployeeData) {
     }
   };
 
-  EmployeeData.genericMethod = async function(idToken, modelName, methodName, params) {
+  EmployeeData.genericMethod = async function(modelName, methodName, params, accessToken) {
     try {
-      let decoded = await verifyIdToken(idToken, modelName, methodName);
+      let decoded = await verifyIdToken(accessToken, modelName, methodName);
+      // let decoded = await verifyIdToken(idToken, modelName, methodName);
       let metadata = {};
       let endUser = await app.memoryCache.wrap(objectHash({
         model: 'EndUser',
@@ -160,9 +161,9 @@ module.exports = function(EmployeeData) {
     }
   };
 
-  EmployeeData.genericGetFile = async function(idToken, modelName, methodName, params, res) {
+  EmployeeData.genericGetFile = async function(modelName, methodName, params, accessToken, res) {
     try {
-      await verifyIdToken(idToken, modelName, methodName);
+      await verifyIdToken(accessToken, modelName, methodName);
       let newParams = [].concat(params || []);
       let fileInfo = await app.models[modelName][methodName].apply(app.models[modelName], newParams);
       await new Promise((resolve, reject) => {
@@ -178,59 +179,73 @@ module.exports = function(EmployeeData) {
     }
   };
 
+  /**
+   * @param {Object} - loopback context object.
+   * @returns {String} - extracted access token without 'Bearer '
+   */
+  function extractAccessToken(ctx) {
+    const bearerStr = 'Bearer ';
+    let accessToken = ctx.req.header('authorization');
+    if (accessToken && accessToken.startsWith(bearerStr)) {
+      accessToken = accessToken.slice(bearerStr.length);
+    }
+    // console.log(`accessToken = ${accessToken}`);
+    return accessToken;
+  }
+
   EmployeeData.remoteMethod('genericFind', {
     http: { path: '/find', verb: 'get' },
     accepts: [
-      { arg: 'idToken', type: 'string', required: true },
       { arg: 'modelName', type: 'string', required: true },
-      { arg: 'filter', type: 'object' }
+      { arg: 'filter', type: 'object' },
+      { arg: 'accessToken', type: 'string', 'http': extractAccessToken }
     ],
     returns: { type: 'array', root: true }
   });
   EmployeeData.remoteMethod('genericFindById', {
     http: { path: '/findById/:id', verb: 'get' },
     accepts: [
-      { arg: 'idToken', type: 'string', required: true },
       { arg: 'modelName', type: 'string', required: true },
       { arg: 'id', type: 'string', required: true },
-      { arg: 'filter', type: 'object' }
+      { arg: 'filter', type: 'object' },
+      { arg: 'accessToken', type: 'string', 'http': extractAccessToken }
     ],
     returns: { type: 'object', root: true }
   });
   EmployeeData.remoteMethod('genericUpsert', {
     http: { path: '/upsert', verb: 'put' },
     accepts: [
-      { arg: 'idToken', type: 'string', required: true },
       { arg: 'modelName', type: 'string', required: true },
-      { arg: 'modelObj', type: 'object', required: true }
+      { arg: 'modelObj', type: 'object', required: true },
+      { arg: 'accessToken', type: 'string', 'http': extractAccessToken }
     ],
     returns: { type: 'object', root: true }
   });
   EmployeeData.remoteMethod('genericDestroyById', {
     http: { path: '/delete/:id', verb: 'delete' },
     accepts: [
-      { arg: 'idToken', type: 'string', required: true },
       { arg: 'modelName', type: 'string', required: true },
-      { arg: 'id', type: 'string', required: true }
+      { arg: 'id', type: 'string', required: true },
+      { arg: 'accessToken', type: 'string', 'http': extractAccessToken }
     ]
   });
   EmployeeData.remoteMethod('genericMethod', {
     http: { path: '/method', verb: 'post' },
     accepts: [
-      { arg: 'idToken', type: 'string', required: true },
       { arg: 'modelName', type: 'string', required: true },
       { arg: 'methodName', type: 'string', required: true },
-      { arg: 'params', type: 'array', default: '[]' }
+      { arg: 'params', type: 'array', default: '[]' },
+      { arg: 'accessToken', type: 'string', 'http': extractAccessToken }
     ],
     returns: { type: 'object', root: true }
   });
   EmployeeData.remoteMethod('genericGetFile', {
     http: { path: '/file', verb: 'get' },
     accepts: [
-      { arg: 'idToken', type: 'string', required: true },
       { arg: 'modelName', type: 'string', required: true },
       { arg: 'methodName', type: 'string', required: true },
       { arg: 'params', type: 'array', default: '[]' },
+      { arg: 'accessToken', type: 'string', 'http': extractAccessToken },
       { arg: 'res', type: 'object', 'http': { source: 'res' } }
     ]
   });
