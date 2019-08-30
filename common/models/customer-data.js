@@ -4,6 +4,7 @@ const Promise = require('bluebird');
 const _ = require('lodash');
 const jwksClient = require('jwks-rsa');
 const jwtNode = require('jsonwebtoken');
+const objectHash = require('object-hash');
 const app = require(appRoot + '/server/server');
 const logger = require(appRoot + '/config/winston');
 
@@ -144,11 +145,16 @@ module.exports = function(CustomerData) {
           throwAuthError();
         }
       }
-
       let metadata = {};
-      let endUser = await app.models.EndUser.findOne({ where: { authId: decoded.sub } });
+      let endUser = await app.memoryCache.wrap(objectHash({
+        model: 'EndUser',
+        method: 'findOne',
+        params: { where: { authId: decoded.sub } }
+      }), async () => {
+        logger.debug(`Finding end user(authId: ${decoded.sub})`);
+        return await app.models.EndUser.findOne({ where: { authId: decoded.sub } });
+      }, { ttl: 300 /* seconds. user is unlikely deleted. */ });
       if (endUser) {
-        logger.debug(`EndUser id: ${endUser.id}`);
         metadata.endUserId = endUser.id;
         params = [].concat(params || [], metadata);
       }
