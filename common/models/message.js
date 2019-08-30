@@ -9,6 +9,7 @@ const app = require(appRoot + '/server/server');
 const logger = require(appRoot + '/config/winston');
 
 module.exports = function(Message) {
+  const REDIS_MSG_UNREAD_COUNT_HASH = 'message-unread-count';
   // supported user groups.
   const USER_GROUPS = ['everyone', 'customers', 'employees', 'admin', 'manager'];
 
@@ -45,6 +46,49 @@ module.exports = function(Message) {
     return users.map(user => user.id);
   }
 
+  Message.observe('after save', async function(ctx) {
+    /* After a message is saved, clear unread message count from cache. We
+     * only do this when a single message is saved. For operations on multiple
+     * instances(e.g. updateAll()), Message model has to clear itself as user ID
+     * may not be available in operation hook.
+     */
+    if (ctx.instance) {
+      Message.cacheUnreadCount(ctx.instance.toUserId, -1);
+    }
+  });
+
+  /**
+   * @param {String} - end user id
+   * @returns {Number} - unread message count
+   */
+  Message.getCachedUnreadCount = async function(userId) {
+    if (!app.redis) {
+      return NaN;
+    }
+    const hgetAsync = Promise.promisify(app.redis.hget).bind(app.redis);
+    let countInCache = await hgetAsync(REDIS_MSG_UNREAD_COUNT_HASH, userId);
+    return parseInt(countInCache);
+  };
+
+  /*
+   * @param {String} - end user id
+   * @param {Number} - unread message count. If count is negative, delete the field.
+   * @returns {Number} - returned value from redis operation.
+   */
+  Message.cacheUnreadCount = async function(userId, count) {
+    if (!app.redis) {
+      return 0;
+    }
+    if (count < 0) {    // caller wants to delete the cached field.
+      debugMessage(`Clearing cached unread message count of user(${userId})`);
+      const hdelAsync = Promise.promisify(app.redis.hdel).bind(app.redis);
+      return await hdelAsync(REDIS_MSG_UNREAD_COUNT_HASH, userId);
+    }
+    debugMessage(`Setting cached unread message count of user(${userId}) to ${count}`);
+    const hsetAsync = Promise.promisify(app.redis.hset).bind(app.redis);
+    return await hsetAsync(REDIS_MSG_UNREAD_COUNT_HASH, userId, count);
+  };
+
   /**
    * @param {Object} metadata - must contain 'endUserId'
    * @returns {Number} unread message count.
@@ -53,15 +97,24 @@ module.exports = function(Message) {
     if (!metadata || !metadata.endUserId) {
       throw new HttpErrors(400, 'cannot count unread message - user id is missing');
     }
+
+    let count = await Message.getCachedUnreadCount(metadata.endUserId);
+    if (!isNaN(count)) {
+      debugMessage(`User(id: ${metadata.endUserId}) has unread message count(${count}, cached)`);
+      return count;
+    }
+
     const endUser = await app.models.EndUser.findById(metadata.endUserId);
     if (!endUser) {
       throw new HttpErrors(400, `cannot count unread message - user(id: ${metadata.endUserId}) is not found.`);
     }
     try {
-      return await Message.count({
+      count = await Message.count({
         toUserId: endUser.id,
         isRead: false
       });
+      Message.cacheUnreadCount(endUser.id, count);
+      return count;
     } catch (error) {
       throw new HttpErrors(500, `cannot count unread message - ${error.message}`);
     }
@@ -92,6 +145,7 @@ module.exports = function(Message) {
         isRead: true
       });
       debugMessage(`Marked ${messageIds.length} messages as read by user(id: ${endUser.id})`);
+      Message.cacheUnreadCount(endUser.id, -1);    // clear unread message count.
     } catch (error) {
       logger.error(`cannot mark messages as read - ${error.message}`);
     }
@@ -159,6 +213,7 @@ module.exports = function(Message) {
         toUserId: endUser.id
       });
       debugMessage(`Deleted ${messageIds.length} messages by user(id: ${endUser.id})`);
+      Message.cacheUnreadCount(endUser.id, -1);    // clear unread message count.
     } catch (error) {
       throw new HttpErrors(500, `cannot delete message - ${error.message}`);
     }
