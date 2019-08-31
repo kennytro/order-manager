@@ -9,7 +9,7 @@ const auth0ManagementClient = require('auth0').ManagementClient;
 const tenantSettings = require(appRoot + '/config/tenant');
 const logger = require(appRoot + '/config/winston');
 const app = require(appRoot + '/server/server');
-const Auth0EventMap = require(appRoot + '/common/util/auth0-event-code-map');
+const Auth0Helper = require(appRoot + '/common/util/auth0-helper');
 
 module.exports = function(EndUser) {
   const CLIENT_ID = process.env.AUTH0_API_CLIENT_ID;
@@ -304,7 +304,8 @@ module.exports = function(EndUser) {
       logs = logs.concat(transformInstances(orders, 'Order', user.id));
       logs = logs.concat(transformInstances(statements, 'Statement', user.id));
       logs = logs.concat(auth0logs.map(log => {
-        let eventDesc = Auth0EventMap.get(log.type);
+        // let eventDesc = Auth0EventMap.get(log.type);
+        let eventDesc = Auth0Helper.getEventDescription(log.type);
         let fromLoc = _.get(log, ['location_info', 'city_name'], '') + '/' + _.get(log, ['location_info', 'country_code'], '');
         if (fromLoc !== '/') {
           eventDesc = eventDesc + ` (location: ${fromLoc})`;

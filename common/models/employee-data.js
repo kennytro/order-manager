@@ -2,48 +2,12 @@
 const appRoot = require('app-root-path');
 const Promise = require('bluebird');
 const _ = require('lodash');
-const jwksClient = require('jwks-rsa');
-const jwtNode = require('jsonwebtoken');
 const objectHash = require('object-hash');
 const app = require(appRoot + '/server/server');
 const logger = require(appRoot + '/config/winston');
+const Auth0Helper = require(appRoot + '/common/util/auth0-helper');
 
 module.exports = function(EmployeeData) {
-  const APP_METADATA_KEY = 'https://om.com/app_metadata';
-  const client = jwksClient({
-    cache: true,
-    rateLimit: true,
-    jwksUri: `https://${process.env.AUTH0_DOMAIN_ID}/.well-known/jwks.json`
-  });
-
-  function getKey(header, callback) {
-    client.getSigningKey(header.kid, function(err, key) {
-      if (err) {
-        callback(err);
-      } else {
-        let signingKey = key.publicKey || key.rasPublicKey;
-        callback(null, signingKey);
-      }
-    });
-  }
-
-  async function decodeIdToken(idToken) {
-    try {
-      return await new Promise((resolve, reject) => {
-        jwtNode.verify(idToken, getKey, { algorithms: ['RS256'] }, function(err, decoded) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(decoded);
-          }
-        });
-      });
-    } catch (error) {
-      logger.error(`Failed to verify idToken - ${error.message}`);
-      throwAuthError();
-    }
-  }
-
   function throwAuthError() {
     let error = new Error('User not authenticated');
     error.status = 403;
@@ -66,8 +30,8 @@ module.exports = function(EmployeeData) {
    */
   async function verifyIdToken(idToken, modelName, methodName) {
     try {
-      let decoded = await decodeIdToken(idToken);
-      const role = app.models.EndUser.getHighestRole(_.get(decoded, [APP_METADATA_KEY, 'roles'], []));
+      let decoded = await Auth0Helper.decodeToken(idToken);
+      const role = app.models.EndUser.getHighestRole(Auth0Helper.getMetadata(decoded, 'roles', []));
       if (!_.includes(['manager', 'admin'], role)) {
         throwAuthError();
       }
