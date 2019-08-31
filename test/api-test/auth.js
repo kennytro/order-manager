@@ -23,16 +23,16 @@ describe('Public Content', function() {
 describe('Auth API', function() {
   it('should fail to access auth employee API', function(done) {
     api
-      .post('/api/EmployeeData/resetPassword')
-      .query({ idToken: 'invalid token' })
+      .get('/api/EmployeeData/find')
+      .query({ modelName: 'Order', filter: { limit: 1 } })
       .expect(401)
       .end(done);
   });
 
   it('should fail to access auth customer API', function(done) {
     api
-      .post('/api/CustomerData/resetPassword')
-      .query({ idToken: 'invalid token' })
+      .get('/api/CustomerData/find')
+      .query({ modelName: 'Order', filter: { limit: 1 } })
       .expect(401)
       .end(done);
   });

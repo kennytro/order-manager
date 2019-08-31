@@ -2,48 +2,13 @@
 const appRoot = require('app-root-path');
 const Promise = require('bluebird');
 const _ = require('lodash');
-const jwksClient = require('jwks-rsa');
-const jwtNode = require('jsonwebtoken');
 const objectHash = require('object-hash');
 const app = require(appRoot + '/server/server');
 const logger = require(appRoot + '/config/winston');
+const Auth0Helper = require(appRoot + '/common/util/auth0-helper');
 
 module.exports = function(CustomerData) {
-  const APP_METADATA_KEY = 'https://om.com/app_metadata';
   const CLIENT_MODELS = ['Order', 'Statement', 'EndUser', 'Client'];
-  const client = jwksClient({
-    cache: true,
-    rateLimit: true,
-    jwksUri: `https://${process.env.AUTH0_DOMAIN_ID}/.well-known/jwks.json`
-  });
-
-  function getKey(header, callback) {
-    client.getSigningKey(header.kid, function(err, key) {
-      if (err) {
-        callback(err);
-      } else {
-        let signingKey = key.publicKey || key.rasPublicKey;
-        callback(null, signingKey);
-      }
-    });
-  }
-
-  async function decodeIdToken(idToken) {
-    try {
-      return await new Promise((resolve, reject) => {
-        jwtNode.verify(idToken, getKey, { algorithms: ['RS256'] }, function(err, decoded) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(decoded);
-          }
-        });
-      });
-    } catch (error) {
-      logger.error(`Failed to verify idToken - ${error.message}`);
-      throwAuthError();
-    }
-  }
 
   function throwAuthError() {
     let error = new Error('User not authenticated');
@@ -52,22 +17,22 @@ module.exports = function(CustomerData) {
   }
 
   /**
-   * Decode given JWT Id token and verify the user role.
+   * Decode given JWT access token and verify the user role.
    *
    * Check if user has a role and verify if user can execute given method.
    *
    * 'admin' role have full privilege but 'manager' role has restriction
    * 'EndUser' model.
    *
-   * @param {string} idToken -    JWT Id token
+   * @param {string} token -    JWT access token
    * @param {string} modelName
    * @param {string} [methodName]
    * @returns {Object}            Decoded id token
    */
-  async function verifyIdToken(idToken, modelName, methodName) {
+  async function verifyToken(token, modelName, methodName) {
     try {
-      let decoded = await decodeIdToken(idToken);
-      const role = app.models.EndUser.getHighestRole(_.get(decoded, [APP_METADATA_KEY, 'roles'], []));
+      let decoded = await Auth0Helper.decodeToken(token);
+      const role = app.models.EndUser.getHighestRole(Auth0Helper.getMetadata(decoded, 'roles', []));
       if ((modelName === 'EndUser' || modelName === 'Client')) {
         // EndUser and Client requires additional access checking
         if (!_.includes(app.models[modelName].allowedMethods(role), methodName)) {
@@ -76,20 +41,20 @@ module.exports = function(CustomerData) {
       }
       return decoded;
     } catch (error) {
-      logger.error(`Error while verifying idToken(model: ${modelName}${methodName ? ', method: ' + methodName : ''}) - ${error.message}`);
+      logger.error(`Error while verifying token(model: ${modelName}${methodName ? ', method: ' + methodName : ''}) - ${error.message}`);
       throw error;
     }
   }
 
-  CustomerData.genericFind = async function(idToken, modelName, filter) {
+  CustomerData.genericFind = async function(modelName, filter, accessToken) {
     try {
-      let decoded = await verifyIdToken(idToken, modelName);
+      let decoded = await verifyToken(accessToken, modelName);
       if (!filter) {
         filter = {};
       }
       if (_.includes(CLIENT_MODELS, modelName)) {
         // limit scope to the user's client
-        _.set(filter, ['where', 'clientId'], _.get(decoded, [APP_METADATA_KEY, 'clientId']));
+        _.set(filter, ['where', 'clientId'], Auth0Helper.getMetadata(decoded, 'clientId'));
       }
 
       return await app.models[modelName].find(filter);
@@ -99,15 +64,15 @@ module.exports = function(CustomerData) {
     }
   };
 
-  CustomerData.genericFindById = async function(idToken, modelName, id, filter) {
+  CustomerData.genericFindById = async function(modelName, id, filter, accessToken) {
     try {
-      let decoded = await verifyIdToken(idToken, modelName);
+      let decoded = await verifyToken(accessToken, modelName);
       if (!filter) {
         filter = {};
       }
       if (_.includes(CLIENT_MODELS, modelName)) {
         // limit scope to the user's client
-        _.set(filter, ['where', 'clientId'], _.get(decoded, [APP_METADATA_KEY, 'clientId']));
+        _.set(filter, ['where', 'clientId'], Auth0Helper.getMetadata(decoded, 'clientId'));
       }
       return await app.models[modelName].findById(id, filter);
     } catch (error) {
@@ -116,9 +81,9 @@ module.exports = function(CustomerData) {
     }
   };
 
-  CustomerData.genericUpsert = async function(idToken, modelName, modelObj) {
+  CustomerData.genericUpsert = async function(modelName, modelObj, accessToken) {
     try {
-      await verifyIdToken(idToken, modelName);
+      await verifyToken(accessToken, modelName);
       return await app.models[modelName].upsert(modelObj);
     } catch (error) {
       logger.error(`Cannot upsert ${modelName} - ${error.message}`);
@@ -126,22 +91,23 @@ module.exports = function(CustomerData) {
     }
   };
 
-  CustomerData.genericDestroyById = async function(idToken, modelName, id) {
+  CustomerData.genericDestroyById = async function(modelName, id, accessToken) {
     let error = new Error('Method \'destroyById\' is disabled in customer module.');
     error.status = 405;  // Method Not Allowed
     throw error;
   };
 
-  CustomerData.genericMethod = async function(idToken, modelName, methodName, params) {
+  CustomerData.genericMethod = async function(modelName, methodName, params, accessToken) {
     try {
-      let decoded = await verifyIdToken(idToken, modelName, methodName);
+      let decoded = await verifyToken(accessToken, modelName, methodName);
       if ((modelName === 'EndUser' || modelName === 'Client')) {
         // EndUser methods must have 'authId' as the first argument.
         if (modelName === 'EndUser' && decoded.sub !== _.get(params, '0')) {
           throwAuthError();
         }
         // Client method must have 'clientId' as the first argument.
-        if (modelName === 'Client' && _.get(decoded, [APP_METADATA_KEY, 'clientId']) !== _.get(params, '0')) {
+        if (modelName === 'Client' &&
+          Auth0Helper.getMetadata(decoded, 'clientId') !== _.get(params, '0')) {
           throwAuthError();
         }
       }
@@ -165,53 +131,63 @@ module.exports = function(CustomerData) {
     }
   };
 
+  /**
+   * @param {Object} - loopback context object.
+   * @returns {String} - extracted access token without 'Bearer '
+   */
+  function extractAccessToken(ctx) {
+    const bearerStr = 'Bearer ';
+    let accessToken = ctx.req.header('authorization');
+    if (accessToken && accessToken.startsWith(bearerStr)) {
+      accessToken = accessToken.slice(bearerStr.length);
+    }
+    // console.log(`accessToken = ${accessToken}`);
+    return accessToken;
+  }
+
   CustomerData.remoteMethod('genericFind', {
     http: { path: '/find', verb: 'get' },
     accepts: [
-      // { arg: 'req', type: 'object', http: { source: 'req' } },
-      { arg: 'idToken', type: 'string', required: true },
       { arg: 'modelName', type: 'string', required: true },
-      { arg: 'filter', type: 'object' }
+      { arg: 'filter', type: 'object' },
+      { arg: 'accessToken', type: 'string', 'http': extractAccessToken }
     ],
     returns: { type: 'array', root: true }
   });
   CustomerData.remoteMethod('genericFindById', {
     http: { path: '/findById/:id', verb: 'get' },
     accepts: [
-      // { arg: 'req', type: 'object', http: { source: 'req' } },
-      { arg: 'idToken', type: 'string', required: true },
       { arg: 'modelName', type: 'string', required: true },
       { arg: 'id', type: 'string', required: true },
-      { arg: 'filter', type: 'object' }
+      { arg: 'filter', type: 'object' },
+      { arg: 'accessToken', type: 'string', 'http': extractAccessToken }
     ],
     returns: { type: 'object', root: true }
   });
   CustomerData.remoteMethod('genericUpsert', {
     http: { path: '/upsert', verb: 'put' },
     accepts: [
-      // { arg: 'req', type: 'object', http: { source: 'req' } },
-      { arg: 'idToken', type: 'string', required: true },
       { arg: 'modelName', type: 'string', required: true },
-      { arg: 'modelObj', type: 'object', required: true }
+      { arg: 'modelObj', type: 'object', required: true },
+      { arg: 'accessToken', type: 'string', 'http': extractAccessToken }
     ],
     returns: { type: 'object', root: true }
   });
   CustomerData.remoteMethod('genericDestroyById', {
     http: { path: '/delete/:id', verb: 'delete' },
     accepts: [
-      // { arg: 'req', type: 'object', http: { source: 'req' } },
-      { arg: 'idToken', type: 'string', required: true },
       { arg: 'modelName', type: 'string', required: true },
-      { arg: 'id', type: 'string', required: true }
+      { arg: 'id', type: 'string', required: true },
+      { arg: 'accessToken', type: 'string', 'http': extractAccessToken }
     ]
   });
   CustomerData.remoteMethod('genericMethod', {
     http: { path: '/method', verb: 'post' },
     accepts: [
-      { arg: 'idToken', type: 'string', required: true },
       { arg: 'modelName', type: 'string', required: true },
       { arg: 'methodName', type: 'string', required: true },
-      { arg: 'params', type: 'array', default: '[]' }
+      { arg: 'params', type: 'array', default: '[]' },
+      { arg: 'accessToken', type: 'string', 'http': extractAccessToken }
     ],
     returns: { type: 'object', root: true }
   });

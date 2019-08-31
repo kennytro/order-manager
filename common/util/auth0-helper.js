@@ -1,9 +1,15 @@
 'use strict';
+const appRoot = require('app-root-path');
+const Promise = require('bluebird');
+const _ = require('lodash');
+const jwksClient = require('jwks-rsa');
+const jwtNode = require('jsonwebtoken');
+const logger = require(appRoot + '/config/winston');
+
 /* Auth0 event code mapping table.
  * See EndUser.getAuth0Logs() for its usage.
  */
 const Auth0EventCodeMap = new Map([
-  ['event_code', 'event_type'],
   ['admin_update_launch', 'Auth0 Update Launched'],
   ['api_limit', 'Rate Limit On API'],
   ['cls', 'Code/Link Sent'],
@@ -94,4 +100,56 @@ const Auth0EventCodeMap = new Map([
   ['ublkdu', 'User login block released'],
   ['w', 'Warnings During Login']
 ]);
-module.exports = Auth0EventCodeMap;
+
+const APP_METADATA_KEY = 'https://om.com/app_metadata';
+const client = jwksClient({
+  cache: true,
+  rateLimit: true,
+  jwksUri: `https://${process.env.AUTH0_DOMAIN_ID}/.well-known/jwks.json`
+});
+
+function getKey(header, callback) {
+  client.getSigningKey(header.kid, function(err, key) {
+    if (err) {
+      callback(err);
+    } else {
+      let signingKey = key.publicKey || key.rasPublicKey;
+      callback(null, signingKey);
+    }
+  });
+}
+
+module.exports = {
+  /**
+   * @param {String} - Auth0 event code
+   * @returns {String} - Auth0 event description.
+   */
+  getEventDescription: function(eventType) {
+    return Auth0EventCodeMap.get(eventType);
+  },
+  /**
+   * @param {String} - access token issued by Auth0
+   * @returns {Object} - result of decoding the token.
+   */
+  decodeToken: async function(token) {
+    try {
+      return await new Promise((resolve, reject) => {
+        jwtNode.verify(token, getKey, { algorithms: ['RS256'] }, function(err, decoded) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(decoded);
+          }
+        });
+      });
+    } catch (err) {
+      logger.error(`Failed to verify idToken - ${err.message}`);
+      let error = new Error('User not authenticated');
+      error.status = 403;
+      throw error;
+    }
+  },
+  getMetadata: function(decoded, dataName, defaultValue) {
+    return _.get(decoded, [APP_METADATA_KEY, dataName], defaultValue);
+  }
+};

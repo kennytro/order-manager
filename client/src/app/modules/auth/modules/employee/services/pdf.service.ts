@@ -23,7 +23,6 @@ export class PdfService {
     const headers = new HttpHeaders()
       .set('Accept', 'application/pdf');
     const httpParams = new HttpParams()
-      .set('idToken', this._cookieService.get('idToken'))
       .set('modelName', modelName)
       .set('methodName', methodName)
       .set('params', JSON.stringify(params));

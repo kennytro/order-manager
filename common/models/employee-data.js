@@ -2,48 +2,12 @@
 const appRoot = require('app-root-path');
 const Promise = require('bluebird');
 const _ = require('lodash');
-const jwksClient = require('jwks-rsa');
-const jwtNode = require('jsonwebtoken');
 const objectHash = require('object-hash');
 const app = require(appRoot + '/server/server');
 const logger = require(appRoot + '/config/winston');
+const Auth0Helper = require(appRoot + '/common/util/auth0-helper');
 
 module.exports = function(EmployeeData) {
-  const APP_METADATA_KEY = 'https://om.com/app_metadata';
-  const client = jwksClient({
-    cache: true,
-    rateLimit: true,
-    jwksUri: `https://${process.env.AUTH0_DOMAIN_ID}/.well-known/jwks.json`
-  });
-
-  function getKey(header, callback) {
-    client.getSigningKey(header.kid, function(err, key) {
-      if (err) {
-        callback(err);
-      } else {
-        let signingKey = key.publicKey || key.rasPublicKey;
-        callback(null, signingKey);
-      }
-    });
-  }
-
-  async function decodeIdToken(idToken) {
-    try {
-      return await new Promise((resolve, reject) => {
-        jwtNode.verify(idToken, getKey, { algorithms: ['RS256'] }, function(err, decoded) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(decoded);
-          }
-        });
-      });
-    } catch (error) {
-      logger.error(`Failed to verify idToken - ${error.message}`);
-      throwAuthError();
-    }
-  }
-
   function throwAuthError() {
     let error = new Error('User not authenticated');
     error.status = 403;
@@ -51,7 +15,7 @@ module.exports = function(EmployeeData) {
   }
 
   /**
-   * Decode given JWT Id token and verify the user role.
+   * Decode given JWT access token and verify the user role.
    *
    * User must have an employee role('manager' and/or 'admin') in order to
    * request employee data methods.
@@ -59,15 +23,15 @@ module.exports = function(EmployeeData) {
    * 'admin' role have full privilege but 'manager' role has restriction
    * 'EndUser' model.
    *
-   * @param {string} idToken -    JWT Id token
+   * @param {string} Token -    JWT access token
    * @param {string} modelName
    * @param {string} [methodName]
    * @returns {Object}            Decoded id token
    */
-  async function verifyIdToken(idToken, modelName, methodName) {
+  async function verifyToken(token, modelName, methodName) {
     try {
-      let decoded = await decodeIdToken(idToken);
-      const role = app.models.EndUser.getHighestRole(_.get(decoded, [APP_METADATA_KEY, 'roles'], []));
+      let decoded = await Auth0Helper.decodeToken(token);
+      const role = app.models.EndUser.getHighestRole(Auth0Helper.getMetadata(decoded, 'roles', []));
       if (!_.includes(['manager', 'admin'], role)) {
         throwAuthError();
       }
@@ -78,14 +42,14 @@ module.exports = function(EmployeeData) {
       }
       return decoded;
     } catch (error) {
-      logger.error(`Error while verifying idToken - ${error.message}`);
+      logger.error(`Error while verifying token - ${error.message}`);
       throw error;
     }
   }
 
-  EmployeeData.genericFind = async function(idToken, modelName, filter) {
+  EmployeeData.genericFind = async function(modelName, filter, accessToken) {
     try {
-      await verifyIdToken(idToken, modelName);
+      await verifyToken(accessToken, modelName);
       return await app.models[modelName].find(filter || {});
     } catch (error) {
       logger.error(`Cannot find ${modelName} - ${error.message}`);
@@ -93,9 +57,9 @@ module.exports = function(EmployeeData) {
     }
   };
 
-  EmployeeData.genericFindById = async function(idToken, modelName, id, filter) {
+  EmployeeData.genericFindById = async function(modelName, id, filter, accessToken) {
     try {
-      await verifyIdToken(idToken, modelName);
+      await verifyToken(accessToken, modelName);
       return await app.models[modelName].findById(id, filter);
     } catch (error) {
       logger.error(`Cannot find by id (model: ${modelName}, id: ${id}) - ${error.message}`);
@@ -103,9 +67,9 @@ module.exports = function(EmployeeData) {
     }
   };
 
-  EmployeeData.genericUpsert = async function(idToken, modelName, modelObj) {
+  EmployeeData.genericUpsert = async function(modelName, modelObj, accessToken) {
     try {
-      await verifyIdToken(idToken, modelName);
+      await verifyToken(accessToken, modelName);
       if (modelName === 'EndUser' && _.isUndefined(modelObj.id)) {
         return await app.models.EndUser.createNewUser(modelObj);
       }
@@ -116,9 +80,9 @@ module.exports = function(EmployeeData) {
     }
   };
 
-  EmployeeData.genericDestroyById = async function(idToken, modelName, id) {
+  EmployeeData.genericDestroyById = async function(modelName, id, accessToken) {
     try {
-      await verifyIdToken(idToken, modelName);
+      await verifyToken(accessToken, modelName);
       if (modelName === 'Order') {
         let error = new Error('You cannot delete Order instance.(Tip: you can cancel order instead');
         error.status = 405;  // Method Not Allowed
@@ -134,9 +98,9 @@ module.exports = function(EmployeeData) {
     }
   };
 
-  EmployeeData.genericMethod = async function(idToken, modelName, methodName, params) {
+  EmployeeData.genericMethod = async function(modelName, methodName, params, accessToken) {
     try {
-      let decoded = await verifyIdToken(idToken, modelName, methodName);
+      let decoded = await verifyToken(accessToken, modelName, methodName);
       let metadata = {};
       let endUser = await app.memoryCache.wrap(objectHash({
         model: 'EndUser',
@@ -160,9 +124,9 @@ module.exports = function(EmployeeData) {
     }
   };
 
-  EmployeeData.genericGetFile = async function(idToken, modelName, methodName, params, res) {
+  EmployeeData.genericGetFile = async function(modelName, methodName, params, accessToken, res) {
     try {
-      await verifyIdToken(idToken, modelName, methodName);
+      await verifyToken(accessToken, modelName, methodName);
       let newParams = [].concat(params || []);
       let fileInfo = await app.models[modelName][methodName].apply(app.models[modelName], newParams);
       await new Promise((resolve, reject) => {
@@ -178,59 +142,73 @@ module.exports = function(EmployeeData) {
     }
   };
 
+  /**
+   * @param {Object} - loopback context object.
+   * @returns {String} - extracted access token without 'Bearer '
+   */
+  function extractAccessToken(ctx) {
+    const bearerStr = 'Bearer ';
+    let accessToken = ctx.req.header('authorization');
+    if (accessToken && accessToken.startsWith(bearerStr)) {
+      accessToken = accessToken.slice(bearerStr.length);
+    }
+    // console.log(`accessToken = ${accessToken}`);
+    return accessToken;
+  }
+
   EmployeeData.remoteMethod('genericFind', {
     http: { path: '/find', verb: 'get' },
     accepts: [
-      { arg: 'idToken', type: 'string', required: true },
       { arg: 'modelName', type: 'string', required: true },
-      { arg: 'filter', type: 'object' }
+      { arg: 'filter', type: 'object' },
+      { arg: 'accessToken', type: 'string', 'http': extractAccessToken }
     ],
     returns: { type: 'array', root: true }
   });
   EmployeeData.remoteMethod('genericFindById', {
     http: { path: '/findById/:id', verb: 'get' },
     accepts: [
-      { arg: 'idToken', type: 'string', required: true },
       { arg: 'modelName', type: 'string', required: true },
       { arg: 'id', type: 'string', required: true },
-      { arg: 'filter', type: 'object' }
+      { arg: 'filter', type: 'object' },
+      { arg: 'accessToken', type: 'string', 'http': extractAccessToken }
     ],
     returns: { type: 'object', root: true }
   });
   EmployeeData.remoteMethod('genericUpsert', {
     http: { path: '/upsert', verb: 'put' },
     accepts: [
-      { arg: 'idToken', type: 'string', required: true },
       { arg: 'modelName', type: 'string', required: true },
-      { arg: 'modelObj', type: 'object', required: true }
+      { arg: 'modelObj', type: 'object', required: true },
+      { arg: 'accessToken', type: 'string', 'http': extractAccessToken }
     ],
     returns: { type: 'object', root: true }
   });
   EmployeeData.remoteMethod('genericDestroyById', {
     http: { path: '/delete/:id', verb: 'delete' },
     accepts: [
-      { arg: 'idToken', type: 'string', required: true },
       { arg: 'modelName', type: 'string', required: true },
-      { arg: 'id', type: 'string', required: true }
+      { arg: 'id', type: 'string', required: true },
+      { arg: 'accessToken', type: 'string', 'http': extractAccessToken }
     ]
   });
   EmployeeData.remoteMethod('genericMethod', {
     http: { path: '/method', verb: 'post' },
     accepts: [
-      { arg: 'idToken', type: 'string', required: true },
       { arg: 'modelName', type: 'string', required: true },
       { arg: 'methodName', type: 'string', required: true },
-      { arg: 'params', type: 'array', default: '[]' }
+      { arg: 'params', type: 'array', default: '[]' },
+      { arg: 'accessToken', type: 'string', 'http': extractAccessToken }
     ],
     returns: { type: 'object', root: true }
   });
   EmployeeData.remoteMethod('genericGetFile', {
     http: { path: '/file', verb: 'get' },
     accepts: [
-      { arg: 'idToken', type: 'string', required: true },
       { arg: 'modelName', type: 'string', required: true },
       { arg: 'methodName', type: 'string', required: true },
       { arg: 'params', type: 'array', default: '[]' },
+      { arg: 'accessToken', type: 'string', 'http': extractAccessToken },
       { arg: 'res', type: 'object', 'http': { source: 'res' } }
     ]
   });
