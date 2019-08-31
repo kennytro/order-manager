@@ -17,21 +17,21 @@ module.exports = function(CustomerData) {
   }
 
   /**
-   * Decode given JWT Id token and verify the user role.
+   * Decode given JWT access token and verify the user role.
    *
    * Check if user has a role and verify if user can execute given method.
    *
    * 'admin' role have full privilege but 'manager' role has restriction
    * 'EndUser' model.
    *
-   * @param {string} idToken -    JWT Id token
+   * @param {string} token -    JWT access token
    * @param {string} modelName
    * @param {string} [methodName]
    * @returns {Object}            Decoded id token
    */
-  async function verifyIdToken(idToken, modelName, methodName) {
+  async function verifyToken(token, modelName, methodName) {
     try {
-      let decoded = await Auth0Helper.decodeToken(idToken);
+      let decoded = await Auth0Helper.decodeToken(token);
       const role = app.models.EndUser.getHighestRole(Auth0Helper.getMetadata(decoded, 'roles', []));
       if ((modelName === 'EndUser' || modelName === 'Client')) {
         // EndUser and Client requires additional access checking
@@ -41,14 +41,14 @@ module.exports = function(CustomerData) {
       }
       return decoded;
     } catch (error) {
-      logger.error(`Error while verifying idToken(model: ${modelName}${methodName ? ', method: ' + methodName : ''}) - ${error.message}`);
+      logger.error(`Error while verifying token(model: ${modelName}${methodName ? ', method: ' + methodName : ''}) - ${error.message}`);
       throw error;
     }
   }
 
   CustomerData.genericFind = async function(modelName, filter, accessToken) {
     try {
-      let decoded = await verifyIdToken(accessToken, modelName);
+      let decoded = await verifyToken(accessToken, modelName);
       if (!filter) {
         filter = {};
       }
@@ -66,7 +66,7 @@ module.exports = function(CustomerData) {
 
   CustomerData.genericFindById = async function(modelName, id, filter, accessToken) {
     try {
-      let decoded = await verifyIdToken(accessToken, modelName);
+      let decoded = await verifyToken(accessToken, modelName);
       if (!filter) {
         filter = {};
       }
@@ -83,7 +83,7 @@ module.exports = function(CustomerData) {
 
   CustomerData.genericUpsert = async function(modelName, modelObj, accessToken) {
     try {
-      await verifyIdToken(accessToken, modelName);
+      await verifyToken(accessToken, modelName);
       return await app.models[modelName].upsert(modelObj);
     } catch (error) {
       logger.error(`Cannot upsert ${modelName} - ${error.message}`);
@@ -99,7 +99,7 @@ module.exports = function(CustomerData) {
 
   CustomerData.genericMethod = async function(modelName, methodName, params, accessToken) {
     try {
-      let decoded = await verifyIdToken(accessToken, modelName, methodName);
+      let decoded = await verifyToken(accessToken, modelName, methodName);
       if ((modelName === 'EndUser' || modelName === 'Client')) {
         // EndUser methods must have 'authId' as the first argument.
         if (modelName === 'EndUser' && decoded.sub !== _.get(params, '0')) {

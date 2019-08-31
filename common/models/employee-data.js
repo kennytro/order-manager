@@ -15,7 +15,7 @@ module.exports = function(EmployeeData) {
   }
 
   /**
-   * Decode given JWT Id token and verify the user role.
+   * Decode given JWT access token and verify the user role.
    *
    * User must have an employee role('manager' and/or 'admin') in order to
    * request employee data methods.
@@ -23,14 +23,14 @@ module.exports = function(EmployeeData) {
    * 'admin' role have full privilege but 'manager' role has restriction
    * 'EndUser' model.
    *
-   * @param {string} idToken -    JWT Id token
+   * @param {string} Token -    JWT access token
    * @param {string} modelName
    * @param {string} [methodName]
    * @returns {Object}            Decoded id token
    */
-  async function verifyIdToken(idToken, modelName, methodName) {
+  async function verifyToken(token, modelName, methodName) {
     try {
-      let decoded = await Auth0Helper.decodeToken(idToken);
+      let decoded = await Auth0Helper.decodeToken(token);
       const role = app.models.EndUser.getHighestRole(Auth0Helper.getMetadata(decoded, 'roles', []));
       if (!_.includes(['manager', 'admin'], role)) {
         throwAuthError();
@@ -42,14 +42,14 @@ module.exports = function(EmployeeData) {
       }
       return decoded;
     } catch (error) {
-      logger.error(`Error while verifying idToken - ${error.message}`);
+      logger.error(`Error while verifying token - ${error.message}`);
       throw error;
     }
   }
 
   EmployeeData.genericFind = async function(modelName, filter, accessToken) {
     try {
-      await verifyIdToken(accessToken, modelName);
+      await verifyToken(accessToken, modelName);
       return await app.models[modelName].find(filter || {});
     } catch (error) {
       logger.error(`Cannot find ${modelName} - ${error.message}`);
@@ -59,7 +59,7 @@ module.exports = function(EmployeeData) {
 
   EmployeeData.genericFindById = async function(modelName, id, filter, accessToken) {
     try {
-      await verifyIdToken(accessToken, modelName);
+      await verifyToken(accessToken, modelName);
       return await app.models[modelName].findById(id, filter);
     } catch (error) {
       logger.error(`Cannot find by id (model: ${modelName}, id: ${id}) - ${error.message}`);
@@ -69,7 +69,7 @@ module.exports = function(EmployeeData) {
 
   EmployeeData.genericUpsert = async function(modelName, modelObj, accessToken) {
     try {
-      await verifyIdToken(accessToken, modelName);
+      await verifyToken(accessToken, modelName);
       if (modelName === 'EndUser' && _.isUndefined(modelObj.id)) {
         return await app.models.EndUser.createNewUser(modelObj);
       }
@@ -82,7 +82,7 @@ module.exports = function(EmployeeData) {
 
   EmployeeData.genericDestroyById = async function(modelName, id, accessToken) {
     try {
-      await verifyIdToken(accessToken, modelName);
+      await verifyToken(accessToken, modelName);
       if (modelName === 'Order') {
         let error = new Error('You cannot delete Order instance.(Tip: you can cancel order instead');
         error.status = 405;  // Method Not Allowed
@@ -100,8 +100,7 @@ module.exports = function(EmployeeData) {
 
   EmployeeData.genericMethod = async function(modelName, methodName, params, accessToken) {
     try {
-      let decoded = await verifyIdToken(accessToken, modelName, methodName);
-      // let decoded = await verifyIdToken(idToken, modelName, methodName);
+      let decoded = await verifyToken(accessToken, modelName, methodName);
       let metadata = {};
       let endUser = await app.memoryCache.wrap(objectHash({
         model: 'EndUser',
@@ -127,7 +126,7 @@ module.exports = function(EmployeeData) {
 
   EmployeeData.genericGetFile = async function(modelName, methodName, params, accessToken, res) {
     try {
-      await verifyIdToken(accessToken, modelName, methodName);
+      await verifyToken(accessToken, modelName, methodName);
       let newParams = [].concat(params || []);
       let fileInfo = await app.models[modelName][methodName].apply(app.models[modelName], newParams);
       await new Promise((resolve, reject) => {
