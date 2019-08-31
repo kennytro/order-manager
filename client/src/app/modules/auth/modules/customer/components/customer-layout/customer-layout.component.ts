@@ -109,6 +109,7 @@ export class CustomerLayoutComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
+        this._unreadMsgCountTimerSubscription.unsubscribe();  // cancel timer before logout
         this._auth.logout();
       }
     })
