@@ -10,6 +10,9 @@
       "table": "message"
     }
   },
+  "mixins": {
+    "Realtime": {}
+  },
   "properties": {
     "messageType": {
       "type": "string",

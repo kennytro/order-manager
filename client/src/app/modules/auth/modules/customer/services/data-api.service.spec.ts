@@ -27,7 +27,7 @@ describe('DataApiService', () => {
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
-  it('should call APIs', () => {
+  it('should call APIs', async () => {
     cookieSpy.get.and.returnValue('testToken');
     apiSpy.genericFind.and.returnValue(asyncData({id: 'test'}));
     service.find('ModelName', {property: 'test'}).subscribe(

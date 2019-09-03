@@ -16,6 +16,7 @@ const tenantSettings = require(appRoot + '/config/tenant');
 const getPublicContent = require('./middleware/public-content');
 const submitInquiry = require('./middleware/inquiry');
 const checkJwt = require('./middleware/check-jwt');
+const initSocketIO = require('./init-socket.io');
 
 const app = module.exports = loopback();
 const ENV = process.env.NODE_ENV || 'production';
@@ -126,12 +127,15 @@ app.all('/*', function(req, res, next) {
     res.sendFile(path.resolve(__dirname, '../dist/index.html'));
   }
 });
+
 // Bootstrap the application, configure models, datasources and middleware.
 // Sub-apps like REST API are mounted via boot scripts.
 boot(app, __dirname, function(err) {
   if (err) throw err;
 
   // start the server if `$ node server.js`
-  if (cluster.isMaster && require.main === module)
-    app.start();
+  if (cluster.isMaster && require.main === module) {
+    let server = app.start();
+    initSocketIO(app, server);
+  }
 });
