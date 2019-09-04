@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { MatDialog, MatSnackBar } from '@angular/material';
-import { Subject, timer, of, Observable, Subscription } from 'rxjs';
+import { Subject, of, Observable, Subscription } from 'rxjs';
 import { take, takeUntil, catchError, filter } from 'rxjs/operators';
 
 import { SettingsComponent } from './settings/settings.component';

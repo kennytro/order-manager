@@ -1,6 +1,7 @@
 'use strict';
 const _ = require('lodash');
 const appRoot = require('app-root-path');
+const cluster = require('cluster');
 const debugBatch = require('debug')('order-manager:Metric:batch');
 const debugMockData = require('debug')('order-manager:Metric:mockData');
 const HttpErrors = require('http-errors');
@@ -377,11 +378,14 @@ module.exports = function(Metric) {
     await updateAggregationMetric(aggrMetric, dataArray);
   }
 
+  /**
+   * @returns {String[]} - list of metric names whose data is updated.
+   */
   Metric.batchUpdateOnOrder = async function() {
     // const orderIds = await getChangedOrderIds();
     const orderIds = await getChangedInstanceIds('Order');
     if (_.isEmpty(orderIds)) {
-      return;
+      return [];
     }
 
     try {
@@ -409,12 +413,16 @@ module.exports = function(Metric) {
       logger.error(`Error while updating metric data on Order model - ${error.message}`);
       throw error;
     }
+    return ['total_sale', 'total_orders', 'client_sale', 'delivery_route_sale', 'product_sale'];
   };
 
+  /**
+   * @returns {String[]} - list of metric names whose data is updated.
+   */
   Metric.batchUpdateOnProduct = async function() {
     const productIds = await getChangedInstanceIds('Product');
     if (_.isEmpty(productIds)) {
-      return;
+      return [];
     }
     try {
       let products = await app.models.Product.find({ where: { id: { inq: productIds } } });
@@ -433,6 +441,7 @@ module.exports = function(Metric) {
       logger.error(`Error while updating metric data on Product model - ${error.message}`);
       throw error;
     }
+    return ['product_unit_price'];
   };
 
   /**
@@ -440,9 +449,19 @@ module.exports = function(Metric) {
    */
   Metric.batchUpdate = async function(fireDate) {
     debugBatch(`${moment(fireDate).format()}: Running Metric.batchUpdate()`);
-    await Metric.batchUpdateOnOrder();
-    await Metric.batchUpdateOnProduct();
-    // [Note] any batch update on other model should come here.
+    let metricNames = [].concat(
+      await Metric.batchUpdateOnOrder(),
+      await Metric.batchUpdateOnProduct()
+      // [Note] any batch update on other model should come here.
+    );
+    if (!_.isEmpty(metricNames) && cluster.isWorker) {
+      process.send({
+        eventType: 'METRIC_UPDATED',
+        data: {
+          names: metricNames
+        }
+      });
+    }
   };
 
   Metric.removeOldData = async function(fireDate) {

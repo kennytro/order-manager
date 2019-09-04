@@ -3,13 +3,14 @@ import { GoogleChartInterface } from 'ng2-google-charts/google-charts-interfaces
 import { FormControl } from '@angular/forms';
 import { CookieService } from 'ngx-cookie-service';
 import { Subject } from 'rxjs';
-import { take, takeUntil } from 'rxjs/operators';
+import { take, takeUntil, filter } from 'rxjs/operators';
 
 import * as moment from 'moment';
 import groupBy from 'lodash/groupBy';
 import keys from 'lodash/keys';
 
 import { DataApiService } from '../../../services/data-api.service';
+import { SocketService } from '../../../../../shared/services/socket.service';
 
 @Component({
   selector: 'app-total-orders',
@@ -28,7 +29,10 @@ export class TotalOrdersComponent implements OnInit {
   private _orderMetricDataArray = [];
   private _unsubscribe = new Subject<boolean>();
 
-  constructor(private _cookieService: CookieService, private _dataApi: DataApiService) { }
+  constructor(private _cookieService: CookieService,
+    private _dataApi: DataApiService,
+    private _socketService: SocketService
+  ) { }
 
   ngOnInit() {
     this.clientId = this._cookieService.get('clientId');
@@ -42,15 +46,23 @@ export class TotalOrdersComponent implements OnInit {
     this._getMetricData('Daily');
     // [HACK]: For some reason, chart format doesn't work first time.
     // To get around this problem, force redraw after 1 sec.
-    setTimeout(() => {
-      this._getMetricData('Daily');
-    }, 1000);
+    // setTimeout(() => {
+    //   this._getMetricData('Daily');
+    // }, 1000);
+    this._socketService.initSocket('metric');
+    this._socketService.onModel('metric')
+      .pipe(takeUntil(this._unsubscribe), filter(data => data.metricNames.includes('client_sale')))
+      .subscribe((data) => {
+        console.log(`Received message (${JSON.stringify(data)})`);
+        this._getMetricData(this.intervalSelection.value);
+      });    
   }
 
   ngOnDestroy() {
     this._unsubscribe.next(true);
     this._unsubscribe.unsubscribe();
   }
+
   private _getMetricData(intervalLabel) {
     let metricInfo = this.intervalList.find(element => element.label === intervalLabel);
     this._dataApi.genericMethod('Metric', 'findMetricDataByName', [[metricInfo.amountMetricName], { instanceId: this.clientId }])

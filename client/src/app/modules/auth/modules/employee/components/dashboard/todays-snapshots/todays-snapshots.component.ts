@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { GoogleChartInterface } from 'ng2-google-charts/google-charts-interfaces';
-import { Subject, timer } from 'rxjs';
+import { Subject } from 'rxjs';
 import { take, takeUntil, debounceTime } from 'rxjs/operators';
 import * as moment from 'moment';
 

@@ -1,17 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { GoogleChartInterface } from 'ng2-google-charts/google-charts-interfaces';
 import { FormControl } from '@angular/forms';
-import { Subject, timer } from 'rxjs';
-import { take, takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { take, takeUntil, filter } from 'rxjs/operators';
 
 import * as moment from 'moment';
 import groupBy from 'lodash/groupBy';
 import keys from 'lodash/keys';
 
 import { DataApiService } from '../../../services/data-api.service';
+import { SocketService } from '../../../../../shared/services/socket.service';
 
 @Component({
   selector: 'app-total-orders',
+  providers: [ SocketService ],
   templateUrl: './total-orders.component.html',
   styleUrls: ['./total-orders.component.css']
 })
@@ -26,7 +28,10 @@ export class TotalOrdersComponent implements OnInit {
 
   private _unsubscribe = new Subject<boolean>();
 
-  constructor(private _dataApi: DataApiService) { }
+  constructor(
+    private _dataApi: DataApiService,
+    private _socketService: SocketService
+  ) { }
 
   ngOnInit() {
     this.intervalSelection = new FormControl('Daily');
@@ -35,11 +40,13 @@ export class TotalOrdersComponent implements OnInit {
       .subscribe(label => {
         this._getMetricData(label);
       });
-
-    timer(10, 60000)  // refresh chart every minute.
-      .pipe(takeUntil(this._unsubscribe))
-      .subscribe(() => {
-        this._getMetricData('Daily');
+    this._getMetricData('Daily');
+    this._socketService.initSocket('metric');
+    this._socketService.onModel('metric')
+      .pipe(takeUntil(this._unsubscribe), filter(data => data.metricNames.includes('total_sale') || data.metricNames.includes('total_orders')))
+      .subscribe((data) => {
+        console.log(`Received message (${JSON.stringify(data)})`);
+        this._getMetricData(this.intervalSelection.value);
       });
   }
 
