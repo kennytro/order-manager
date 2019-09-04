@@ -9,10 +9,11 @@ import { of } from 'rxjs';
 import { AuthSharedModule } from '../../../../../shared/auth-shared.module';
 import { NewOrderComponent } from './new-order.component';
 import { DataApiService } from '../../../services/data-api.service';
-import { AuthService } from '../../../../../../../services/auth.service';
+import { AuthService, UserProfile } from '../../../../../../../services/auth.service';
 
 describe('NewOrderComponent', () => {
   const testClient = { id: '1000', name: 'test' };
+  const testUserProfile: UserProfile = { email: 'kenny@etr.com', authId: 'ID', clientId: '1000', pictureUrl: 'URL' };
   const testUser = { id: '2000', clientId: '1000', email: 'kenny@etr.com', userSettings: { productExcluded: ['2000'] } };
   const testProducts = [
     { id: '2000', name: 'Grape', description: 'grape', category: 'fruit', unitPrice: '10.00', unit: 'lb' },
@@ -43,7 +44,7 @@ describe('NewOrderComponent', () => {
     fixture = TestBed.createComponent(NewOrderComponent);
     component = fixture.componentInstance;
     authSpy = TestBed.get(AuthService);
-    authSpy.getUserProfile.and.returnValue(testUser);
+    authSpy.getUserProfile.and.returnValue(testUserProfile);
     apiSpy = TestBed.get(DataApiService);
     apiSpy.genericMethod.and.returnValue(of(testClient));
     fixture.detectChanges();

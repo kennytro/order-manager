@@ -10,6 +10,16 @@
       "table": "message"
     }
   },
+  "mixins": {
+    "Realtime": {
+      "afterSave": {
+        "filterBy": "toUserId"
+      },
+      "afterDelete": {
+        "filterBy": "toUserId"
+      }
+    }
+  },
   "properties": {
     "messageType": {
       "type": "string",

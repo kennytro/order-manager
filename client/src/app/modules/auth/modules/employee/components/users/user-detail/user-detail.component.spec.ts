@@ -11,7 +11,7 @@ import { of } from 'rxjs';
 import { AuthSharedModule } from '../../../../../shared/auth-shared.module';
 import { AlertService } from '../../../../../shared/services/alert.service';
 import { DataApiService } from '../../../services/data-api.service';
-import { AuthService } from '../../../../../../../services/auth.service';
+import { AuthService, UserProfile } from '../../../../../../../services/auth.service';
 import { UserDetailComponent } from './user-detail.component';
 
 describe('UserDetailComponent', () => {
@@ -28,6 +28,7 @@ describe('UserDetailComponent', () => {
       id: 'kenny', email: 'kenny@etr.com', role: 'customer',
       clientId: '111', createDate: '01/01/2019', authId: 'ABCD'
     };
+    const testUserProfile: UserProfile = { email: 'kenny@etr.com', authId: 'AAAA', clientId: '111', pictureUrl: 'URL' };
     const testClients = [
       { id: '111', name: 'testA' },
       { id: '112', name: 'testB' }
@@ -35,6 +36,7 @@ describe('UserDetailComponent', () => {
 
     const route = ({ data: of({ user: testUser, clients: testClients } ), snapshot: {} } as any) as ActivatedRoute;
     const authSpy = jasmine.createSpyObj('AuthService', ['getUserProfile']);
+    authSpy.getUserProfile.and.returnValue(testUserProfile);
     const msbSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
     const dataSpy = jasmine.createSpyObj('DataApiService', ['genericMethod', 'destroyById']);
     const asSpy = jasmine.createSpyObj('AlertService', ['confirm', 'alertSuccess']);
@@ -57,12 +59,6 @@ describe('UserDetailComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(UserDetailComponent);
     component = fixture.componentInstance;
-    authSvcSpy = TestBed.get(AuthService);
-    snackbarSpy = TestBed.get(MatSnackBar);
-    apiSpy = TestBed.get(DataApiService);
-    alertSpy = TestBed.get(AlertService);
-    authSvcSpy.getUserProfile.and.returnValue({ authId: 'ABCD' });
-
     fixture.detectChanges();
   });
 

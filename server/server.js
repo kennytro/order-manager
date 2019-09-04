@@ -16,6 +16,7 @@ const tenantSettings = require(appRoot + '/config/tenant');
 const getPublicContent = require('./middleware/public-content');
 const submitInquiry = require('./middleware/inquiry');
 const checkJwt = require('./middleware/check-jwt');
+const modelSockets = require('./model-sockets');
 
 const app = module.exports = loopback();
 const ENV = process.env.NODE_ENV || 'production';
@@ -56,9 +57,10 @@ if (!yn(process.env.DISABLE_CLUSTER)) {
   // start a worker
   if (cluster.isMaster) {
     logger.info('Master process started.');
-    cluster.fork({
+    let worker = cluster.fork({
       IS_WORKER: true
     });
+    worker.on('message', _.partial(modelSockets.onMessage, app));
     cluster.on('exit', (worker, code, signal) => {
       logger.info(`worker ${worker.process.pid} died.`);
       if (!shutdownInProgress) {
@@ -66,25 +68,13 @@ if (!yn(process.env.DISABLE_CLUSTER)) {
           IS_WORKER: true
         });
         logger.info(`Starting replacement worker ${newWorker.process.pid}.`);
+        newWorker.on('message', _.partial(modelSockets.onMessage, app));
       }
     });
   } else {
     logger.info('Worker process started.');
   }
 }
-
-app.start = function() {
-  // start the web server
-  return app.listen(function() {
-    app.emit('started');
-    var baseUrl = app.get('url').replace(/\/$/, '');
-    logger.info(`Web server listening at: ${baseUrl}`);
-    if (app.get('loopback-component-explorer')) {
-      var explorerPath = app.get('loopback-component-explorer').mountPath;
-      logger.info(`Browse your REST API at ${baseUrl + explorerPath}`);
-    }
-  });
-};
 
 if (!process.env.ONE_OFF) {
   app.use(morgan('combined', { stream: logger.stream }));
@@ -126,12 +116,28 @@ app.all('/*', function(req, res, next) {
     res.sendFile(path.resolve(__dirname, '../dist/index.html'));
   }
 });
+
+app.start = function() {
+  // start the web server
+  return app.listen(function() {
+    app.emit('started');
+    var baseUrl = app.get('url').replace(/\/$/, '');
+    logger.info(`Web server listening at: ${baseUrl}`);
+    if (app.get('loopback-component-explorer')) {
+      var explorerPath = app.get('loopback-component-explorer').mountPath;
+      logger.info(`Browse your REST API at ${baseUrl + explorerPath}`);
+    }
+  });
+};
+
 // Bootstrap the application, configure models, datasources and middleware.
 // Sub-apps like REST API are mounted via boot scripts.
 boot(app, __dirname, function(err) {
   if (err) throw err;
 
   // start the server if `$ node server.js`
-  if (cluster.isMaster && require.main === module)
-    app.start();
+  if (cluster.isMaster && require.main === module) {
+    let server = app.start();
+    modelSockets.init(app, server);
+  }
 });

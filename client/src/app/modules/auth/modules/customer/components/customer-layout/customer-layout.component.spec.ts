@@ -12,6 +12,7 @@ import { AuthService, UserProfile } from '../../../../../../services/auth.servic
 import { RootScopeShareService } from '../../../../../../services/root-scope-share.service';
 
 import { DataApiService } from '../../services/data-api.service';
+import { SocketService } from '../../../../shared/services/socket.service';
 
 describe('CustomerLayoutComponent', () => {
   const testClient = { id: '1000', name: 'testA', phone: '1111111111', deliveryRouteId: 'routeA', createdDate: '1/1/2019' };
@@ -20,7 +21,9 @@ describe('CustomerLayoutComponent', () => {
   let component: CustomerLayoutComponent;
   let fixture: ComponentFixture<CustomerLayoutComponent>;
   let authSpy: jasmine.SpyObj<AuthService>;
-  let apiSpy: jasmine.SpyObj<RootScopeShareService>;
+  let rootDataSpy: jasmine.SpyObj<RootScopeShareService>;
+  let apiSpy: jasmine.SpyObj<DataApiService>;
+  let socketSpy: jasmine.SpyObj<SocketService>;
 
   beforeEach(async(() => {
     const route = ({ data: of({ client: testClient } ), snapshot: {} } as any) as ActivatedRoute;
@@ -33,7 +36,8 @@ describe('CustomerLayoutComponent', () => {
         { provide: RootScopeShareService, useValue: jasmine.createSpyObj('RootScopeShareService', ['getData'])},
         { provide: MatDialog, useValue: jasmine.createSpyObj('MatDialog', ['open']) },
         { provide: MatSnackBar, useValue: jasmine.createSpyObj('MatSnackBar', ['open']) },
-        { provide: DataApiService, useValue: jasmine.createSpyObj('DataApiService', ['genericMethod']) }
+        { provide: DataApiService, useValue: jasmine.createSpyObj('DataApiService', ['genericMethod']) },
+        { provide: SocketService, useValue: jasmine.createSpyObj('SocketService', ['initSocket', 'onModel']) }
       ]
     })
     .compileComponents();
@@ -44,8 +48,13 @@ describe('CustomerLayoutComponent', () => {
     component = fixture.componentInstance;
     authSpy = TestBed.get(AuthService);
     authSpy.getUserProfile.and.returnValue(testProfile);
-    apiSpy = TestBed.get(RootScopeShareService);
-    apiSpy.getData.and.returnValue(testTenant);
+    rootDataSpy = TestBed.get(RootScopeShareService);
+    rootDataSpy.getData.and.returnValue(testTenant);
+    apiSpy = TestBed.get(DataApiService);
+    apiSpy.genericMethod.withArgs('Message', 'countUnread').and.returnValue(of(0));
+    apiSpy.genericMethod.withArgs('EndUser', 'getMyUser', [testProfile.authId]).and.returnValue(of({ id: 1000 }));    
+    socketSpy = TestBed.get(SocketService);
+    socketSpy.onModel.and.returnValue(of({}));
     fixture.detectChanges();
   });
 

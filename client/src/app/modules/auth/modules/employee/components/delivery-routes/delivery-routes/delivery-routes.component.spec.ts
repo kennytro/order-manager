@@ -5,6 +5,9 @@ import { AgmCoreModule } from '@agm/core';
 import { MatDialog } from '@angular/material';
 import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faMapMarkedAlt } from '@fortawesome/free-solid-svg-icons';
+
 
 import { AuthSharedModule } from '../../../../../shared/auth-shared.module';
 import { DeliveryRoutesComponent } from './delivery-routes.component';
@@ -20,6 +23,7 @@ describe('DeliveryRoutesComponent', () => {
   let component: DeliveryRoutesComponent;
   let fixture: ComponentFixture<DeliveryRoutesComponent>;
   let apiSpy: jasmine.SpyObj<DataApiService>;
+  library.add(faMapMarkedAlt);
   beforeEach(async(() => {
     const route = ({ data: of({ routes: testRoutes} ), snapshot: {} } as any) as ActivatedRoute;
     TestBed.configureTestingModule({

@@ -15,6 +15,7 @@ import { DataApiService } from '../../../services/data-api.service';
 describe('NewStatementComponent', () => {
   let component: NewStatementComponent;
   let fixture: ComponentFixture<NewStatementComponent>;
+  let apiSpy: jasmine.SpyObj<DataApiService>;
   library.add(faLongArrowAltRight, faStoreAlt, faShoppingCart, faSearchDollar);
 
   beforeEach(async(() => {
@@ -37,6 +38,8 @@ describe('NewStatementComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(NewStatementComponent);
     component = fixture.componentInstance;
+    apiSpy = TestBed.get(DataApiService);
+    apiSpy.genericMethod.and.returnValue(of([]));    
     fixture.detectChanges();
   });
 

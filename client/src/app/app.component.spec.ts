@@ -22,7 +22,7 @@ describe('AppComponent', () => {
 
   it('should create the app', () => {
     spyOn(document, 'getElementById').and.callFake(function() {
-      return {
+      return <HTMLElement>{
         setAttribute: function(a, b) {}
       };
     });

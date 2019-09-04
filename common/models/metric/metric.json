@@ -10,6 +10,9 @@
       "table": "metric"
     }
   },
+  "mixins": {
+    "Realtime": {}
+  },
   "properties": {
     "id": {
       "type": "string",

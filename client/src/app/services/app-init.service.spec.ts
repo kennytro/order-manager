@@ -28,7 +28,7 @@ describe('AppInitService', () => {
   });
   it('should be initialized', async () => {
     httpClientSpy.get.and.returnValue(asyncData({id: 'test'}));
-    shareSvcSpy.setData.and.returnValue(true);
+    shareSvcSpy.setData.and.callFake(function() {});
     const service: AppInitService = TestBed.get(AppInitService);
     await service.init();
     expect(httpClientSpy.get.calls.count()).toBe(1, 'spy get method called once');
