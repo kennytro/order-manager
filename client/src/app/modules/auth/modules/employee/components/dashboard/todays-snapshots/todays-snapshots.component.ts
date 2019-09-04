@@ -1,16 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { GoogleChartInterface } from 'ng2-google-charts/google-charts-interfaces';
 import { Subject, timer } from 'rxjs';
-import { take, takeUntil } from 'rxjs/operators';
+import { take, takeUntil, debounceTime } from 'rxjs/operators';
 import * as moment from 'moment';
 
 import groupBy from 'lodash/groupBy';
 import keys from 'lodash/keys';
 
 import { DataApiService } from '../../../services/data-api.service';
+import { SocketService } from '../../../../../shared/services/socket.service';
 
 @Component({
   selector: 'app-todays-snapshots',
+  providers: [ SocketService ],
   templateUrl: './todays-snapshots.component.html',
   styleUrls: ['./todays-snapshots.component.css']
 })
@@ -19,12 +21,16 @@ export class TodaysSnapshotsComponent implements OnInit {
   private _unsubscribe = new Subject<boolean>();  
   pieChart: GoogleChartInterface;
 
-  constructor(private _dataApi: DataApiService) { }
+  constructor(private _dataApi: DataApiService,
+    private _socketService: SocketService) { }
 
   ngOnInit() {
-    timer(10, 60000)  // refresh chart every minute.
-      .pipe(takeUntil(this._unsubscribe))
-      .subscribe(() => {
+    this._getOrders();
+    this._socketService.initSocket('order');
+    this._socketService.onModel('order')
+      .pipe(takeUntil(this._unsubscribe), debounceTime(1000))
+      .subscribe((data) => {
+        console.log(`Received message (${JSON.stringify(data)})`);
         this._getOrders();
       });
  }

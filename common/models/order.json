@@ -13,6 +13,8 @@
   "mixins": {
     "Timestamps": {
       "beforeSave": 1
+    },
+    "Realtime": {
     }
   },
   "properties": {

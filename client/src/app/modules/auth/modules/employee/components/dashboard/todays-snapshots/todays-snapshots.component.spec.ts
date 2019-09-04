@@ -6,6 +6,7 @@ import * as moment from 'moment';
 import { AuthSharedModule } from '../../../../../shared/auth-shared.module';
 import { TodaysSnapshotsComponent } from './todays-snapshots.component';
 import { DataApiService } from '../../../services/data-api.service';
+import { SocketService } from '../../../../../shared/services/socket.service';
 
 describe('TodaysSnapshotsComponent', () => {
   const today = moment().format('MM/DD/YYYY');
@@ -17,13 +18,14 @@ describe('TodaysSnapshotsComponent', () => {
   let component: TodaysSnapshotsComponent;
   let fixture: ComponentFixture<TodaysSnapshotsComponent>;
   let apiSpy: jasmine.SpyObj<DataApiService>;
-
+  let socketSpy: jasmine.SpyObj<SocketService>;  
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [ TodaysSnapshotsComponent ],
       imports: [ NoopAnimationsModule, AuthSharedModule ],
       providers: [
         { provide: DataApiService, useValue: jasmine.createSpyObj('DataApiService', ['find']) },
+        { provide: SocketService, useValue: jasmine.createSpyObj('SocketService', ['initSocket', 'onModel']) }
       ]
     })
     .compileComponents();
@@ -34,6 +36,8 @@ describe('TodaysSnapshotsComponent', () => {
     component = fixture.componentInstance;
     apiSpy = TestBed.get(DataApiService);
     apiSpy.find.and.returnValue(of(testOrders));
+    socketSpy = TestBed.get(SocketService);
+    socketSpy.onModel.and.returnValue(of({}));
     fixture.detectChanges();
   });
 

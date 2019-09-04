@@ -17,13 +17,14 @@ module.exports = function(Order) {
 
   // Don't allow delete by ID. Instead cancel order.
   Order.disableRemoteMethodByName('deleteById');
-  /**
-   * Override 'destroyById()'.
-   *
-   * Check no statement is assigned, and perform cascade delete on
-   * its OrderItem instances.
-   */
+
   Order.on('dataSourceAttached', function(obj) {
+    /**
+     * Override 'destroyById()'.
+     *
+     * Check no statement is assigned, and perform cascade delete on
+     * its OrderItem instances.
+     */
     Order.destroyById = async function(id, callback) {
       callback = callback || function() { };
       try {
@@ -41,6 +42,29 @@ module.exports = function(Order) {
         });
       } catch (error) {
         callback(error);
+      }
+    };
+
+    /**
+     * Override 'updateAll()'
+     *
+     * After updateAll() succeeds, emit an event.
+     */
+    let origUpdateAll = Order.updateAll;
+    Order.updateAll = function(where, data, callback) {
+      if (_.isFunction(callback)) {
+        origUpdateAll.call(Order, where, data, (err, info) => {
+          if (!err) {
+            Order.emitEvent(_.get(app, ['sockets', 'order']), 'save', null);
+          }
+          callback(err, info);
+        });
+      } else {
+        return origUpdateAll.call(Order, where, data)
+          .then(info => {
+            Order.emitEvent(_.get(app, ['sockets', 'order']), 'save', null);
+            return info;
+          });
       }
     };
   });
@@ -63,6 +87,7 @@ module.exports = function(Order) {
     // run the following commands asynchronously
     newOrder.generatePdf();
     newOrder.addToRedisSet();
+    Order.emitEvent(_.get(app, ['sockets', 'order']), 'save', newOrder);
     return {
       status: 200,
       message: `New order(id: ${newOrder.id}) created.`,
@@ -98,6 +123,7 @@ module.exports = function(Order) {
     // run the following commands asynchronously
     newOrder.generatePdf();
     newOrder.addToRedisSet();
+    Order.emitEvent(_.get(app, ['sockets', 'order']), 'save', newOrder);
     return {
       status: 200,
       message: `Order(id: ${newOrder.id}) is updated.`,
@@ -127,6 +153,7 @@ module.exports = function(Order) {
     }
     // run the following commands asynchronously
     existingOrder.addToRedisSet();
+    Order.emitEvent(_.get(app, ['sockets', 'order']), 'save', existingOrder);
     return {
       status: 200,
       message: `Order(id: ${existingOrder.id}) is cancelled.`,
@@ -163,7 +190,10 @@ module.exports = function(Order) {
     }
 
     // run the following commands asynchronously
-    existingOrders.forEach(order => order.addToRedisSet());
+    existingOrders.forEach(order => {
+      order.addToRedisSet();
+      Order.emitEvent(_.get(app, ['sockets', 'order']), 'save', order);
+    });
     return {
       status: 200,
       message: `Completed ${existingOrders.length} orders.`,
@@ -501,6 +531,25 @@ module.exports = function(Order) {
   Order.prototype.addToRedisSet = function() {
     if (app.redis) {
       app.redis.sadd(REDIS_ORDER_CHANGED_KEY, this.id);
+    }
+  };
+
+  /**
+   * We can't use operation hooks provided by 'realtime.js' mixin because most
+   * order is updated insided a transaction(This creates a situation event is
+   * emitted before transaction is committed). Instead we require all order modifying
+   * APIs to call this funciton manually.
+   *
+   * @param {Object} - socket IO instance
+   * @param {String} - operation type.
+   * @param {Object?} - order instance.
+   */
+  Order.emitEvent = function(socket, operation, order) {
+    if (socket) {
+      socket.emit('order', {
+        operation: operation,
+        clientId: order ? order.clientId : undefined
+      });
     }
   };
 };

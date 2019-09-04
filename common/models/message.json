@@ -11,7 +11,14 @@
     }
   },
   "mixins": {
-    "Realtime": {}
+    "Realtime": {
+      "afterSave": {
+        "filterBy": "toUserId"
+      },
+      "afterDelete": {
+        "filterBy": "toUserId"
+      }
+    }
   },
   "properties": {
     "messageType": {

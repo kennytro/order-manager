@@ -45,20 +45,6 @@ module.exports = function(Message) {
     return users.map(user => user.id);
   }
 
-  Message.observe('after save', async function(ctx) {
-    Message.emitEvent(_.get(app, ['sockets', 'message']), {
-      operation: 'save',
-      toUserId: (ctx.instance) ? ctx.instance.toUserId : _.get(ctx, ['where', 'toUserId'])
-    });
-  });
-
-  Message.observe('after delete', async function(ctx) {
-    Message.emitEvent(_.get(app, ['sockets', 'message']), {
-      operation: 'delete',
-      toUserId: _.get(ctx, ['where', 'toUserId'])
-    });
-  });
-
   /**
    * @param {Object} metadata - must contain 'endUserId'
    * @returns {Number} unread message count.
