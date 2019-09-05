@@ -1,7 +1,9 @@
 'use strict';
 const appRoot = require('app-root-path');
 const Promise = require('bluebird');
+const cluster = require('cluster');
 const uuidv5 = require('uuid/v5');
+const yn = require('yn');
 const logger = require(appRoot + '/config/winston');
 const metricSetting = require(appRoot + '/config/metric');
 
@@ -11,7 +13,7 @@ module.exports = async function(app) {
    * process.(NOTE: Currently there is only 1 worker. When we have multiple
    * workers, use a lock to avoid race condition.)
    */
-  if (process.env.NODE_ENV !== 'unit_test' && (process.env.ONE_OFF || !process.env.IS_WORKER)) {
+  if (process.env.NODE_ENV !== 'unit_test' && (yn(process.env.ONE_OFF) || !cluster.isWorker)) {
     return;
   };
   const UUID_NAMESPACE = metricSetting.uuidNamespace;

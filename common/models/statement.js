@@ -1,10 +1,8 @@
 'use strict';
+const _ = require('lodash');
 const appRoot = require('app-root-path');
-const debugMockData = require('debug')('order-manager:Statement:mockData');
 const HttpErrors = require('http-errors');
 const Promise = require('bluebird');
-const yn = require('yn');
-const _ = require('lodash');
 const app = require(appRoot + '/server/server');
 const logger = require(appRoot + '/config/winston');
 const PdfMaker = require(appRoot + '/common/util/make-pdf');
@@ -168,83 +166,6 @@ module.exports = function(Statement) {
       return await statement.getPdfUrl();
     }
     return null;
-  };
-
-  /**
-   * Mock orders for the given clients.
-   * @param{Client[]} clients - mock clients
-   */
-  Statement.mockData = async function(clients) {
-    if (!yn(process.env.CREATE_MOCK_DATA)) {
-      return;
-    }
-    debugMockData('Statement.mockData() - Begins');
-    if (clients.length === 0) {
-      return;
-    }
-    try {
-      const adminUser = await app.models.EndUser.findOne({ where: { role: 'admin' } });
-      const metadata = { endUserId: adminUser.id };
-      await Promise.each(clients, async function(client) {
-        let orders = await app.models.Order.findStatementReady(client.id);
-        if (orders.length > 0) {
-          let subtotal = orders.reduce((a, c) => a += Number(c.totalAmount), 0);
-          let statementData = {
-            clientId: client.id,
-            statementDate: new Date(),
-            subtotalAmount: subtotal,
-            adjustAmount: 0,
-            totalAmount: subtotal,
-            paidAmount: 0,
-            note: 'Mock data'
-          };
-          let result = await Statement.createNew(statementData, orders.map(order => order.id), metadata);
-          debugMockData(`<Client[${client.id}]>: Created statement(id: ${result.statementId})`);
-        }
-      });
-    } catch (error) {
-      console.error(`Error while creating mock statement - ${error.message}`);
-    }
-    debugMockData('Statement.mockData() - Ends');
-  };
-
-  /**
-   * Delete statements of the given clients older than the cutoff data.
-   * @param{Client[]} clients - mock clients
-   * @param{Date} cutOffDate - delete statement if older than this date.
-   */
-  Statement.removeOldData = async function(clients, cutOffDate) {
-    if (!yn(process.env.CREATE_MOCK_DATA)) {
-      return;
-    }
-    debugMockData('Statement.removeOldData() - Begins');
-    if (clients.length === 0 || !cutOffDate) {
-      return;
-    }
-
-    const stmtToDelete = await Statement.find({
-      where: {
-        clientId: { inq: clients.map(c => c.id) },
-        createdAt: { lt: cutOffDate }
-      },
-      include: 'order'
-    });
-    try {
-      // delete statements along with their orders.
-      await Promise.each(stmtToDelete, async function(statement) {
-        let ordersToDelete = statement.toJSON().order;
-        await Statement.destroyById(statement.id, console.error);
-        debugMockData(`<Client[${statement.clientId}>: Deleted statement(id: ${statement.id})`);
-        await Promise.each(ordersToDelete, async function(order) {
-          await app.models.Order.destroyById(order.id, console.error);
-          debugMockData(`<Client[${order.clientId}>: Deleted order(id: ${order.id})`);
-        });
-      });
-    } catch (error) {
-      console.error(`Error while deleting mock statement - ${error.message}`);
-    }
-
-    debugMockData('Statement.removeOldData() - Ends');
   };
 
   Statement.prototype.getPdfName = function() {

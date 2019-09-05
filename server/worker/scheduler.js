@@ -1,6 +1,8 @@
 'use strict';
 const scheduler = require('node-schedule');
 const yn = require('yn');
+const metricBatch = require('./metric-batch');
+const mockData = require('./mock-data');
 
 module.exports = function(app) {
   if (yn(process.env.ONE_OFF) || !yn(process.env.IS_WORKER)) {
@@ -8,11 +10,11 @@ module.exports = function(app) {
   }
 
   // schedule jobs to run every 10 seconds
-  scheduler.scheduleJob('*/10 * * * * *', app.models.Metric.batchUpdate);
+  scheduler.scheduleJob('*/10 * * * * *', metricBatch.batchUpdate);
 
   // const everyMinRule = new scheduler.RecurrenceRule();
   // everyMinRule.second = 0;
-  // scheduler.scheduleJob(everyMinRule, app.models.Metric.batchUpdate);
+  // scheduler.scheduleJob(everyMinRule, metricBatch.batchUpdate);
 
   if (yn(process.env.CREATE_MOCK_DATA)) {
     // schedule job to create mock data. This job runs 4 times everyday.
@@ -21,7 +23,7 @@ module.exports = function(app) {
     mockRule.hour = [8, 12, 18, 20];
     mockRule.minute = 0;
     mockRule.second = 30;
-    scheduler.scheduleJob(mockRule, app.models.Metric.mockData);
+    scheduler.scheduleJob(mockRule, mockData.create);
 
     // schedule job to remove old mock data to run at 23:00 on Sunday.
     const rmMockRule = new scheduler.RecurrenceRule();
@@ -29,7 +31,7 @@ module.exports = function(app) {
     rmMockRule.hour = 23;
     rmMockRule.minute = 0;
     rmMockRule.second = 0;
-    scheduler.scheduleJob(rmMockRule, app.models.Metric.removeOldMockData);
+    scheduler.scheduleJob(rmMockRule, mockData.remove);
   }
 
   // schedule jobs to run every midnight

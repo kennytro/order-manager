@@ -1,10 +1,8 @@
 'use strict';
+const _ = require('lodash');
 const appRoot = require('app-root-path');
-const debugMockData = require('debug')('order-manager:Order:mockData');
 const HttpErrors = require('http-errors');
 const Promise = require('bluebird');
-const yn = require('yn');
-const _ = require('lodash');
 const app = require(appRoot + '/server/server');
 const logger = require(appRoot + '/config/winston');
 const PdfMaker = require(appRoot + '/common/util/make-pdf');
@@ -402,79 +400,6 @@ module.exports = function(Order) {
       logger.error(`Error while generating package distribution list pdf file - ${error.message}`);
       throw error;
     }
-  };
-
-  /**
-   * Mock orders for the given clients.
-   * @param{Client[]} clients - mock clients
-   */
-  Order.mockData = async function(clients) {
-    if (!yn(process.env.CREATE_MOCK_DATA)) {
-      return;
-    }
-    debugMockData('Order.mockData() - Begins');
-    if (clients.length === 0) {
-      return;
-    }
-    const adminUser = await app.models.EndUser.findOne({ where: { role: 'admin' } });
-    const metadata = { endUserId: adminUser.id };
-    let orders = await Order.find({
-      where: { and: [
-        { clientId: { inq: clients.map(c => c.id) } },
-        { status: { nin: ['Cancelled', 'Completed'] } }
-      ] }
-    });
-
-    if (orders.length === 0) {
-      try {
-        const products = await app.models.Product.find();
-        const createResult = await Promise.mapSeries(clients, async function(client) {
-          let orderItems = products.map(function(product) {
-            if (Math.random() < 0.5) {
-              return {
-                productId: product.id,
-                quantity: Math.floor(Math.random() * 10),
-                unitPrice: Number(product.unitPrice)
-              };
-            }
-          });
-          orderItems = _.compact(orderItems);
-          let subtotal = orderItems.reduce((a, c) => a += c.quantity * c.unitPrice, 0);
-          let fee = (client.feeType === 'Fixed') ? Number(client.feeValue) : subtotal * Number(client.feeValue) / 100.0;
-          fee = Number(fee.toFixed(2));
-          let orderData = {
-            clientId: client.id,
-            status: 'Submitted',
-            subtotal: subtotal,
-            fee: fee,
-            totalAmount: subtotal + fee,
-            note: 'Mock data'
-          };
-          return await Order.createNew(orderData, orderItems, metadata);
-        });
-        orders = await Order.find({
-          where: { id: { inq: createResult.map(result => result.orderId) } }
-        });
-        orders.forEach(function(order) {
-          debugMockData(`<Client[${order.clientId}]>: Created new order(id: ${order.id})`);
-        });
-      } catch (error) {
-        console.error(`Error while creating mock orders - ${error.message}`);
-      }
-      return;
-    }
-
-    // update order status. 'Shipped' order updates its status via different API.
-    let shipped = _.remove(orders, function(order) { return order.status === 'Shipped'; });
-    await Promise.each(orders, async function(order) {
-      if (order.status === 'Submitted') {
-        await order.updateAttribute('status', 'Processed');
-      } else if (order.status === 'Processed') {
-        await order.updateAttribute('status', 'Shipped');
-      }
-    });
-    await Order.completeOrders(shipped.map(function(order) { return order.id; }), metadata);
-    debugMockData('Order.mockData() - Ends');
   };
 
   Order.prototype.getPdfName = function() {

@@ -18,6 +18,8 @@ const submitInquiry = require('./middleware/inquiry');
 const checkJwt = require('./middleware/check-jwt');
 const modelSockets = require('./model-sockets');
 
+const worker = require('./worker/worker');
+
 const app = module.exports = loopback();
 const ENV = process.env.NODE_ENV || 'production';
 
@@ -139,5 +141,8 @@ boot(app, __dirname, function(err) {
   if (cluster.isMaster && require.main === module) {
     let server = app.start();
     modelSockets.init(app, server);
+  }
+  if (cluster.isWorker && require.main === module) {
+    worker.start(app);
   }
 });
