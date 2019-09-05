@@ -1,6 +1,5 @@
 'use strict';
 const appRoot = require('app-root-path');
-const debugMockData = require('debug')('order-manager:Product:mockData');
 const Promise = require('bluebird');
 const _ = require('lodash');
 const AWS = require('aws-sdk');
@@ -132,29 +131,5 @@ module.exports = function(Product) {
     if (app.redis) {
       app.redis.sadd(REDIS_PRODUCT_CHANGED_KEY, id);
     }
-  };
-
-  /**
-   * Mock product unit price. Randomly select 2/3 products and adjust
-   * their unit price within range [-0.5%, +0.5%]
-   */
-  Product.mockData = async function() {
-    if (!yn(process.env.CREATE_MOCK_DATA)) {
-      return;
-    }
-    debugMockData('Product.mockData() - Begins');
-    const products = await Product.find();
-    await Promise.each(products, async product => {
-      if (Math.random() >= 0.33) {
-        let randomPercentage = ((Math.random() * 10) - 5) / 100.0;    // -0.05 .. 0.05
-        let diffAmount = Number((product.unitPrice * randomPercentage).toFixed(2));
-        const newPrice = Number(product.unitPrice) + diffAmount;
-        // [HACK] In order to avoid operation hook for imageURL, use updateAll() instead.
-        // await product.save();
-        await Product.updateAll({ id: product.id }, { unitPrice: newPrice });
-        debugMockData(`<Product[${product.id}]>: Updated unit price to ${newPrice}`);
-      }
-    });
-    debugMockData('Product.mockData() - Ends');
   };
 };
