@@ -160,6 +160,77 @@ async function mockOrderData(clients) {
 };
 
 /**
+ * Mock orders for the given clients.
+ * @param{Client[]} clients - mock clients
+ */
+async function mockStatementData(clients) {
+  debugMockData('Statement.mockData() - Begins');
+  if (clients.length === 0) {
+    return;
+  }
+  try {
+    const adminUser = await app.models.EndUser.findOne({ where: { role: 'admin' } });
+    const metadata = { endUserId: adminUser.id };
+    await Promise.each(clients, async function(client) {
+      let orders = await app.models.Order.findStatementReady(client.id);
+      if (orders.length > 0) {
+        let subtotal = orders.reduce((a, c) => a += Number(c.totalAmount), 0);
+        let statementData = {
+          clientId: client.id,
+          statementDate: new Date(),
+          subtotalAmount: subtotal,
+          adjustAmount: 0,
+          totalAmount: subtotal,
+          paidAmount: 0,
+          note: 'Mock data'
+        };
+        let result = await app.models.Statement.createNew(statementData, orders.map(order => order.id), metadata);
+        debugMockData(`<Client[${client.id}]>: Created statement(id: ${result.statementId})`);
+      }
+    });
+  } catch (error) {
+    console.error(`Error while creating mock statement - ${error.message}`);
+  }
+  debugMockData('Statement.mockData() - Ends');
+};
+
+/**
+ * Delete statements of the given clients older than the cutoff data.
+ * @param{Client[]} clients - mock clients
+ * @param{Date} cutOffDate - delete statement if older than this date.
+ */
+async function removeMockStatementData(clients, cutOffDate) {
+  debugMockData('Statement.removeOldData() - Begins');
+  if (clients.length === 0 || !cutOffDate) {
+    return;
+  }
+
+  const stmtToDelete = await app.models.Statement.find({
+    where: {
+      clientId: { inq: clients.map(c => c.id) },
+      createdAt: { lt: cutOffDate }
+    },
+    include: 'order'
+  });
+  try {
+    // delete statements along with their orders.
+    await Promise.each(stmtToDelete, async function(statement) {
+      let ordersToDelete = statement.toJSON().order;
+      await app.models.Statement.destroyById(statement.id, console.error);
+      debugMockData(`<Client[${statement.clientId}>: Deleted statement(id: ${statement.id})`);
+      await Promise.each(ordersToDelete, async function(order) {
+        await app.models.Order.destroyById(order.id, console.error);
+        debugMockData(`<Client[${order.clientId}>: Deleted order(id: ${order.id})`);
+      });
+    });
+  } catch (error) {
+    console.error(`Error while deleting mock statement - ${error.message}`);
+  }
+
+  debugMockData('Statement.removeOldData() - Ends');
+};
+
+/**
  *  create mock data using random number generator.
  * [NOTE] this function is called 4 times a day, at 8, 12, 18, 20.
  */
@@ -226,5 +297,5 @@ module.exports.remove = async function(fireDate) {
   debugMockData(`Removed all product metric data older than ${threeMonthAgo.toLocaleDateString('en-US')}`);
 
   // remove statements of mock clients that are older than 3 months.
-  await app.models.Statement.removeOldData(mockClients, threeMonthAgo);
+  await removeMockStatementData(mockClients, threeMonthAgo);
 };
