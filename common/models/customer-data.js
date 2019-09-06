@@ -122,6 +122,7 @@ module.exports = function(CustomerData) {
       }, { ttl: 300 /* seconds. user is unlikely deleted. */ });
       if (endUser) {
         metadata.endUserId = endUser.id;
+        metadata.endUserClientId = endUser.clientId;
         params = [].concat(params || [], metadata);
       }
       return await app.models[modelName][methodName].apply(app.models[modelName], params);

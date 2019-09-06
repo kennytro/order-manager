@@ -56,5 +56,5 @@
 <mat-divider></mat-divider>
 <div mat-dialog-actions fxLayout="row" fxLayoutAlign="end">
   <button mat-raised-button class="action" [mat-dialog-close]="false">Cancel</button>
-  <button mat-raised-button class="action" [disabled]="companyInfoFG.invalid" (click)="save()" color="green">Save</button>
+  <button mat-raised-button class="action" [disabled]="companyInfoFG.invalid || !companyInfoFG.dirty" (click)="save()" color="green">Save</button>
 </div>

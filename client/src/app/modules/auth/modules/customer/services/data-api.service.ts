@@ -32,6 +32,14 @@ export class DataApiService {
   }
 
   genericMethod(modelName: string, methodName: string, param?: Array<any>): Observable<any> {
+    // Client method requires current user's client id as the first argument.
+    if (modelName == 'Client') {
+      if (param) {
+        param = [parseInt(this._cookieService.get('clientId'))].concat(param);
+      } else {
+        param = [parseInt(this._cookieService.get('clientId'))];
+      }
+    }
     return this._dataApi.genericMethod(modelName, methodName, param || []);
   }
 }

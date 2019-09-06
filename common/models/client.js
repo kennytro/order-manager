@@ -1,6 +1,7 @@
 'use strict';
 const appRoot = require('app-root-path');
 const debugMap = require('debug')('order-manager:Map:update');
+const HttpErrors = require('http-errors');
 const Promise = require('bluebird');
 const yn = require('yn');
 const _ = require('lodash');
@@ -82,31 +83,11 @@ module.exports = function(Client) {
     }
   });
 
-  const AllowedMethodsByRole = {
-    customer: ['getMyClient'],
-    manager: [],
-    admin: []
-  };
-
-  /*
-   * @param {string} role name
-   * @returns {string[]} allowed method name array.
+  /**
+   * Get clients with at least one completed order without assigned statement.
+   *
+   * @returns {Client[]} - list of client instances.
    */
-  Client.allowedMethods = function(role) {
-    if (AllowedMethodsByRole[role]) {
-      return AllowedMethodsByRole[role];
-    }
-    return [];
-  };
-
-  /* @param {number} id
-   * @returns {Client[]} - list of client instances with at least one
-   *   statement-ready order - completed order with no statement assigned.
-   */
-  Client.getMyClient = async function(clientId) {
-    return await app.models.Client.findById(clientId);
-  };
-
   Client.findStatementReady = async function() {
     let candidateClients = await Client.find({
       include: {
@@ -188,5 +169,75 @@ module.exports = function(Client) {
   Client.prototype.retryGeoCoding = function() {
     const MAX_FAILURE_COUNT = 10;
     return this.coordinateFailCount <= MAX_FAILURE_COUNT;
+  };
+
+  /** -----------------------------------------------------------
+   * Customer Functions
+   * Client model contains sensitive fields such as fee value, hence
+   * we need to limit customer user access on Client model. There are
+   * 2 controls - method and property. CustomerData model limits methods
+   * that are only allowed to customer user. Those allowed methods
+   * restrict certain properties in Client model.
+   ** ---------------------------------------------------------- */
+  const AllowedMethodsByRole = {
+    customer: ['getMyClient', 'setMyClient'],
+    manager: [],
+    admin: []
+  };
+
+  /**
+   * @param {string} role name
+   * @returns {string[]} allowed method name array.
+   */
+  Client.allowedMethods = function(role) {
+    if (AllowedMethodsByRole[role]) {
+      return AllowedMethodsByRole[role];
+    }
+    return [];
+  };
+
+  /**
+   * Some properties in client should not be exposed to customer user.
+   */
+  const DisallowedProperties = [
+    'feeType',
+    'feeValue',
+    'feeSchedule',
+    'deliveryRouteId',
+    'createdDate'
+  ];
+  /**
+   * @param {number} - client id
+   * @param {Object} - metadata
+   * @returns {Object} - client instance.
+   */
+  Client.getMyClient = async function(clientId, metadata) {
+    if (!metadata || metadata.endUserClientId !== clientId) {
+      throw new HttpErrors(401, `Client(id: ${clientId}) is not authorized.`);
+    }
+    // exclude certain sensitive fields.
+    let fieldsFilter = {
+      fields: {}
+    };
+    DisallowedProperties.forEach(p => fieldsFilter.fields[p] = false);
+    return await Client.findById(clientId, fieldsFilter);
+  };
+
+  /**
+   * @param {number} - client id
+   * @param {Object} - client data
+   * @param {Object} - metadata
+   * @returns {Object} - client instance.
+   */
+  Client.setMyClient = async function(clientId, clientData, metadata) {
+    if (!metadata || metadata.endUserClientId !== clientId) {
+      throw new HttpErrors(401, `Client(id: ${clientId}) is not authorized.`);
+    }
+    if (clientData.id !==  metadata.endUserClientId) {
+      throw new HttpErrors(404, 'Changing client ID is forbidden.');
+    }
+    // delete certain sensitive fields
+    DisallowedProperties.forEach(p => delete clientData[p]);
+    return await Client.upsert(clientData);
   };
 };

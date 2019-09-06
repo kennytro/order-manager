@@ -4,7 +4,7 @@ import { MatDialog, MatSnackBar } from '@angular/material';
 import { Subject, of, Observable, Subscription } from 'rxjs';
 import { take, takeUntil, catchError, filter } from 'rxjs/operators';
 
-import { SettingsComponent } from './settings/settings.component';
+import { SettingsComponent, SettingsData } from './settings/settings.component';
 import { ConfirmDialogComponent, DialogData } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 import { AWS_S3_PUBLIC_URL } from '../../../../../../shared/base.url';
@@ -70,7 +70,16 @@ export class CustomerLayoutComponent implements OnInit {
   }
 
   settings() {
-    const diaglogRef = this._dialog.open(SettingsComponent);
+    const diaglogRef = this._dialog.open(SettingsComponent, {
+      data: {
+        client: this._client
+      }
+    });
+    diaglogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this._client = result.client;
+      }
+    })
   }
 
   isDemoUser() {
