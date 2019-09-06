@@ -2,6 +2,7 @@
 const _ = require('lodash');
 const appRoot = require('app-root-path');
 const debugMetricMsg = require('debug')('order-manager:Metric:message');
+const debugMessageMsg = require('debug')('order-manager:Message:message');
 const logger = require(appRoot + '/config/winston.js');
 
 /**
@@ -33,6 +34,13 @@ module.exports.init = function(app, server, options) {
   });
 };
 
+/**
+ * Handler of message from worker process that sends information about its
+ * operation on model instance.
+ *
+ * @param {Object} - loopback app
+ * @message {Object} - message from worker
+ */
 module.exports.onMessage = function(app, message) {
   if (message.eventType === 'METRIC_UPDATED') {
     const ns = 'metric';
@@ -45,6 +53,20 @@ module.exports.onMessage = function(app, message) {
       });
     } else {
       debugMetricMsg('app is missing a socket for metric');
+    }
+  }
+  if (message.eventType === 'MESSAGE_DELETED') {
+    const ns = 'message';
+    debugMessageMsg(`message deleted = ${JSON.stringify(message.data)}`);
+    let socket = _.get(app, ['sockets', ns]);
+    if (socket) {
+      /* because batch delete(using destroyAll) doesn't provide 'toUserId', we emit
+       * message without a filter. */
+      socket.emit(ns, {
+        operation: 'delete'
+      });
+    } else {
+      debugMessageMsg('app is missing a socket for message');
     }
   }
 };

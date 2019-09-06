@@ -54,7 +54,7 @@ export class MessageDetailComponent implements OnInit {
         subject: ['', Validators.required],
 //        body: ['', Validators.required],
         hasExpirationDate: false,
-        expiresAt: [{ value: moment(), disabled: true }]
+        expiresAt: [{ value: moment(), disabled: true }, Validators.required]
       });
       this.composeFG.get('hasExpirationDate').valueChanges
         .pipe(takeUntil(this._unsubscribe))
@@ -64,6 +64,8 @@ export class MessageDetailComponent implements OnInit {
         });
     }
   }
+
+  get expiresAt() { return this.composeFG.get('expiresAt'); }
 
   ngOnDestroy() {
     this._unsubscribe.next(true);

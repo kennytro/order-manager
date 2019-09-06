@@ -37,6 +37,8 @@
                     <input matInput [matDatepicker]="dp" [min]="todayDate" placeholder="Choose a date" formControlName="expiresAt">
                     <mat-datepicker-toggle matSuffix [for]="dp"></mat-datepicker-toggle>
                     <mat-datepicker #dp></mat-datepicker>
+                    <mat-error *ngIf="expiresAt.hasError('required')">Expiration date is required</mat-error>
+                    <mat-error *ngIf="expiresAt.hasError('matDatepickerMin')">Expiration date cannot be in the past</mat-error>
                 </mat-form-field>
               </div>
             </div>
