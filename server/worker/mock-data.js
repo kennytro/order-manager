@@ -11,7 +11,7 @@ const app = require(appRoot + '/server/server');
  * their unit price within range [-0.5%, +0.5%]
  */
 async function mockProductData() {
-  debugMockData('Product.mockData() - Begins');
+  debugMockData('mockProductData() - Begins');
   const products = await app.models.Product.find();
   await Promise.each(products, async product => {
     if (Math.random() >= 0.33) {
@@ -24,7 +24,7 @@ async function mockProductData() {
       debugMockData(`<Product[${product.id}]>: Updated unit price to ${newPrice}`);
     }
   });
-  debugMockData('Product.mockData() - Ends');
+  debugMockData('mockProductData() - Ends');
 };
 
 /**
@@ -32,7 +32,7 @@ async function mockProductData() {
  * @returns {Client[]} - array of mock clients
  */
 async function getMockClients() {
-  debugMockData('Client.mockData() - Begins');
+  debugMockData('getMockClients() - Begins');
   let clients = [];
   const MockEmail = 'mockClient@etr.com';
   clients = await app.models.Client.find({ where: { email: MockEmail } });
@@ -82,7 +82,7 @@ async function getMockClients() {
       console.error(`Failed to create mock clients - ${error.message}`);
     }
   }
-  debugMockData('Client.mockData() - Ends');
+  debugMockData('getMockClients() - Ends');
   return clients;
 };
 
@@ -94,7 +94,7 @@ async function mockOrderData(clients) {
   if (!yn(process.env.CREATE_MOCK_DATA)) {
     return;
   }
-  debugMockData('Order.mockData() - Begins');
+  debugMockData('mockOrderData() - Begins');
   if (clients.length === 0) {
     return;
   }
@@ -156,7 +156,7 @@ async function mockOrderData(clients) {
     }
   });
   await app.models.Order.completeOrders(shipped.map(function(order) { return order.id; }), metadata);
-  debugMockData('Order.mockData() - Ends');
+  debugMockData('mockOrderData() - Ends');
 };
 
 /**
@@ -164,7 +164,7 @@ async function mockOrderData(clients) {
  * @param{Client[]} clients - mock clients
  */
 async function mockStatementData(clients) {
-  debugMockData('Statement.mockData() - Begins');
+  debugMockData('mockStatementData() - Begins');
   if (clients.length === 0) {
     return;
   }
@@ -191,7 +191,7 @@ async function mockStatementData(clients) {
   } catch (error) {
     console.error(`Error while creating mock statement - ${error.message}`);
   }
-  debugMockData('Statement.mockData() - Ends');
+  debugMockData('mockStatementData() - Ends');
 };
 
 /**
@@ -200,7 +200,7 @@ async function mockStatementData(clients) {
  * @param{Date} cutOffDate - delete statement if older than this date.
  */
 async function removeMockStatementData(clients, cutOffDate) {
-  debugMockData('Statement.removeOldData() - Begins');
+  debugMockData('removeMockStatementData() - Begins');
   if (clients.length === 0 || !cutOffDate) {
     return;
   }
@@ -227,7 +227,7 @@ async function removeMockStatementData(clients, cutOffDate) {
     console.error(`Error while deleting mock statement - ${error.message}`);
   }
 
-  debugMockData('Statement.removeOldData() - Ends');
+  debugMockData('removeMockStatementData() - Ends');
 };
 
 /**
