@@ -238,7 +238,7 @@ module.exports.create = async function(fireDate) {
   if (!yn(process.env.CREATE_MOCK_DATA)) {
     return;
   }
-  debugMockData(`${moment(fireDate).format()}: Running Metric.mockData()`);
+  debugMockData(`${moment(fireDate).format()}: Running Metric.mock.create()`);
   if (fireDate.getHours() === 8) {
     await mockProductData();
   }
@@ -247,8 +247,9 @@ module.exports.create = async function(fireDate) {
   if (fireDate.getDay() > 0) {  // skip Sunday
     await mockOrderData(clients);
   } else {
-    await app.models.Statement.mockData(clients);
+    await mockStatementData(clients);
   }
+  debugMockData('Exiting Metric.mock.create()');
 };
 
 /**
@@ -262,7 +263,7 @@ module.exports.remove = async function(fireDate) {
     return;
   }
 
-  debugMockData(`${moment(fireDate).format()}: Running Metric.removeOldMockData()`);
+  debugMockData(`${moment(fireDate).format()}: Running Metric.mock.remove()`);
   let mockClients = await getMockClients();
 
   // remove leaf level metric data of mock orders that are older than 7 days.
@@ -298,4 +299,5 @@ module.exports.remove = async function(fireDate) {
 
   // remove statements of mock clients that are older than 3 months.
   await removeMockStatementData(mockClients, threeMonthAgo);
+  debugMockData('Exiting Metric.mock.remove()');
 };

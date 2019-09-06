@@ -11,7 +11,7 @@ const logger = require(appRoot + '/config/winston');
  * @returns {Number} - deleted message count
  */
 module.exports.delExpiredMessage = async function(fireDate) {
-  debugBatch(`${moment(fireDate).format()}: Running Metric.delExpiredMessage()`);
+  debugBatch(`${moment(fireDate).format()}: Running Message.delExpiredMessage()`);
   let info = { count: 0 };
   try {
     info = await app.models.Message.destroyAll({
@@ -32,6 +32,6 @@ module.exports.delExpiredMessage = async function(fireDate) {
     logger.error(`Error while deleting expired message - ${error.message}`);
   }
 
-  debugBatch('Exiting Metric.delExpiredMessage()');
+  debugBatch('Exiting Message.delExpiredMessage()');
   return info.count;
 };
