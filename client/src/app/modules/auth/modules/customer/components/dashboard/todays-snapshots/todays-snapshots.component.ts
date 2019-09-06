@@ -9,7 +9,6 @@ import keys from 'lodash/keys';
 
 import { DataApiService } from '../../../services/data-api.service';
 import { SocketService } from '../../../../../shared/services/socket.service';
-import { AuthService, UserProfile } from '../../../../../../../services/auth.service';
 
 @Component({
   selector: 'app-todays-snapshots',
@@ -24,13 +23,12 @@ export class TodaysSnapshotsComponent implements OnInit {
   pieChart: GoogleChartInterface;
 
   constructor(private _dataApi: DataApiService,
-    private _auth: AuthService,
     private _socketService: SocketService
   ) { }
 
   ngOnInit() {
     this._getOrders();
-    this._dataApi.genericMethod('Client', 'getMyClient', [this._auth.getUserProfile().clientId])
+    this._dataApi.genericMethod('Client', 'getMyClient')
       .subscribe(result => {
         this._clientId = result.id;
       });

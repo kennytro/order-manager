@@ -28,11 +28,7 @@ export class DataResolver implements Resolve<any> {
          return await this._dataService.genericMethod(modelName, 'getMyUser', [this._auth.getUserProfile().authId]).toPromise();
       }
       if (modelName == 'Client') {
-        // const tokenPayload = this._jwtHelper.decodeToken(this._cookieService.get('idToken'));
-        // id = get(tokenPayload, [environment.auth0Namespace + 'app_metadata', 'clientId']);
-        id = this._cookieService.get('clientId');
-        return await this._dataService.genericMethod(modelName, 'getMyClient', [parseInt(id)]).toPromise();
-
+        return await this._dataService.genericMethod(modelName, 'getMyClient').toPromise();
       }
     }
     if (id && modelName) {

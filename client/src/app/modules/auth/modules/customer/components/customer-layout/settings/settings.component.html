@@ -1,14 +1,114 @@
 <h3 mat-dialog-title><fa-icon icon="cog" size="2x"></fa-icon> Settings</h3>
-<div mat-dialog-content>
-  <div fxLayout="row wrap" fxLayoutGap="10px" fxLayoutAlign="center space-between">
-    <div>
-      <p class="thick">To be implemented.</p>
-      <p>This dialog is to contain the list of product and allows user to select the ones to exclude from the 'new order' page.</p>
+<div mat-dialog-content class="form-container">
+  <div [formGroup]="clientFG" fxLayout="column" fxLayoutGap="20px" fxLayoutAlign="center space-between" >
+    <div class="round-corners">
+      <h5 mat-subheader>Business Information</h5>
+      <div fxLayout="row wrap" fxLayoutGap="20px" fxLayoutAlign="center space-between">
+        <div fxFlex="5 0 300px">
+          <mat-form-field appearance="outline">
+            <mat-label>Name</mat-label>
+            <input matInput placeholder="Name" formControlName="name" required>
+          </mat-form-field>
+        </div>
+        <div fxFlex="1 0 100px">
+          <mat-slide-toggle formControlName="showPublic" color="primary" matTooltip="Show this client available to public list" matTooltipPosition="below">Show Public?</mat-slide-toggle>
+        </div>
+      </div>
+      <mat-form-field appearance="outline">
+        <mat-label>Street</mat-label>
+        <input matInput placeholder="Street number, name, etc." formControlName="addressStreet">
+      </mat-form-field>
+      <div fxLayout="row wrap" fxLayoutGap="20px" fxLayoutAlign="center space-between">
+        <div fxFlex="3 0 300px">
+          <mat-form-field appearance="outline">
+            <mat-label>City</mat-label>
+            <input matInput placeholder="City" formControlName="addressCity">
+          </mat-form-field>
+        </div>
+        <div fxFlex="1 0 150px">
+          <mat-form-field appearance="outline">    
+            <mat-label>State</mat-label>
+            <mat-select placeholder="State" formControlName="addressState">
+              <mat-option *ngFor="let state of stateList" [value]="state">{{ state }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div fxFlex="1 0 200px">
+          <mat-form-field appearance="outline">
+            <mat-label>Zip Code</mat-label>
+            <input matInput placeholder="Zip code" formControlName="addressZip">
+          </mat-form-field>
+        </div>
+      </div>
+      <div fxLayout="row wrap" fxLayoutGap="20px" fxLayoutAlign="center space-between">
+        <div fxFlex="1 0 300px">
+          <mat-form-field appearance="outline">
+            <mat-label>Phone</mat-label>
+            <input matInput placeholder="Business phone #" formControlName="phone" [textMask]="{mask: phoneMask}">
+          </mat-form-field>
+        </div>
+        <div fxFlex="1 0 300px">
+          <mat-form-field appearance="outline">
+            <mat-label>Email</mat-label>
+            <input matInput placeholder="Business email address" formControlName="email">
+            <mat-error> Please, enter a valid email address </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
     </div>
+    <div class="round-corners">
+      <h5 mat-subheader>Contact Information</h5>
+      <div fxLayout="row wrap" fxLayoutGap="20px" fxLayoutAlign="space-between stretch">
+        <div fxLayout="column" fxFlex="45">
+          Contact Person
+          <div>
+            <mat-form-field appearance="outline">
+              <mat-label>Name</mat-label>
+              <input matInput placeholder="Name" formControlName="contactPersonName">
+            </mat-form-field>  
+          </div>
+          <div>
+            <mat-form-field appearance="outline">
+              <mat-label>Phone</mat-label>
+              <input matInput placeholder="Phone" formControlName="contactPersonPhone" [textMask]="{mask: phoneMask}">
+            </mat-form-field>  
+          </div>
+          <div>
+            <mat-form-field appearance="outline">
+              <mat-label>Email</mat-label>
+              <input matInput placeholder="Email" formControlName="contactPersonEmail">
+              <mat-error> Please, enter a valid email address </mat-error>
+            </mat-form-field>  
+          </div>
+        </div>
+        <div fxLayout="column" fxFlex="45">
+          Alternative Contact Person
+          <div>
+            <mat-form-field appearance="outline">
+              <mat-label>Name</mat-label>
+              <input matInput placeholder="Name" formControlName="contactPersonAltName">
+            </mat-form-field>  
+          </div>
+          <div>
+            <mat-form-field appearance="outline">
+              <mat-label>Phone</mat-label>
+              <input matInput placeholder="Phone" formControlName="contactPersonAltPhone" [textMask]="{mask: phoneMask}">
+            </mat-form-field>  
+          </div>
+          <div>
+            <mat-form-field appearance="outline">
+              <mat-label>Email</mat-label>
+              <input matInput placeholder="Email" formControlName="contactPersonAltEmail">
+              <mat-error> Please, enter a valid email address </mat-error>
+            </mat-form-field>  
+          </div>
+        </div>
+      </div>
+    </div>    
   </div>
 </div>
-<mat-divider></mat-divider>
+<!-- <mat-divider></mat-divider> -->
 <div mat-dialog-actions fxLayout="row" fxLayoutAlign="end">
   <button mat-raised-button class="action" [mat-dialog-close]="false">Cancel</button>
-  <!-- <button mat-raised-button class="action" [disabled]="companyInfoFG.invalid" (click)="save()" color="green">Save</button> -->
+  <button mat-raised-button class="action" [disabled]="clientFG.invalid || !clientFG.dirty" (click)="save()" color="green">Save</button>
 </div>

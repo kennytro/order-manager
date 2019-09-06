@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 
 import { AuthSharedModule } from '../../shared/auth-shared.module';
+import { SharedModule } from '../../../../shared/shared.module';
 import { CustomerRoutingModule } from './customer-routing.module';
 
 // Components
@@ -39,6 +40,7 @@ import { faBars, faBell, faBullhorn,
     StatementsComponent, StatementDetailComponent, MessagesComponent, MessageDetailComponent/* ConfirmDialogComponent */ ],
   imports: [
     AuthSharedModule,
+    SharedModule,
     CustomerRoutingModule
   ],
   providers: [

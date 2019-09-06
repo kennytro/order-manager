@@ -6,7 +6,6 @@ import { Subject } from 'rxjs';
 import { takeUntil, distinctUntilChanged } from 'rxjs/operators';
 
 import { DataApiService } from '../../../services/data-api.service';
-import { AuthService, UserProfile } from '../../../../../../../services/auth.service';
 import get from 'lodash/get';
 import sortBy from 'lodash/sortBy';
 
@@ -27,7 +26,6 @@ export class NewOrderComponent implements OnInit {
   // disabling sort because it doesn't work with form group in row
 //  @ViewChild(MatSort) sort: MatSort;
   constructor(
-    private _auth: AuthService,
     private _route: ActivatedRoute,
     private _router: Router,
     private _formBuilder: FormBuilder,
@@ -50,7 +48,7 @@ export class NewOrderComponent implements OnInit {
       note: ['']
     });
     /***** Data initialization: client and product list *****/
-    this._dataApi.genericMethod('Client', 'getMyClient', [this._auth.getUserProfile().clientId])
+    this._dataApi.genericMethod('Client', 'getMyClient')
       .subscribe(result => {
         this._client = result;
         this.order.clientId = result.id;
