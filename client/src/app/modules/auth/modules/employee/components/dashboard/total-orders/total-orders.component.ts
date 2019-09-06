@@ -18,6 +18,7 @@ import { SocketService } from '../../../../../shared/services/socket.service';
   styleUrls: ['./total-orders.component.css']
 })
 export class TotalOrdersComponent implements OnInit {
+  showSpinner:boolean;
   intervalList = [
     { label: 'Daily', unit: 'Date', format: 'MM/DD/YY', amountMetricName: 'total_sale_daily', countMetricName: 'total_orders_daily' },
     { label: 'Monthly', unit: 'Month', format: 'MM/YY', amountMetricName: 'total_sale_monthly', countMetricName: 'total_orders_monthly' },
@@ -34,6 +35,7 @@ export class TotalOrdersComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.showSpinner = true;
     this.intervalSelection = new FormControl('Daily');
     this.intervalSelection.valueChanges
       .pipe(takeUntil(this._unsubscribe))
@@ -53,6 +55,11 @@ export class TotalOrdersComponent implements OnInit {
   ngOnDestroy() {
     this._unsubscribe.next(true);
     this._unsubscribe.unsubscribe();
+  }
+
+  onReadyChart() {
+    console.log('total orders chart is ready');
+    this.showSpinner = false;
   }
 
   private _getMetricData(intervalLabel) {

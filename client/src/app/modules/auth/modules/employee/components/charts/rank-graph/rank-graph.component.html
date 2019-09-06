@@ -23,6 +23,9 @@
         </mat-select>
       </mat-form-field>
     </div>
-  </div>  
-  <google-chart [data]="rankChart"></google-chart>
+  </div>
+  <div *ngIf="showSpinner">
+    <mat-spinner strokeWidth="3" [diameter]="50"></mat-spinner>
+  </div>
+  <google-chart [data]="rankChart" (chartReady)="onReadyChart()"></google-chart>
 </div>

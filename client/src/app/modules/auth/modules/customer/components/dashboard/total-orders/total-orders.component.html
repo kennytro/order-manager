@@ -12,7 +12,10 @@
       </mat-form-field>
     </div>
   </div>
+  <div *ngIf="showSpinner">
+    <mat-spinner strokeWidth="3" [diameter]="50"></mat-spinner>
+  </div>
   <div>
-    <google-chart [data]="orderChart"></google-chart>
+    <google-chart [data]="orderChart" (chartReady)="onReadyChart()"></google-chart>
   </div>
 </div>

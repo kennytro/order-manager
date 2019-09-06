@@ -18,6 +18,7 @@ import { SocketService } from '../../../../../shared/services/socket.service';
   styleUrls: ['./total-orders.component.css']
 })
 export class TotalOrdersComponent implements OnInit {
+  showSpinner:boolean;
   intervalList = [
     { label: 'Daily', unit: 'Date', format: 'MM/DD/YY', amountMetricName: 'client_sale_daily' },
     { label: 'Monthly', unit: 'Month', format: 'MM/YY', amountMetricName: 'client_sale_monthly' },
@@ -35,6 +36,7 @@ export class TotalOrdersComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.showSpinner = true;
     this.clientId = this._cookieService.get('clientId');
     this.intervalSelection = new FormControl('Daily');
     this.intervalSelection.valueChanges
@@ -61,6 +63,11 @@ export class TotalOrdersComponent implements OnInit {
   ngOnDestroy() {
     this._unsubscribe.next(true);
     this._unsubscribe.unsubscribe();
+  }
+
+  onReadyChart() {
+    console.log('total orders chart is ready');
+    this.showSpinner = false;
   }
 
   private _getMetricData(intervalLabel) {
