@@ -1,6 +1,7 @@
 'use strict';
 const scheduler = require('node-schedule');
 const yn = require('yn');
+const messageBatch = require('./message-batch');
 const metricBatch = require('./metric-batch');
 const mockData = require('./mock-data');
 
@@ -12,9 +13,11 @@ module.exports = function(app) {
   // schedule jobs to run every 10 seconds
   scheduler.scheduleJob('*/10 * * * * *', metricBatch.batchUpdate);
 
-  // const everyMinRule = new scheduler.RecurrenceRule();
-  // everyMinRule.second = 0;
-  // scheduler.scheduleJob(everyMinRule, metricBatch.batchUpdate);
+  // schedule jobs to run every midnight
+  const everyMidnightRule = new scheduler.RecurrenceRule();
+  everyMidnightRule.hour = 0;
+  scheduler.scheduleJob(everyMidnightRule, messageBatch.delExpiredMessage);
+  // scheduler.scheduleJob(everyMidnightRule, metricBatch.removeOldData);
 
   if (yn(process.env.CREATE_MOCK_DATA)) {
     // schedule job to create mock data. This job runs 4 times everyday.
@@ -33,9 +36,4 @@ module.exports = function(app) {
     rmMockRule.second = 0;
     scheduler.scheduleJob(rmMockRule, mockData.remove);
   }
-
-  // schedule jobs to run every midnight
-  // const everyMidnightRule = new scheduler.RecurrenceRule();
-  // everyMidnightRule.hour = 0;
-  // scheduler.scheduleJob(everyMidnightRule, app.models.Metric.removeOldData);
 };
