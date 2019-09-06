@@ -9,8 +9,11 @@
         <span class="thick key">Total Amount:</span> {{getOrderAmount() | currency}}
       </div>
     </div>
+    <div *ngIf="showSpinner">
+      <mat-spinner strokeWidth="3" [diameter]="50"></mat-spinner>
+    </div>
     <div>
-      <google-chart [data]="pieChart"></google-chart>
+      <google-chart [data]="pieChart" (chartReady)="onReadyChart()"></google-chart>
     </div>
   </div>
 </div>

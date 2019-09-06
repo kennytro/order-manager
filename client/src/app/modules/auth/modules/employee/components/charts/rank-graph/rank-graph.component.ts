@@ -16,6 +16,7 @@ import { DataApiService } from '../../../services/data-api.service';
   styleUrls: ['./rank-graph.component.css']
 })
 export class RankGraphComponent implements OnInit {
+  showSpinner:boolean;
   ranges = [
     { label: '30 Days', cutOffDate: moment().subtract(30, 'days').toDate() },
     { label: '60 Days', cutOffDate: moment().subtract(60, 'days').toDate() },
@@ -59,6 +60,7 @@ export class RankGraphComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.showSpinner = true;
     this.rangeSelection = new FormControl(this.ranges[0].label);
     this.rangeSelection.valueChanges
       .pipe(takeUntil(this._unsubscribe))
@@ -97,6 +99,11 @@ export class RankGraphComponent implements OnInit {
   ngOnDestroy() {
     this._unsubscribe.next(true);
     this._unsubscribe.unsubscribe();
+  }
+
+  onReadyChart() {
+    console.log(`rank graph chart(${this.metricName}) is ready`);
+    this.showSpinner = false;
   }
 
   private _initializeChart(metric, dataTable) {

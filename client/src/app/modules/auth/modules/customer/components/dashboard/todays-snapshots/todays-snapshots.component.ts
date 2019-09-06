@@ -17,6 +17,7 @@ import { SocketService } from '../../../../../shared/services/socket.service';
   styleUrls: ['./todays-snapshots.component.css']
 })
 export class TodaysSnapshotsComponent implements OnInit {
+  showSpinner = false;
   private _clientId;
   private _orders: Array<OrderSummary> = [];
   private _unsubscribe = new Subject<boolean>();
@@ -27,6 +28,7 @@ export class TodaysSnapshotsComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.showSpinner = true;
     this._getOrders();
     this._dataApi.genericMethod('Client', 'getMyClient')
       .subscribe(result => {
@@ -47,6 +49,11 @@ export class TodaysSnapshotsComponent implements OnInit {
   ngOnDestroy() {
     this._unsubscribe.next(true);
     this._unsubscribe.unsubscribe();
+  }
+
+  onReadyChart() {
+    console.log('today\'s snapshot chart is ready');
+    this.showSpinner = false;
   }
 
   getOrderCount() {
