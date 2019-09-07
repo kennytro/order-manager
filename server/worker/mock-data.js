@@ -3,6 +3,7 @@ const _ = require('lodash');
 const appRoot = require('app-root-path');
 const debugMockData = require('debug')('order-manager:Metric:mockData');
 const moment = require('moment');
+const Promise = require('bluebird');
 const yn = require('yn');
 const app = require(appRoot + '/server/server');
 
