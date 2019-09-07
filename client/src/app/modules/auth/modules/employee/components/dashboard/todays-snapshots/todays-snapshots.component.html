@@ -9,7 +9,7 @@
         <span class="thick key">Total Amount:</span> {{getOrderAmount() | currency}}
       </div>
     </div>
-    <div *ngIf="showSpinner">
+    <div *ngIf="showSpinner" style="min-height: 200px;">
       <mat-spinner strokeWidth="3" [diameter]="50"></mat-spinner>
     </div>
     <div>
