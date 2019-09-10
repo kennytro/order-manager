@@ -29,6 +29,9 @@
                     <img src='/assets/img/no-picture.png' height="50" width="50">
                   </ng-template>
                    {{row.name}}
+                  <span class="new-icon" *ngIf="row.isNew">
+                    <img src="/assets/img/new-product.png" height="30" widht="30">
+                  </span>
                  </td>
               </ng-container>
               <ng-container matColumnDef="description">

@@ -78,6 +78,10 @@ span.key {
   font-family: Arial Black, Gadget, sans-serif;
 }
 
+span.new-icon {
+  margin-left: 5px;
+}
+
 p.thick {
   font-weight: bold;
 }

@@ -5,9 +5,11 @@ import { FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@ang
 import { Subject } from 'rxjs';
 import { takeUntil, distinctUntilChanged } from 'rxjs/operators';
 
-import { DataApiService } from '../../../services/data-api.service';
 import get from 'lodash/get';
 import sortBy from 'lodash/sortBy';
+import * as moment from 'moment';
+
+import { DataApiService } from '../../../services/data-api.service';
 
 @Component({
   selector: 'app-new-order',
@@ -72,7 +74,7 @@ export class NewOrderComponent implements OnInit {
         for (let product of products) {
           let orderItem = this._createOrderItem(product);
           orderItems.push(orderItem);
-          quantitiesControl.push(orderItem.quantity);          
+          quantitiesControl.push(orderItem.quantity);
         }
         this._setTableDataSource(orderItems);
       }
@@ -132,7 +134,8 @@ export class NewOrderComponent implements OnInit {
       unitPrice: product.unitPrice,
       unit: product.unit,
       quantity: new FormControl('0'),
-      subtotal: 0.00
+      subtotal: 0.00,
+      isNew: moment(product.createdDate).isAfter(moment().subtract(15, 'days'))
     };
 
     // update subtotal of row and total.
