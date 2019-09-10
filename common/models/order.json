@@ -41,6 +41,13 @@
     "fee": {
       "type": "number"
     },
+    "feeExplanation": {
+      "type": "string",
+      "description": "note on fee amount",
+      "postgresql": {
+        "columnName": "fee_explanation"
+      }
+    },
     "totalAmount": {
       "type": "number",
       "postgresql": {

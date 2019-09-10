@@ -34,6 +34,7 @@ export class NewOrderComponent implements OnInit {
       subtotal: 0,
       fee: 0,
       totalAmount: 0,
+      feeExplanation: '',      
       note: null
     };
   }
@@ -101,19 +102,6 @@ export class NewOrderComponent implements OnInit {
     return this.selectedClient && this.selectedClient.feeSchedule === 'Order';
   }
 
-  explainFee(): string {
-    let text = '';
-    if (this.selectedClient) {
-      if (this.selectedClient.feeType == 'Fixed') {
-        text = 'Fixed amount';
-      }
-      if (this.selectedClient.feeType == 'Rate') {
-        text = `$${this.order.subtotal.toFixed(2)} x ${this.selectedClient.feeValue}(%) = ${this.order.fee.toFixed(2)}`;
-      }
-    }
-    return text;
-  }
-
   async create() {
     try {
       let orderItems = this.orderItems.data
@@ -172,6 +160,7 @@ export class NewOrderComponent implements OnInit {
     }
     this.order.subtotal = newSubtotal;
     this.order.fee = this._calculateFee(newSubtotal);
+    this.order.feeExplanation = this._explainFee(this.order);
     this.order.totalAmount = newSubtotal + this.order.fee;
   }
 
@@ -186,6 +175,19 @@ export class NewOrderComponent implements OnInit {
       }
     }
     return newFee;
+  }
+
+  private _explainFee(order:any): string {
+    let text = '';
+    if (this.isFeeApplicable()) {
+      if (this.selectedClient.feeType === 'Fixed') {
+        text = 'Fixed amount';
+      }
+      if (this.selectedClient.feeType === 'Rate') {
+        text = `$${order.subtotal.toFixed(2)} x ${this.selectedClient.feeValue}(%) = ${order.fee.toFixed(2)}`;
+      }
+    }
+    return text;
   }
 
   private _setTableDataSource(products: Array<OrderItem>) {

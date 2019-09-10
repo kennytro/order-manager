@@ -96,19 +96,6 @@ export class OrderDetailComponent implements OnInit {
     return this.order.client && this.order.client.feeSchedule === 'Order';
   }
 
-  explainFee(): string {
-    let text = '';
-    if (this.order.client) {
-      if (this.order.client.feeType == 'Fixed') {
-        text = 'Fixed amount';
-      }
-      if (this.order.client.feeType == 'Rate') {
-        text = `$${this.order.subtotal.toFixed(2)} x ${this.order.client.feeValue}(%) = ${this.order.fee.toFixed(2)}`;
-      }
-    }
-    return text;
-  }
-
   getEmailCreated() {
     return this.order.userCreated.email;
   }
@@ -235,6 +222,19 @@ export class OrderDetailComponent implements OnInit {
     return newFee;
   }
 
+  private _explainFee(order:any): string {
+    let text = '';
+    if (this.isFeeApplicable()) {
+      if (this.order.client.feeType === 'Fixed') {
+        text = 'Fixed amount';
+      }
+      if (this.order.client.feeType === 'Rate') {
+        text = `$${order.subtotal.toFixed(2)} x ${this.order.client.feeValue}(%) = ${order.fee.toFixed(2)}`;
+      }
+    }
+    return text;
+  }
+
   private _updateTotalAmount() {
     let newSubtotal = 0;
     for (let element of this.orderItems.data) {
@@ -242,6 +242,7 @@ export class OrderDetailComponent implements OnInit {
     }
     this.order.subtotal = newSubtotal;
     this.order.fee = this._calculateFee(newSubtotal);
+    this.order.feeExplanation = this._explainFee(this.order);
     this.order.totalAmount = this.order.subtotal + this.order.fee;
   }
 

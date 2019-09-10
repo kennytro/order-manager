@@ -132,6 +132,7 @@ CREATE TABLE IF NOT EXISTS order_t
   status order_status DEFAULT 'Submitted',
   subtotal numeric DEFAULT 0,
   fee numeric DEFAULT 0,
+  fee_explanation text,
   total_amount numeric DEFAULT 0,
   note text,
   created_by integer REFERENCES end_user,
