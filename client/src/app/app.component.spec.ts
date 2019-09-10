@@ -1,5 +1,7 @@
 import { TestBed, async } from '@angular/core/testing';
+import { MatProgressSpinnerModule } from '@angular/material';
 import { RouterTestingModule } from '@angular/router/testing';
+import { Router } from '@angular/router';
 import { AppComponent } from './app.component';
 
 import { RootScopeShareService } from './services/root-scope-share.service';
@@ -9,12 +11,13 @@ describe('AppComponent', () => {
     const dsSpy = jasmine.createSpyObj('RootScopeShareService', ['getData']);
     TestBed.configureTestingModule({
       imports: [
-        RouterTestingModule
+        RouterTestingModule, MatProgressSpinnerModule
       ],
       declarations: [
         AppComponent
       ],
       providers: [
+        { provide: Router, useValue: jasmine.createSpyObj('Router', ['events']) },
         { provide: RootScopeShareService, useValue: dsSpy }
       ]
     }).compileComponents();
