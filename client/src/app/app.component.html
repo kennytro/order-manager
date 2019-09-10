@@ -1,1 +1,4 @@
- <router-outlet></router-outlet>
+<div class="overlay" *ngIf="loadingRouteConfig">
+  <mat-spinner strokeWidth="3" [diameter]="50"></mat-spinner>
+</div>
+<router-outlet></router-outlet>
