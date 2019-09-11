@@ -1,5 +1,6 @@
 declare function require(path: string);
 import { Component, OnInit, Input } from '@angular/core';
+import { take } from 'rxjs/operators';
 import { DataApiService } from '../../../../services/data-api.service';
 
 interface marker {
@@ -17,7 +18,7 @@ interface marker {
 })
 export class RouteMapComponent implements OnInit {
   homeIcon: any;
-  private businessMarker: marker;
+  businessMarker: marker;
   markers: marker[] = [];
   private _deliveryRoute: any;
   @Input()
@@ -37,25 +38,33 @@ export class RouteMapComponent implements OnInit {
         width: 20
       }
     };
-    // TO DO: update with business address in 'settings' component
-    this.businessMarker = {
-      clientId: 0,
-      label: 'ETR',
-      lat: 34.0330063,
-      lng: -118.2394139,
-      opacity: 0.5
-    };
   }
 
   ngOnInit() {
+    // Initialize business marker using company information.
+    this._dataApi.genericMethod('CompanyInfo', 'getCompanyInfo')
+      .pipe(take(1))
+      .subscribe(result => {
+        if (result.locationLat && result.locationLng) {
+          this.businessMarker = {
+            clientId: 0,
+            label: result.name,
+            lat: Number(result.locationLat),
+            lng: Number(result.locationLng),
+            opacity: 0.5
+          };
+        } else {
+          console.warn('Company information lacks geocodes.');
+        }
+      });
   }
 
   latitude(): number {
-    return this.businessMarker.lat;  // use business location for initial value
+    return this.businessMarker ? this.businessMarker.lat : 0;  // use business location for initial value
   }
 
   longitude(): number {
-    return this.businessMarker.lng;  // use business location for initial value
+    return this.businessMarker ? this.businessMarker.lng : 0;  // use business location for initial value
   }
 
   // max(coordType: 'lat' | 'lng'): number {

@@ -9,7 +9,7 @@
       [markerDraggable]="false"
     >
     </agm-marker>
-    <agm-marker
+    <agm-marker *ngIf="businessMarker"
       [latitude]="businessMarker.lat"
       [longitude]="businessMarker.lng"
       [iconUrl]="homeIcon"
