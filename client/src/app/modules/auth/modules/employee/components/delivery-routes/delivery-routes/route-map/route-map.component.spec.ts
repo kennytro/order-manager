@@ -6,10 +6,10 @@ import { of } from 'rxjs';
 import { DataApiService } from '../../../../services/data-api.service';
 
 describe('RouteMapComponent', () => {
-  const testCompany = { name: 'TEST', locationLat: 0, locationLng: 0 };
+  const testCompany = { name: 'TEST', locationLat: '0', locationLng: '0' };
   let component: RouteMapComponent;
   let fixture: ComponentFixture<RouteMapComponent>;
-
+  let apiSpy: jasmine.SpyObj<DataApiService>;
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [ RouteMapComponent ],
@@ -24,7 +24,7 @@ describe('RouteMapComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(RouteMapComponent);
     component = fixture.componentInstance;
-    let apiSpy = TestBed.get(DataApiService);
+    apiSpy = TestBed.get(DataApiService);
     apiSpy.genericMethod.and.returnValue(of(testCompany));
     fixture.detectChanges();
   });
@@ -33,9 +33,9 @@ describe('RouteMapComponent', () => {
     expect(component).toBeTruthy();
   });
   it('should get latitude', () => {
-    expect(component.latitude()).toEqual(testCompany.locationLat);
+    expect(component.latitude()).toEqual(Number(testCompany.locationLat));
   });
   it('should get longitude', () => {
-    expect(component.longitude()).toEqual(testCompany.locationLng);
+    expect(component.longitude()).toEqual(Number(testCompany.locationLng));
   });
 });
