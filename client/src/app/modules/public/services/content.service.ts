@@ -10,7 +10,7 @@ interface PublicContentResponse {
 @Injectable()
 export class ContentService {
 
-  constructor(private http: HttpClient, private dataShare: LocalScopeShareService) { }
+  constructor(public http: HttpClient, private dataShare: LocalScopeShareService) { }
 
   async getContent(name: string) {
     let content = this.dataShare.getData(name);
