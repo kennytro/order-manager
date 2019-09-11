@@ -82,42 +82,44 @@ if (!process.env.ONE_OFF) {
   app.use(morgan('combined', { stream: logger.stream }));
 }
 
-// Get the local tenant settings from environment variables.
-app.get('/tenant', function(req, res, next) {
-  res.send(tenantSettings);
-});
+if (cluster.isMaster) {
+  // Get the local tenant settings from environment variables.
+  app.get('/tenant', function(req, res, next) {
+    res.send(tenantSettings);
+  });
 
-// Getting public page content bypasses authentication.
-app.get('/public/:name', function(req, res, next) {
-  getPublicContent(app, req, res, next);
-});
+  // Getting public page content bypasses authentication.
+  app.get('/public/:name', function(req, res, next) {
+    getPublicContent(app, req, res, next);
+  });
 
-// Post inquiry messsage
-app.post('/inquiry', function(req, res, next) {
-  submitInquiry(app, req, res, next);
-});
+  // Post inquiry messsage
+  app.post('/inquiry', function(req, res, next) {
+    submitInquiry(app, req, res, next);
+  });
 
-// check JWT access token for all request hitting '/api'
-app.use('/api', checkJwt, loopback.rest());
+  // check JWT access token for all request hitting '/api'
+  app.use('/api', checkJwt, loopback.rest());
 
-app.use(function(err, req, res, next) {
-  logger.error(`${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
-  if (err.name === 'UnauthorizedError') {
-    res.status(401).send('Invalid token. You must be logged in to access this API.');
-  }
-  next(err);
-});
+  app.use(function(err, req, res, next) {
+    logger.error(`${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+    if (err.name === 'UnauthorizedError') {
+      res.status(401).send('Invalid token. You must be logged in to access this API.');
+    }
+    next(err);
+  });
 
-app.use(loopback.static(path.resolve(__dirname, '../dist')));
-app.all('/*', function(req, res, next) {
-  if (ENV !== 'production' &&
-    app.get('loopback-component-explorer') &&
-    req.path.startsWith(app.get('loopback-component-explorer').mountPath)) {
-    next();   // enable explorer in non-production env.
-  } else {
-    res.sendFile(path.resolve(__dirname, '../dist/index.html'));
-  }
-});
+  app.use(loopback.static(path.resolve(__dirname, '../dist')));
+  app.all('/*', function(req, res, next) {
+    if (ENV !== 'production' &&
+      app.get('loopback-component-explorer') &&
+      req.path.startsWith(app.get('loopback-component-explorer').mountPath)) {
+      next();   // enable explorer in non-production env.
+    } else {
+      res.sendFile(path.resolve(__dirname, '../dist/index.html'));
+    }
+  });
+}
 
 app.start = function() {
   // start the web server
