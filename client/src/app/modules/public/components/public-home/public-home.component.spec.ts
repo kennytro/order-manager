@@ -1,4 +1,5 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { PublicModule } from '../../public.module';
 import { ActivatedRoute, Data } from '@angular/router';
 import { PublicHomeComponent } from './public-home.component';
@@ -8,7 +9,7 @@ describe('PublicHomeComponent', () => {
   let fixture: ComponentFixture<PublicHomeComponent>;
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [ PublicModule ],
+      imports: [ HttpClientTestingModule, PublicModule ],
       providers: [
         { provide: ActivatedRoute, useValue: {
           data: {

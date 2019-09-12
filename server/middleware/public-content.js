@@ -4,6 +4,10 @@ const _  = require('lodash');
 const HttpErrors = require('http-errors');
 const logger = require(appRoot + '/config/winston');
 
+/**
+ * @param {Object} - application
+ * @returns {Object[]} - cleaned product list.
+ */
 async function getPublicProducts(app) {
   let products = [];
   try {
@@ -37,11 +41,56 @@ async function getPublicProducts(app) {
   });
 }
 
+/**
+ * @param {Object} - application
+ * @returns {Object[]} - object containing location of company and its clients.
+ */
+async function getPublicClientLocations(app) {
+  let result = {
+    company: null,
+    clients: []
+  };
+
+  try {
+    let [companyInfo, clients] = await Promise.all([
+      app.models.CompanyInfo.getCompanyInfo(),
+      app.models.Client.find({
+        where: { showPublic: true },
+        fields: {
+          name: true,
+          settings: true
+        },
+        order: 'name ASC'
+      })
+    ]);
+    result.company = {
+      name: companyInfo.name,
+      lat: Number(companyInfo.locationLat),
+      lng: Number(companyInfo.locationLng)
+    };
+    result.clients = clients.map(client => {
+      return {
+        name: client.name,
+        lat: _.get(client, ['settings', 'location', 'lat']),
+        lng: _.get(client, ['settings', 'location', 'lng'])
+      };
+    });
+  } catch (error) {
+    logger.error(`Error returned from Company/Client.find() - ${error.message}`);
+    throw error;
+  }
+
+  return result;
+}
+
 module.exports = async function(app, req, res, next) {
   const name = _.get(req, 'params.name');
 
   if (name === 'products') {
     return res.send(await getPublicProducts(app));
+  }
+  if (name === 'clients') {
+    return res.send(await getPublicClientLocations(app));
   }
   let elements = await app.models.PublicPageElement.find({
     where: { name: name },

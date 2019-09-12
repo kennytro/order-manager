@@ -1,1 +1,6 @@
-<div [innerHtml]="getContent() | safe: 'html'"></div>
+<div fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="space-around">
+  <div [innerHtml]="getContent() | safe: 'html'"></div>
+  <div>
+    <app-clients></app-clients>
+  </div>
+</div>

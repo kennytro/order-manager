@@ -1,0 +1,39 @@
+<div *ngIf="companyMarker" fxLayout="row wrap" fxLayoutGap="20px" fxLayoutAlign="start start">
+  <div fxFlex="auto" class="clients-map">
+    <!-- MAP -->
+    <agm-map [latitude]="latitude()" [longitude]="longitude()" [zoom]="11" [streetViewControl]="false">
+      <agm-marker *ngFor="let m of clientMarkers; let i = index"
+        (markerClick)="openInfoWindow(i)"
+        (mouseOut)="mouseOut(m, i)"
+        (mouseOver)="mouseOver(m, i)"
+        [latitude]="m.lat"
+        [longitude]="m.lng"
+        [opacity]="m.opacity"
+        [markerDraggable]="false">      
+        <agm-info-window
+          [isOpen]="isInfoWindowOpen(i)"
+          [latitude]="m.lat"
+          [longitude]="m.lng">
+          <span class="thick">{{m.label}}</span>
+        </agm-info-window>
+      </agm-marker>
+      <agm-marker
+        [latitude]="companyMarker.lat"
+        [longitude]="companyMarker.lng"
+        [iconUrl]="homeIcon"
+        [markerDraggable]="false">
+        <agm-info-window>
+          <span class="thick">{{companyMarker.label}}</span>
+        </agm-info-window>
+      </agm-marker>
+    </agm-map>
+  </div>
+  <div fxFlex="0 1 200px">
+    <!-- client list -->
+    <span class="key thick">Our Clients</span>
+    <div class="client-item" *ngFor="let m of clientMarkers; let i = index" (mouseover)="mouseOver(m, i)" (mouseout)="mouseOut(m, i)">
+      {{m.label}}
+      <mat-divider></mat-divider>
+    </div>
+  </div>
+</div>

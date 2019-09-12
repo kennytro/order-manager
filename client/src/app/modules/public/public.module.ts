@@ -1,11 +1,13 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { MatButtonModule, MatFormFieldModule, MatInputModule, MatPaginatorModule,
+import { MatButtonModule, MatDividerModule, MatFormFieldModule, MatInputModule, MatPaginatorModule,
          MatSnackBarModule, MatSortModule, MatTableModule } from '@angular/material';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RecaptchaModule, RecaptchaFormsModule } from 'ng-recaptcha';
 import { FlexLayoutModule } from '@angular/flex-layout';
+import { AgmCoreModule, LAZY_MAPS_API_CONFIG } from '@agm/core';
+
 
 import { SharedModule } from '../../shared/shared.module';
 import { PublicRoutingModule } from './public-routing.module';
@@ -13,6 +15,7 @@ import { LoginComponent } from './components/login/login.component';
 import { PublicLayoutComponent } from './components/public-layout/public-layout.component';
 import { PublicHomeComponent } from './components/public-home/public-home.component';
 import { ClientComponent } from './components/client/client.component';
+import { ClientsComponent } from './components/client/clients/clients.component';
 import { ProductComponent } from './components/product/product.component';
 import { ProductsComponent } from './components/product/products/products.component';
 import { ProcessComponent } from './components/process/process.component';
@@ -25,6 +28,7 @@ import { PublicHomeResolver } from './services/public-home.resolver';
 import { ClientResolver } from './services/client.resolver';
 import { ProductResolver } from './services/product.resolver';
 import { ProcessResolver } from './services/process.resolver';
+import { AgmConfig } from './services/agm-config';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faMobile, faSignInAlt, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
@@ -36,6 +40,7 @@ import { SafePipe } from './pipes/safe.pipe';
   	PublicHomeComponent,
   	PublicLayoutComponent,
     ClientComponent,
+    ClientsComponent,
     ProductComponent,
     ProductsComponent,
     ProcessComponent,
@@ -44,7 +49,7 @@ import { SafePipe } from './pipes/safe.pipe';
     SafePipe
   ],
   imports: [
-    MatButtonModule, MatFormFieldModule, MatInputModule, MatPaginatorModule,
+    MatButtonModule, MatDividerModule, MatFormFieldModule, MatInputModule, MatPaginatorModule,
     MatSnackBarModule, MatSortModule, MatTableModule,
     ReactiveFormsModule,
     RecaptchaModule, RecaptchaFormsModule,
@@ -52,7 +57,8 @@ import { SafePipe } from './pipes/safe.pipe';
     FlexLayoutModule,
     CommonModule,
     FontAwesomeModule,
-    PublicRoutingModule
+    PublicRoutingModule,
+    AgmCoreModule.forRoot()
   ],
   providers: [
     LocalScopeShareService,
@@ -61,7 +67,11 @@ import { SafePipe } from './pipes/safe.pipe';
     PublicHomeResolver,
     ClientResolver,
     ProductResolver,
-    ProcessResolver
+    ProcessResolver,
+    {
+      provide: LAZY_MAPS_API_CONFIG,
+      useClass: AgmConfig
+    }    
   ]
 })
 export class PublicModule {
