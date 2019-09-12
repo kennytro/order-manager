@@ -17,6 +17,7 @@ import { RouteMapComponent } from './route-map/route-map.component'
 
 import { DataApiService } from '../../../services/data-api.service';
 describe('DeliveryRoutesComponent', () => {
+  const testCompany = { name: 'TEST', locationLat: '0', locationLng: '0' };
   const testRoutes = [
     { id: '1000', description: 'test Route', driverName: 'Test Driver', driverPhone: '1111111111' }
   ];
@@ -42,6 +43,7 @@ describe('DeliveryRoutesComponent', () => {
     fixture = TestBed.createComponent(DeliveryRoutesComponent);
     component = fixture.componentInstance;
     apiSpy = TestBed.get(DataApiService);
+    apiSpy.genericMethod.withArgs('CompanyInfo', 'getCompanyInfo').and.returnValue(of(testCompany));
     apiSpy.genericMethod.and.returnValue(of(null));
     fixture.detectChanges();
   });

@@ -1,5 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { PublicModule } from '../../../public.module';
 import { of } from 'rxjs';
 
@@ -17,7 +18,7 @@ describe('ProductsComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [ NoopAnimationsModule, PublicModule ],
+      imports: [ NoopAnimationsModule, HttpClientTestingModule, PublicModule ],
       providers: [
         { provide: ProductResolver, useValue: jasmine.createSpyObj('ProductResolver', ['getProducts'])}
       ]

@@ -12,15 +12,15 @@ module.exports = function(CompanyInfo) {
    * @returns {Object} - JSON object of company information.
    */
   CompanyInfo.getCompanyInfo = async function() {
+    let result = {};
     try {
       let companyInfomation = await CompanyInfo.find();
-      let result = {};
       _.each(companyInfomation, ci => result[ci.key] = ci.value);
-      return result;
     } catch (error) {
       logger.error(`Error in CompanyInfo.getCompanyInfo() - ${error.message}`);
       throw error;
     }
+    return result;
   };
 
   CompanyInfo.setCompanyInfo = async function(companyInfo) {

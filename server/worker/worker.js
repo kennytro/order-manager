@@ -11,7 +11,7 @@ module.exports.start = async function(app) {
   if (yn(process.env.ONE_OFF) || !cluster.isWorker) {
     return;  // skip if it's one off process or not a worker
   }
-  await require('./client-geo-loc')(app);
+  await require('./business-geo-loc')(app);
   require('./scheduler')(app);
   logger.info('Worker is running...');
 };
