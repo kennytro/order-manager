@@ -16,7 +16,7 @@ export class ContentService {
     let content = this.dataShare.getData(name);
     if (!content) {
       try {
-        let response = await this.http.get<PublicContentResponse>('/public/' + name).toPromise();        
+        let response = await this.http.get<PublicContentResponse>('/public/' + name).toPromise();
         this.dataShare.setData(name, response.html);
         content = response.html;
       } catch (err) {

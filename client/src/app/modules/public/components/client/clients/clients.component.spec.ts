@@ -1,5 +1,5 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+//import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { AgmCoreModule } from '@agm/core';
 import { of } from 'rxjs';
 
@@ -8,6 +8,8 @@ import { ClientsComponent } from './clients.component';
 import { ClientResolver } from '../../../services/client.resolver';
 
 describe('ClientsComponent', () => {
+  // Do not test with mock data as that will hit Google map endpoint which results in
+  // error message about no API key present.
   // const testLocations = {
   //   company: { name: 'TEST', lat: 11, lng: 22 },
   //   clients: [
@@ -21,7 +23,7 @@ describe('ClientsComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [
-        NoopAnimationsModule,
+//        NoopAnimationsModule,
         PublicModule,
         AgmCoreModule.forRoot()         
       ],
