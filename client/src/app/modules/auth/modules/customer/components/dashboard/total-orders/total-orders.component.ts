@@ -30,7 +30,7 @@ export class TotalOrdersComponent implements OnInit {
   endDate: moment.Moment;
   orderChart: GoogleChartInterface;
   clientId = '';
-  private _orderMetricDataArray = [];
+
   private _unsubscribe = new Subject<boolean>();
 
   constructor(private _cookieService: CookieService,

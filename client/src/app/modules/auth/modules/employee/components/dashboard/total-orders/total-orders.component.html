@@ -1,6 +1,11 @@
 <div fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="center">
   <h3>Total Orders</h3>
-  <div fxLayout="row wrap" fxLayoutGap="20px">
+  <div fxLayout="row wrap" fxLayoutGap="10px" fxLayoutAlign="center space-between">
+    <div fxFlex="nogrow">
+      <button mat-icon-button aria-label="previous" (click)="onChangePeriod(-1)" [disabled]="isPrevButtonDisabled()">
+        <fa-icon icon="chevron-left"></fa-icon>
+      </button>
+    </div>
     <div fxFlex="nogrow">
       <mat-form-field>
         <mat-label>Time Interval</mat-label>
@@ -11,11 +16,16 @@
         </mat-select>
       </mat-form-field>
     </div>
+    <div fxFlex="nogrow">
+      <button mat-icon-button aria-label="next" (click)="onChangePeriod(1)" [disabled]="isNextButtonDisabled()">
+        <fa-icon icon="chevron-right"></fa-icon>
+      </button>
+    </div>
   </div>
   <div *ngIf="showSpinner" style="min-height: 400px;">
     <mat-spinner strokeWidth="3" [diameter]="50"></mat-spinner>
   </div>
   <div>
-    <google-chart [data]="orderChart" (chartReady)="onReadyChart()"></google-chart>
+    <google-chart [data]="orderChart" (chartReady)="onReadyChart($event)" (chartSelect)="onSelect($event)"></google-chart>
   </div>
 </div>
