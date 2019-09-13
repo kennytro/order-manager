@@ -66,7 +66,7 @@ import { PhoneNumberPipe } from '../../shared/pipes/phone-number.pipe';
 // Misc.
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV, faBell, faBullhorn,
-        faCaretDown, faCaretUp, faCartPlus, faChartLine, faCheckCircle, faCog,
+        faCaretDown, faCaretUp, faCartPlus, faChartLine, faCheckCircle, faChevronLeft, faChevronRight, faCog,
         faEdit, faEnvelope, faEnvelopeOpen, faExclamationCircle,
         faFileAlt, faFileInvoice, faFileInvoiceDollar, faFilePdf, faFolderOpen, faKey,
         faLongArrowAltLeft, faLongArrowAltRight, faMapMarkedAlt, faPlus, faQuestionCircle,
@@ -134,7 +134,7 @@ import { RouteMapComponent } from './components/delivery-routes/delivery-routes/
 export class EmployeeModule {
   constructor() {
     library.add(faArrowAltCircleDown, faArrowAltCircleUp, faArrowsAltV, faBell, faBullhorn,
-      faCaretDown, faCaretUp, faCartPlus, faChartLine, faCheckCircle, faCog,
+      faCaretDown, faCaretUp, faCartPlus, faChartLine, faCheckCircle, faChevronLeft, faChevronRight, faCog,
       faEdit, faEnvelope, faEnvelopeOpen, faExclamationCircle,
       faFileAlt, faFileInvoice, faFileInvoiceDollar, faFilePdf, faFolderOpen, faKey,
       faLongArrowAltLeft, faLongArrowAltRight, faMapMarkedAlt, faPlus, faQuestionCircle,
