@@ -27,7 +27,7 @@ import { OrderResolver } from './services/order.resolver';
 // Misc.
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faBars, faBell, faBullhorn,
-  faCartPlus, faChartLine, faCog,
+  faCartPlus, faChartLine, faChevronLeft, faChevronRight, faCog,
   faEnvelope, faExclamationCircle,
   faFileInvoiceDollar, faFilePdf,
   faKey, faLongArrowAltLeft, faLongArrowAltRight, faPlus, faQuestionCircle,
@@ -58,7 +58,7 @@ import { faBars, faBell, faBullhorn,
 export class CustomerModule {
   constructor() {
     library.add(faBars, faBell, faBullhorn, 
-    faCartPlus, faChartLine, faCog, 
+    faCartPlus, faChartLine, faChevronLeft, faChevronRight, faCog, 
     faEnvelope, faExclamationCircle,
     faFileInvoiceDollar, faFilePdf,
     faKey, faLongArrowAltLeft, faLongArrowAltRight, faPlus, faQuestionCircle,
