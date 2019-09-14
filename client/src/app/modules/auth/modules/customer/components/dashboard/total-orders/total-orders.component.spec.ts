@@ -89,7 +89,9 @@ describe('TotalOrdersComponent', () => {
     expect(component.isPrevButtonDisabled()).toEqual(false, 'prev button should be enabled by default');
     expect(component.isNextButtonDisabled()).toEqual(true, 'next button should be disabled by default');
 
-    component.intervalSelection.setValue('Monthly');
+    // due to google chart issue("Cannot read property 'setDataTable' of undefined thrown"), we disable change event.
+    component.intervalSelection.setValue('Monthly', { emitEvent: false });
+    component.updateDatesByInterval('Monthly');
     expect(component.isPrevButtonDisabled()).toEqual(false, 'prev button should be enabled with monthly interval');
     expect(component.isNextButtonDisabled()).toEqual(true, 'next button should be disabled in current year');
 
@@ -97,7 +99,9 @@ describe('TotalOrdersComponent', () => {
     expect(component.isPrevButtonDisabled()).toEqual(false, 'prev button should be enabled with monthly interval');
     expect(component.isNextButtonDisabled()).toEqual(false, 'next button should be enabled in previous year');
 
-    component.intervalSelection.setValue('Yearly');
+    // due to google chart issue("Cannot read property 'setDataTable' of undefined thrown"), we disable change event.
+    component.intervalSelection.setValue('Yearly', { emitEvent: false });
+    component.updateDatesByInterval('Yearly');
     expect(component.isPrevButtonDisabled()).toEqual(true, 'prev button should be disabled with yearly interval');
     expect(component.isNextButtonDisabled()).toEqual(true, 'next button should be disabled with yearly interval');
   });
