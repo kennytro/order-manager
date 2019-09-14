@@ -149,18 +149,18 @@ export class TotalOrdersComponent implements OnInit {
       // case 'Yearly' is missing as we disable prev/next button
       case 'Monthly': {
         if (direction < 0) {
-          this.startDate = this.startDate.subtract(1, 'years');
+          this.startDate.subtract(1, 'years');
         } else {
-          this.startDate = this.startDate.add(1, 'years');          
+          this.startDate.add(1, 'years');          
         }
         this.endDate = moment(this.startDate).endOf('year');
         break;
       }
       case 'Daily': {
         if (direction < 0) {
-          this.startDate = this.startDate.subtract(1, 'months');
+          this.startDate.subtract(1, 'months');
         } else {
-          this.startDate = this.startDate.add(1, 'months');          
+          this.startDate.add(1, 'months');          
         }
         this.endDate = moment(this.startDate).endOf('month');
         break;
