@@ -32,12 +32,13 @@ import { faBars, faBell, faBullhorn,
   faFileInvoiceDollar, faFilePdf,
   faKey, faLongArrowAltLeft, faLongArrowAltRight, faPlus, faQuestionCircle,
   faSignOutAlt, faShoppingCart, faTrashAlt, faUsers } from '@fortawesome/free-solid-svg-icons';
+import { RankGraphComponent } from './components/dashboard/rank-graph/rank-graph.component';
 
 @NgModule({
   declarations: [CustomerLayoutComponent, SettingsComponent,
     DashboardComponent, TotalOrdersComponent, TodaysSnapshotsComponent,
     OrdersComponent, NewOrderComponent, OrderDetailComponent,
-    StatementsComponent, StatementDetailComponent, MessagesComponent, MessageDetailComponent/* ConfirmDialogComponent */ ],
+    StatementsComponent, StatementDetailComponent, MessagesComponent, MessageDetailComponent, RankGraphComponent/* ConfirmDialogComponent */ ],
   imports: [
     AuthSharedModule,
     SharedModule,

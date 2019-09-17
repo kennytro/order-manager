@@ -270,6 +270,20 @@ module.exports = async function(app) {
       modelName: 'Client',
       sourceModelName: 'Order'
     },
+    {
+      id: uuidv5('product_sale_by_client_daily', UUID_NAMESPACE),
+      level: 0,
+      name: 'product_sale_by_client_daily',
+      description: 'Product sale amount by client',
+      displayName: 'Product Sale Amount By Client',
+      shortName: 'PSBCD',
+      unit: 'Currency',
+      unitLabel: 'Amount',
+      timeRange: 'Daily',
+      modelName: 'Product',
+      adHoc: true,
+      filterByModelName: 'Client'
+    },
     // Delivery route specific metric
     // total sales by delivery route
     {

@@ -8,7 +8,7 @@ import { of } from 'rxjs';
 import { AuthSharedModule } from '../../../../../shared/auth-shared.module';
 import { ClientsComponent } from './clients.component';
 import { HistoryGraphComponent } from '../../charts/history-graph/history-graph.component';
-
+import { RankGraphComponent } from '../../charts/rank-graph/rank-graph.component';
 import { DataApiService } from '../../../services/data-api.service';
 
 describe('ClientsComponent', () => {
@@ -21,7 +21,7 @@ describe('ClientsComponent', () => {
   beforeEach(async(() => {
     const route = ({ data: of({ clients: testClients} ), snapshot: {} } as any) as ActivatedRoute;
     TestBed.configureTestingModule({
-      declarations: [ ClientsComponent, HistoryGraphComponent ],
+      declarations: [ ClientsComponent, HistoryGraphComponent, RankGraphComponent ],
       imports: [ NoopAnimationsModule, AuthSharedModule, RouterTestingModule ],
       providers: [
         { provide: ActivatedRoute, useValue: route },

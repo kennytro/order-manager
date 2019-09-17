@@ -2,6 +2,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute } from '@angular/router';
+import { Location } from '@angular/common';
 import { FormBuilder } from '@angular/forms';
 import { MatSnackBar } from '@angular/material';
 import { of } from 'rxjs';
@@ -28,6 +29,7 @@ describe('NewOrderComponent', () => {
       imports: [ NoopAnimationsModule, AuthSharedModule, RouterTestingModule],
       providers: [
         { provide: ActivatedRoute, useValue: route },
+        { provide: Location, useValue: jasmine.createSpyObj('Location', ['back', 'path']) },
         FormBuilder,
         { provide: MatSnackBar, useValue: jasmine.createSpyObj('MatSnackBar', ['open']) },
         { provide: DataApiService, useValue: jasmine.createSpyObj('DataApiService', ['genericMethod']) }

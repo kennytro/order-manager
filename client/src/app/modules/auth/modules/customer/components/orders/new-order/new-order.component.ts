@@ -1,4 +1,5 @@
 import { Component, OnInit /*, ViewChild*/ } from '@angular/core';
+import { Location } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatSort, MatTableDataSource, MatSnackBar, MatStepper } from '@angular/material';
 import { FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
@@ -30,6 +31,7 @@ export class NewOrderComponent implements OnInit {
   constructor(
     private _route: ActivatedRoute,
     private _router: Router,
+    private _location: Location,
     private _formBuilder: FormBuilder,
     private _snackBar: MatSnackBar,
     private _dataApi: DataApiService
@@ -100,6 +102,14 @@ export class NewOrderComponent implements OnInit {
     return this._client && this._client.feeSchedule === 'Order';
   }
 
+  cancel() {
+    if (window.history.length > 1) {
+      this._location.back();
+    } else {
+      this._router.navigate(['../'], { relativeTo: this._route });  // navigate to '/orders/'
+    }
+  }
+
   async create() {
     try {
       let orderItems = this.orderItems.data
@@ -118,7 +128,11 @@ export class NewOrderComponent implements OnInit {
       snackBarRef.onAction().subscribe(() => {
         snackBarRef.dismiss();
       });
-      this._router.navigate(['../'], { relativeTo: this._route});
+      if (window.history.length > 1) {
+        this._location.back();
+      } else {
+        this._router.navigate(['../'], { relativeTo: this._route});
+      }
     } catch (err) {
       console.log(`error: failed to create an order - ${err.message}`);      
     }

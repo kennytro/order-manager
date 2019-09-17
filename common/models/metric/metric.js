@@ -62,6 +62,7 @@ module.exports = function(Metric) {
 
   async function modifyWhereFilter(metric, whereFilter, instanceId) {
     if (metric.name === 'client_sale_by_delivery_route_daily') {
+      /* We want metric data of clients in the given delivery route. */
       let deliveryRoute = await app.models.DeliveryRoute.findById(instanceId,
         { include:
           {
@@ -74,6 +75,25 @@ module.exports = function(Metric) {
         whereFilter.instanceId = { inq: _.map(clients, 'id') };
       }
     }
+
+    if (metric.name === 'product_sale_by_client_daily') {
+      /* We want metric data of product sale that belongs to client's orders. */
+      let metricDateFilter = whereFilter.metricDate;
+      let orderFindFilter = {
+        where: {
+          clientId: instanceId,
+          status: 'Completed'
+        },
+        fields: ['id']
+      };
+      if (metricDateFilter) {
+        orderFindFilter.where['updatedAt'] = metricDateFilter;
+      } else {
+        logger.warn(`Querying ${metric.name} metric without metricDate filter.`);
+      }
+      let orders = await app.models.Order.find(orderFindFilter);
+      whereFilter.sourceInstanceId = { inq: _.map(orders, 'id') };
+    }
     return whereFilter;
   }
 
@@ -81,6 +101,10 @@ module.exports = function(Metric) {
     if (metric.name === 'client_sale_by_delivery_route_daily') {
       return 'client_sale_daily';
     }
+    if (metric.name === 'product_sale_by_client_daily') {
+      return 'product_sale';
+    }
+    throw new HttpErrors(400, `Invalid metric(${metric.name}) - has no underlying metric.`);
   }
 
   Metric.prototype.getTimeRange = function(date) {

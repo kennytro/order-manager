@@ -1,4 +1,15 @@
-<div fxLayout="column" fxLayoutGap="10px">
-  <app-todays-snapshots></app-todays-snapshots>
+<div fxLayout="column" fxLayoutGap="20px">
+  <div fxLayout="row wrap" fxLayoutGap="10px" fxLayoutAlign="space-between start">
+    <app-todays-snapshots></app-todays-snapshots>
+    <button mat-raised-button color="green" routerLink="../orders/new">
+      <fa-icon icon="cart-plus"></fa-icon>
+       New Order
+    </button>
+  </div>
+  <mat-divider></mat-divider>
   <app-total-orders></app-total-orders>
+  <mat-divider></mat-divider>
+  <div *ngIf="client?.id">
+    <app-rank-graph metricName="product_sale_by_client_daily" chartTitle="Top Products" [instanceId]=client.id></app-rank-graph>
+  </div>
 </div>

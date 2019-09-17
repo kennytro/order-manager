@@ -54,11 +54,11 @@
   </mat-drawer-content>
 </mat-drawer-container>
 <p></p>
-<div fxLayout="row wrap" fxLayoutGap="10px" fxLayoutAlign="start center" style="margin-top: 10px">
+<div fxLayout="row wrap" fxLayoutGap="10px" fxLayoutAlign="space-around start" style="margin-top: 10px">
   <div fxFlex="1 0 400px">
     <app-history-graph metricName="delivery_route_sale_daily" chartType="ColumnChart" [instanceId]=deliveryRouteSelected?.id></app-history-graph>
   </div>
-  <div *ngIf="deliveryRouteSelected" fxFlex="1 0 400px">
+  <div fxFlex="1 0 400px" *ngIf="deliveryRouteSelected">
     <app-rank-graph metricName="client_sale_by_delivery_route_daily" [instanceId]=deliveryRouteSelected?.id></app-rank-graph>
   </div>
 </div>
