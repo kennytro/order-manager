@@ -1,5 +1,11 @@
 <div fxLayout="column" fxLayoutGap="20px">
-  <app-todays-snapshots></app-todays-snapshots>
+  <div fxLayout="row wrap" fxLayoutGap="10px" fxLayoutAlign="space-between start">
+    <app-todays-snapshots></app-todays-snapshots>
+    <button mat-raised-button color="green" routerLink="../orders/new">
+      <fa-icon icon="cart-plus"></fa-icon>
+       New Order
+    </button>
+  </div>
   <mat-divider></mat-divider>
   <app-total-orders></app-total-orders>
   <mat-divider></mat-divider>
