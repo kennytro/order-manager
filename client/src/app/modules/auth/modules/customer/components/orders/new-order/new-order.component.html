@@ -81,7 +81,7 @@
           </div>
         </div>
         <div fxLayout="row" fxLayoutAlign="end" fxLayoutGap="20px">
-          <button mat-raised-button class="action" routerLink="../">Cancel</button>
+          <button mat-raised-button class="action" (click)="cancel()">Cancel</button>
           <button mat-raised-button class="action" matStepperNext type="button" [disabled]="order.totalAmount<=0">Review <fa-icon icon="long-arrow-alt-right"></fa-icon></button>
         </div>
       </form>
@@ -154,7 +154,7 @@
           </div>
         </div>
         <div fxLayout="row" fxLayoutAlign="end" fxLayoutGap="20px">
-          <button mat-raised-button class="action" routerLink="../">Cancel</button>
+          <button mat-raised-button class="action" (click)="cancel()">Cancel</button>
           <button mat-raised-button class="action" matStepperPrevious type="button"><fa-icon icon="long-arrow-alt-left"></fa-icon> Edit</button>
           <button mat-raised-button class="action" color="green" (click)="create()">Submit</button>
         </div>          
