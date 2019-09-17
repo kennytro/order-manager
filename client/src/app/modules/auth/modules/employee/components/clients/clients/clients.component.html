@@ -39,8 +39,11 @@
     <mat-paginator [pageSizeOptions]="[25, 50, 100]"></mat-paginator>
   </div>
 </div>
-<div fxLayout="row wrap" fxLayoutGap="10px" fxLayoutAlign="start center" style="margin-top: 10px">
+<div fxLayout="row wrap" fxLayoutGap="10px" fxLayoutAlign="space-around start" style="margin-top: 10px">
   <div fxFlex="1 0 400px">
     <app-history-graph metricName="client_sale_daily" chartType="ColumnChart" [instanceId]=clientSelected?.id></app-history-graph>
+  </div>
+  <div fxFlex="1 0 400px" *ngIf="clientSelected">
+    <app-rank-graph metricName="product_sale_by_client_daily" [instanceId]=clientSelected?.id></app-rank-graph>
   </div>
 </div>

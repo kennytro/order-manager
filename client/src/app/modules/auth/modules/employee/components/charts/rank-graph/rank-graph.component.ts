@@ -142,6 +142,7 @@ export class RankGraphComponent implements OnInit {
   }
 
   private _updateChart(init: boolean) {
+    this.showSpinner = true;
     if (this._metricDefinition.adHoc) {
       if (this._instanceId) {
         this._dataApi.genericMethod('Metric', 'findAdHocMetricData',
@@ -157,6 +158,15 @@ export class RankGraphComponent implements OnInit {
             this._initializeChart(this._metricDefinition, newDataTable);
           }
         });
+      } else {
+        let newDataTable = this._getDataTableFromMetricData([]);
+        if (this.rankChart) {
+          this.rankChart.dataTable = newDataTable;
+          this.rankChart.options['height'] = this._getChartHeight(newDataTable.length);
+          this.rankChart.component.draw();            
+        } else {
+          this._initializeChart(this._metricDefinition, newDataTable);
+        }        
       }
     } else {
       this._dataApi.genericMethod('Metric', 'findMetricDataByName',
