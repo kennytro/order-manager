@@ -17,7 +17,7 @@ describe('Metric test', function() {
     }, 100);  // allow metrics to be seeded.
   });
   it('should count seeded metrics', async function() {
-    expect(await app.models.Metric.count()).to.equal(22, 'expect seeded metrics');
+    expect(await app.models.Metric.count()).to.equal(23, 'expect seeded metrics');
   });
   it('should not find metric data by bad metric name', async function() {
     let mData = await app.models.Metric.findMetricDataByName(['non-existing']);

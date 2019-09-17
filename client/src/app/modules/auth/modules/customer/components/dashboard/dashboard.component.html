@@ -1,4 +1,9 @@
-<div fxLayout="column" fxLayoutGap="10px">
+<div fxLayout="column" fxLayoutGap="20px">
   <app-todays-snapshots></app-todays-snapshots>
+  <mat-divider></mat-divider>
   <app-total-orders></app-total-orders>
+  <mat-divider></mat-divider>
+  <div *ngIf="client?.id">
+    <app-rank-graph metricName="product_sale_by_client_daily" chartTitle="Top Products" [instanceId]=client.id></app-rank-graph>
+  </div>
 </div>
