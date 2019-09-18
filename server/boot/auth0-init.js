@@ -60,9 +60,7 @@ module.exports = async function(app) {
       app.models.EndUser.create({
         authId: adminUsers[0].user_id,
         email: ADMIN_EMAIL,
-        userSettings: {
-          roles: ['admin']
-        }
+        role: 'admin'
       });
     }
   }

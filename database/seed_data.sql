@@ -14,9 +14,9 @@ VALUES
   ('contact us', 1, '<div><p>Contact us content goes here<p></dev>')
 ;
 
-INSERT INTO delivery_route (id, description)
+INSERT INTO delivery_route (name, description)
 VALUES ('Pick Up', 'Customer picks up orders.')
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (name) DO NOTHING;
 
 INSERT INTO company_info
 VALUES

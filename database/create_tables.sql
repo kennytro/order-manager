@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS client
   fee_value numeric DEFAULT 0,
   fee_schedule fee_schedule DEFAULT 'None',
   show_public bool DEFAULT false,
-  delivery_route_id text REFERENCES delivery_route,
+  delivery_route_id integer REFERENCES delivery_route,
   created_date timestamptz DEFAULT now(),
   settings jsonb
 );
