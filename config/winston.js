@@ -41,7 +41,9 @@ class Postgres extends Transport {
   }
 };
 
-// define the custom settings for each transport (file, console)
+/** define the custom settings for each transport (file, console)
+ * 'pg' is defined only if DATABASE_URL is set.
+ */
 const tpOptions = {
   file: {
     level: 'info',
@@ -58,14 +60,14 @@ const tpOptions = {
     json: false,
     colorize: true
   },
-  pg: {
+  pg: (process.env.DATABASE_URL) ? {
     level: 'error',
     handleExceptions: true,
     json: true,
     dataSourceName: 'OrderManager',
     url: process.env.DATABASE_URL,
     tableName: 'app_error'
-  }
+  } : undefined
 };
 
 // customize log to include process id.
@@ -82,12 +84,16 @@ const logger = winston.createLogger({
   ),
   transports: [
     new winston.transports.File(tpOptions.file),
-    new winston.transports.Console(tpOptions.console),
-    new Postgres(tpOptions.pg)
+    new winston.transports.Console(tpOptions.console)
   ],
   exitOnError: false, // do not exit on handled exceptions
   silent: process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'unit_test'  // suppress logger during test run
 });
+
+// add optional transport(e.g. some scripts don't need postgres DB)
+if (tpOptions.pg) {
+  logger.transports.push(new Postgres(tpOptions.pg));
+}
 
 // create a stream object with a 'write' function that will be used by `morgan`
 logger.stream = {

@@ -51,14 +51,14 @@ module.exports = function(Order) {
     let origUpdateAll = Order.updateAll;
     Order.updateAll = function(where, data, callback) {
       if (_.isFunction(callback)) {
-        origUpdateAll.call(Order, where, data, (err, info) => {
+        origUpdateAll.call(this, where, data, (err, info) => {
           if (!err) {
             Order.emitEvent(_.get(app, ['sockets', 'order']), 'save', null);
           }
           callback(err, info);
         });
       } else {
-        return origUpdateAll.call(Order, where, data)
+        return origUpdateAll.call(this, where, data)
           .then(info => {
             Order.emitEvent(_.get(app, ['sockets', 'order']), 'save', null);
             return info;
