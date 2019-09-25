@@ -72,7 +72,8 @@ module.exports = async function(app) {
       await s3.headObject(params).promise();
       return true;
     } catch (error) {
-      if (error.statusCode === 404) {
+      // Note: If a folder doesn't exist, AWS returns 403(Forbidden) instead of 404(Not Found)
+      if (error.statusCode === 404 || error.statusCode === 403) {
         return false;
       }
       throw error;
