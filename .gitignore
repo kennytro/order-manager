@@ -15,8 +15,10 @@
 .idea
 .project
 .strong-pm
+ecosystem.config.js
 coverage
 node_modules
 npm-debug.log
 dist
 dev-test
+logs
