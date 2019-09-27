@@ -4,7 +4,7 @@
     <mat-card-title> New Order</mat-card-title>
   </mat-card-header>
   <mat-card-content>
-    <mat-horizontal-stepper linear #stepper>
+    <mat-horizontal-stepper linear #stepper (selectionChange)="onStepChange($event)">
     <!-- HACK: set 'completed' to false in order to suppress 'Create' label -->
       <mat-step [stepControl]="orderFG" [completed]="false">
         <ng-template matStepLabel><fa-icon icon="store-alt"></fa-icon> Select Client</ng-template>
@@ -60,9 +60,15 @@
               </ng-container>
               <ng-container matColumnDef="quantity">
                 <th mat-header-cell *matHeaderCellDef> QTY. </th>
-                <td mat-cell *matCellDef="let row">
+                <td mat-cell *matCellDef="let row; let i = index">
                   <mat-form-field appearance="outline" class="mat-input-qty">
-                    <input matInput type="number" min="0" placeholder="Quantity" [formControl]="row.quantity">
+                    <!-- set focus on the first row -->
+                    <div *ngIf="i==0; else noFocus">
+                      <input matInput type="number" min="0" placeholder="Quantity" [formControl]="row.quantity" #firstItem>
+                    </div>
+                    <ng-template #noFocus>
+                      <input matInput type="number" min="0" placeholder="Quantity" [formControl]="row.quantity">
+                    </ng-template>
                   </mat-form-field>
                 </td>
               </ng-container>

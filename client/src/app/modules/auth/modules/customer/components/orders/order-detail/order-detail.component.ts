@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatDialog, MatTableDataSource, MatSnackBar /* , MatStepper*/ } from '@angular/material';
 import { FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
@@ -22,8 +22,10 @@ export class OrderDetailComponent implements OnInit {
   orderItems: MatTableDataSource<any>;
   order: any;
   orderFG: FormGroup;
-  private _unsubscribe = new Subject<boolean>();  
+  private _unsubscribe = new Subject<boolean>(); 
 
+  /* First row in order item table that should set selected initially */ 
+  @ViewChild('firstItem') firstItem: ElementRef;
   constructor(
     private _route: ActivatedRoute,
     private _router: Router,
@@ -76,6 +78,12 @@ export class OrderDetailComponent implements OnInit {
             }
           }
           this.orderItems = new MatTableDataSource(orderItems);
+          setTimeout(() => {
+            // set focus on first item
+            if (this.firstItem) {
+              this.firstItem.nativeElement.select();
+            }
+          });
         }
       });
   }

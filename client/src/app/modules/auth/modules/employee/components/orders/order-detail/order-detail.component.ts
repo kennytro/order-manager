@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Location } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatDialog, MatTableDataSource, MatSnackBar } from '@angular/material';
@@ -27,6 +27,8 @@ export class OrderDetailComponent implements OnInit {
   products: any[];
   private _unsubscribe = new Subject<boolean>();  
 
+  /* First row in order item table that should set selected initially */ 
+  @ViewChild('firstItem') firstItem: ElementRef;
   constructor(
     private _route: ActivatedRoute,
     private _router: Router,
@@ -64,6 +66,12 @@ export class OrderDetailComponent implements OnInit {
           }
           orderItems = sortBy(orderItems, ['category', 'name']);
           this.orderItems = new MatTableDataSource(orderItems);
+          setTimeout(() => {
+            // set focus on first item
+            if (this.firstItem) {
+              this.firstItem.nativeElement.select();
+            }
+          });
         }
       });
   }
