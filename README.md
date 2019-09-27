@@ -14,7 +14,7 @@ Invoice PDF file.
 ![invoice screenshot](docs/images/screenshot-invoice.JPG "Invoice")
 
 
-#### [Live Demo](https://etr-order-manager-staging.herokuapp.com):
+#### [Live Demo](https://demo.ijumun.com):
 Use the following user credential to login.
 - client user: user id(`demoClient@etr.com`), password(`D3moClient`)
 - admin user: user id(`demoAdmin@etr.com`),  password(`D3moAdmin`)
