@@ -1,4 +1,4 @@
-import { Component, OnInit /*, ViewChild*/ } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Location } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatSort, MatTableDataSource, MatSnackBar, MatStepper } from '@angular/material';
@@ -28,6 +28,7 @@ export class NewOrderComponent implements OnInit {
 
   // disabling sort because it doesn't work with form group in row
 //  @ViewChild(MatSort) sort: MatSort;
+  @ViewChild('firstItem') firstItem: ElementRef;
   constructor(
     private _route: ActivatedRoute,
     private _router: Router,
@@ -205,5 +206,11 @@ export class NewOrderComponent implements OnInit {
 
   private _setTableDataSource(orderItems: Array<OrderItem>) {
     this.orderItems = new MatTableDataSource(orderItems);
+    setTimeout(() => {
+      // set focus on first item
+      if (this.firstItem) {
+        this.firstItem.nativeElement.select();
+      }
+    })
   }
 }
