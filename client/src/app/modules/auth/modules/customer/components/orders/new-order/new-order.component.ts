@@ -28,6 +28,7 @@ export class NewOrderComponent implements OnInit {
 
   // disabling sort because it doesn't work with form group in row
 //  @ViewChild(MatSort) sort: MatSort;
+  /* First row in order item table that should set selected initially */ 
   @ViewChild('firstItem') firstItem: ElementRef;
   constructor(
     private _route: ActivatedRoute,

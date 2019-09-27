@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatTableDataSource, MatSnackBar } from '@angular/material';
 import { FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
@@ -23,6 +23,9 @@ export class NewOrderComponent implements OnInit {
   selectedClient: any;
   orderFG: FormGroup;
   private _unsubscribe = new Subject<boolean>();
+
+  /* First row in order item table that should set selected initially */ 
+  @ViewChild('firstItem') firstItem: ElementRef;
   constructor(
     private _route: ActivatedRoute,
     private _router: Router,
@@ -87,6 +90,22 @@ export class NewOrderComponent implements OnInit {
   ngOnDestroy() {
     this._unsubscribe.next(true);
     this._unsubscribe.unsubscribe();
+  }
+
+  /*
+   * When certain step(the one with order items) is selected, we want to 
+   * highlight the first item for better UX.
+   * @param {Object} - event 
+   */
+  onStepChange(event: any): void {
+    if(event.selectedIndex === 1) {
+      setTimeout(() => {
+        // set focus on first item
+        if (this.firstItem) {
+          this.firstItem.nativeElement.select();
+        }
+      }, 100);
+    }
   }
 
   getOrderItemTableSource() {
