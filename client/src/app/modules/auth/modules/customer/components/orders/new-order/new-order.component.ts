@@ -211,6 +211,6 @@ export class NewOrderComponent implements OnInit {
       if (this.firstItem) {
         this.firstItem.nativeElement.select();
       }
-    })
+    });
   }
 }
