@@ -6,6 +6,7 @@ import { Subject } from 'rxjs';
 import { take, takeUntil } from 'rxjs/operators';
 
 import { ConfirmDialogComponent, DialogData } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { RootScopeShareService } from '../../../../../../../services/root-scope-share.service';
 import { FileService } from '../../../../../shared/services/file.service';
 import { DataApiService } from '../../../services/data-api.service';
 
@@ -18,10 +19,13 @@ import sortBy from 'lodash/sortBy';
   styleUrls: ['./order-detail.component.css']
 })
 export class OrderDetailComponent implements OnInit {
-  displayedColumns = ['id', 'name', 'description', 'category', 'quantity', 'unitPrice', 'subtotal'];
+  static readonly defaultColumns = ['id', 'name', 'description', 'category', 'quantity', 'unitPrice', 'subtotal'];
+  static readonly noPriceColumns = ['id', 'name', 'description', 'category', 'quantity', 'unit'];
+  displayedColumns: Array<string>;
   orderItems: MatTableDataSource<any>;
   order: any;
   orderFG: FormGroup;
+  hidePrice: boolean;
   private _unsubscribe = new Subject<boolean>(); 
 
   /* First row in order item table that should set selected initially */ 
@@ -33,8 +37,12 @@ export class OrderDetailComponent implements OnInit {
     private _dialog: MatDialog,
     private _snackBar: MatSnackBar,
     private _fs: FileService,
-    private _dataApi: DataApiService
-  ) { }
+    private _dataApi: DataApiService,
+    private _dataShare: RootScopeShareService
+  ) {
+    this.hidePrice = false;
+    this.displayedColumns = OrderDetailComponent.defaultColumns;
+  }
 
   ngOnInit() {
     /***** Form initialization *****/
@@ -51,6 +59,7 @@ export class OrderDetailComponent implements OnInit {
         if (routeData['orderInfo']) {
           let orderInfo = routeData['orderInfo'];
           this._setOrderObject(orderInfo.order);
+          this._hideColumns(this._dataShare.getData('tenant'), this.order);
 
           let existingOrderItems = this.order.orderItem;
           let products = orderInfo.products;
@@ -186,6 +195,24 @@ export class OrderDetailComponent implements OnInit {
       this._router.navigate(['../'], { relativeTo: this._route});
     } catch (err) {
       console.log(`error: failed to update an order - ${err.message}`);
+    }
+  }
+
+  /**
+   * 'unitPrice' & 'subtotal' columns are shown by default. They are replaced with 'unit' if
+   *  1. tenant configuration hides price information AND
+   *  2. order status is before 'Shipped'
+   * @param {Object} - tenant configuration
+   * @param {Object} - order instance
+   */
+  private _hideColumns(tenant: any, order: any): void {
+    if (tenant && tenant.hidePriceFromCustomer &&
+      ['Submitted', 'Processed'].includes(order.status)) {
+      this.hidePrice = true;
+      this.displayedColumns = OrderDetailComponent.noPriceColumns;
+    } else {
+      this.hidePrice = false;
+      this.displayedColumns = OrderDetailComponent.defaultColumns;
     }
   }
 

@@ -19,7 +19,9 @@ import { DataApiService } from '../../../services/data-api.service';
   styleUrls: ['./new-order.component.css']
 })
 export class NewOrderComponent implements OnInit {
-  displayedColumns = ['id', 'name', 'description', 'category', 'quantity', 'unitPrice', 'subtotal'];
+  static readonly defaultColumns = ['id', 'name', 'description', 'category', 'quantity', 'unitPrice', 'subtotal'];
+  static readonly noPriceColumns = ['id', 'name', 'description', 'category', 'quantity', 'unit'];
+  displayedColumns: Array<string>;
   orderItems: MatTableDataSource<OrderItem>;
   order: any;
   orderFG: FormGroup;
@@ -49,6 +51,7 @@ export class NewOrderComponent implements OnInit {
       note: null
     };
     this.hidePrice = false;
+    this.displayedColumns = NewOrderComponent.defaultColumns;
   }
 
   ngOnInit() {
@@ -57,7 +60,7 @@ export class NewOrderComponent implements OnInit {
     if (tenant && tenant.hidePriceFromCustomer) {
       // display different columns when price is hidden.
       this.hidePrice = true;
-      this.displayedColumns = ['id', 'name', 'description', 'category', 'quantity', 'unit'];      
+      this.displayedColumns = NewOrderComponent.noPriceColumns;
     }
     /***** Form initialization *****/
     this.orderFG = this._formBuilder.group({
