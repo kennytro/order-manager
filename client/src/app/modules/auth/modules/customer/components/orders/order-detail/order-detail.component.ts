@@ -264,7 +264,7 @@ export class OrderDetailComponent implements OnInit {
         text = 'Fixed amount';
       }
       if (this.order.client.feeType === 'Rate') {
-        text = `$${order.subtotal.toFixed(2)} x ${this.order.client.feeValue}(%) = ${order.fee.toFixed(2)}`;
+        text = `$${order.subtotal.toFixed(2)} x ${this.order.client.feeValue}(%) = $${order.fee.toFixed(2)}`;
       }
     }
     return text;
