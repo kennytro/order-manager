@@ -7,6 +7,7 @@ const boot = require('loopback-boot');
 const path = require('path');
 const morgan = require('morgan');
 const cluster = require('cluster');
+const pgTypes = require('pg').types;
 const yn = require('yn');
 
 // read .env before requiring other app files.
@@ -133,6 +134,11 @@ app.start = function() {
     }
   });
 };
+
+/* convert numeric columns so that we have actual numbers instead
+ * of strings. This is important for column sorting and arithmatic operation.
+ * https://github.com/brianc/node-pg-types/issues/28 */
+pgTypes.setTypeParser(1700, 'text', parseFloat);
 
 // Bootstrap the application, configure models, datasources and middleware.
 // Sub-apps like REST API are mounted via boot scripts.
