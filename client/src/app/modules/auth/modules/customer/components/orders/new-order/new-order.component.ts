@@ -10,6 +10,7 @@ import get from 'lodash/get';
 import sortBy from 'lodash/sortBy';
 import * as moment from 'moment';
 
+import { RootScopeShareService } from '../../../../../../../services/root-scope-share.service';
 import { DataApiService } from '../../../services/data-api.service';
 
 @Component({
@@ -18,14 +19,16 @@ import { DataApiService } from '../../../services/data-api.service';
   styleUrls: ['./new-order.component.css']
 })
 export class NewOrderComponent implements OnInit {
-  displayedColumns = ['id', 'name', 'description', 'category', 'quantity', 'unitPrice', 'subtotal'];
+  static readonly defaultColumns = ['id', 'name', 'description', 'category', 'quantity', 'unitPrice', 'subtotal'];
+  static readonly noPriceColumns = ['id', 'name', 'description', 'category', 'quantity', 'unit'];
+  displayedColumns: Array<string>;
   orderItems: MatTableDataSource<OrderItem>;
   order: any;
   orderFG: FormGroup;
+  hidePrice: boolean;
   private _unsubscribe = new Subject<boolean>();
   private _endUser: any;
   private _client: any;
-
   // disabling sort because it doesn't work with form group in row
 //  @ViewChild(MatSort) sort: MatSort;
   /* First row in order item table that should set selected initially */ 
@@ -36,7 +39,8 @@ export class NewOrderComponent implements OnInit {
     private _location: Location,
     private _formBuilder: FormBuilder,
     private _snackBar: MatSnackBar,
-    private _dataApi: DataApiService
+    private _dataApi: DataApiService,
+    private _dataShare: RootScopeShareService
   ) { 
     this.order = {
       clientId: '',
@@ -46,9 +50,18 @@ export class NewOrderComponent implements OnInit {
       totalAmount: 0,
       note: null
     };
+    this.hidePrice = false;
+    this.displayedColumns = NewOrderComponent.defaultColumns;
   }
 
   ngOnInit() {
+    /***** tenant configuration *****/
+    const tenant = this._dataShare.getData('tenant');
+    if (tenant && tenant.hidePriceFromCustomer) {
+      // display different columns when price is hidden.
+      this.hidePrice = true;
+      this.displayedColumns = NewOrderComponent.noPriceColumns;
+    }
     /***** Form initialization *****/
     this.orderFG = this._formBuilder.group({
       orderItemQuantities: this._formBuilder.array([]),
@@ -199,7 +212,7 @@ export class NewOrderComponent implements OnInit {
         text = 'Fixed amount';
       }
       if (this._client.feeType === 'Rate') {
-        text = `$${order.subtotal.toFixed(2)} x ${this._client.feeValue}(%) = ${order.fee.toFixed(2)}`;
+        text = `$${order.subtotal.toFixed(2)} x ${this._client.feeValue}(%) = $${order.fee.toFixed(2)}`;
       }
     }
     return text;

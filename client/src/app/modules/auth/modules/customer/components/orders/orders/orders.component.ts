@@ -42,6 +42,14 @@ export class OrdersComponent implements OnInit {
     }
   }
 
+  /**
+   * @param {String} - order status
+   * @returns {Boolean} - TRUE if pdf is show
+   */
+  showPdf(status: string): boolean {
+    return ['Shipped', 'Completed'].includes(status);
+  }
+
   getOrders() {
     return this._orders;
   }

@@ -203,7 +203,7 @@ export class NewOrderComponent implements OnInit {
         text = 'Fixed amount';
       }
       if (this.selectedClient.feeType === 'Rate') {
-        text = `$${order.subtotal.toFixed(2)} x ${this.selectedClient.feeValue}(%) = ${order.fee.toFixed(2)}`;
+        text = `$${order.subtotal.toFixed(2)} x ${this.selectedClient.feeValue}(%) = $${order.fee.toFixed(2)}`;
       }
     }
     return text;

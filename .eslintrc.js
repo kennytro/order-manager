@@ -1,5 +1,8 @@
 module.exports = {
   "extends": "loopback",
+  "plugins": [
+    "chai-friendly"
+  ],
   "parserOptions": {
     "ecmaVersion": "2017"
   },
@@ -34,6 +37,8 @@ module.exports = {
         "named": "never",
         "asyncArrow": "always"
       }
-    ]
+    ],
+    "no-unused-expressions": 0,
+    "chai-friendly/no-unused-expressions": 2
   }
 };

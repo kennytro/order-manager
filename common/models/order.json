@@ -39,7 +39,8 @@
       "type": "number"
     },
     "fee": {
-      "type": "number"
+      "type": "number",
+      "default": 0
     },
     "feeExplanation": {
       "type": "string",
