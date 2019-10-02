@@ -149,11 +149,16 @@ export class OpenOrdersComponent implements OnInit {
     if (orderIds.length > 0) {
       try {
         let statuses = [fromStatus];
-        /* For completed orders, we use different API in order to create related 
-         * metric data. */
         if (toStatus === 'Completed') {
+          /* For completed orders, we use different API in order to create related 
+           * metric data. */
           await this._dataApi.genericMethod('Order', 'completeOrders', [orderIds]).toPromise();
           // no need to include 'Completed' status
+        } else if (toStatus === 'Shipped') {
+          /* We use different API for shipped orders because we need to create invoices and may 
+           * need to update unit price depending on tenant configuration. */
+          await this._dataApi.genericMethod('Order', 'shipOrders', [orderIds]).toPromise();
+          statuses.push(toStatus);
         } else {
           // update order status
           await this._dataApi.genericMethod('Order', 'updateAll', [{ id: { inq: orderIds } },

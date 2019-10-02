@@ -3,12 +3,82 @@ const _ = require('lodash');
 const appRoot = require('app-root-path');
 const HttpErrors = require('http-errors');
 const Promise = require('bluebird');
+const yn = require('yn');
 const app = require(appRoot + '/server/server');
 const logger = require(appRoot + '/config/winston');
 const PdfMaker = require(appRoot + '/common/util/make-pdf');
 const fileStorage = require(appRoot + '/common/util/file-storage');
 const tenantSetting = require(appRoot + '/config/tenant');
 const metricSetting = require(appRoot + '/config/metric');
+
+/**
+ * @param {Number} - subtotal
+ * @param {Object} - Client instance
+ * @returns {Number} - fee
+ */
+function calculateFee(subtotal, client) {
+  let fee = 0;
+  if (client && client.feeSchedule === 'Order') {
+    if (client.feeType === 'Fixed') {
+      fee = client.feeValue;
+    } else if (client.feeType === 'Rate') {
+      fee = subtotal * (client.feeValue / 100);
+    }
+  }
+  return fee;
+}
+
+/**
+ * @param {Number} - subtotal
+ * @param {Number} - fee
+ * @param {Object} - Client instance
+ * @returns {String} - fee explanation
+ */
+function explainFee(subtotal, fee, client) {
+  let explanation = null;
+  if (client && client.feeSchedule === 'Order') {
+    if (client.feeType === 'Fixed') {
+      explanation = 'Fixed amount';
+    } else if (client.feeType === 'Rate') {
+      explanation = `$${subtotal.toFixed(2)} x ${client.feeValue}(%) = $${fee.toFixed(2)}`;
+    }
+  }
+  return explanation;
+}
+
+/**
+ * Given orderItem instances and price maps, update unit price of product
+ *
+ * @param {Object[]} - OrderItem instances
+ * @param {Map<integer, Number>} - price map
+ * @returns {Object[]} - updated order item list.
+ */
+function updateOrderItemPrice(orderItems, priceMap) {
+  let updatedItems = [];
+  orderItems.forEach(orderItem => {
+    let unitPrice = priceMap.get(orderItem.productId);
+    if (unitPrice && unitPrice !== orderItem.unitPrice) {
+      orderItem.unitPrice = unitPrice;
+      updatedItems.push(orderItem);
+    }
+  });
+  return updatedItems;
+}
+
+/**
+ * update order amounts and fee if applicable by client.
+ * @param {Object} - Order instance
+ * @param {Object[]} - OrderItem instances
+ * @param {Object} - Client instance
+ */
+function updateOrderAmount(order, orderItems, client) {
+  order.subtotal = _.reduce(orderItems, (sum, i) => sum + (i.unitPrice * i.quantity), 0);
+  if (client && client.feeSchedule === 'Order') {
+    order.fee = calculateFee(order.subtotal, client);
+    order.feeExplanation = explainFee(order.subtotal, order.fee, client);
+  }
+  order.totalAmount = order.subtotal + order.fee;
+}
 
 module.exports = function(Order) {
   const REDIS_ORDER_CHANGED_KEY = metricSetting.redisOrderChangedSetKey;
@@ -156,6 +226,66 @@ module.exports = function(Order) {
       status: 200,
       message: `Order(id: ${existingOrder.id}) is cancelled.`,
       orderId: existingOrder.id
+    };
+  };
+
+  /**
+   * Update order status to 'Shipped' and may perform additional tasks:
+   *  1. update ordered items' unit price and total amount
+   *  2. generate PDF invoice.
+   * @param{string[]} orderIds - array of order Id.
+   * @param{object} metadata
+  **/
+  Order.shipOrders = async function(orderIds, metadata) {
+    let updateCount = 0;
+    if (yn(process.env.UPDATE_ORDER_UPON_SHIPPED)) {
+      let [orders, products, clients] = await Promise.all([
+        Order.find({
+          where: { id: { inq: orderIds } },
+          include: 'orderItem'
+        }),
+        app.models.Product.find({ fields: { id: true, unitPrice: true } }),
+        app.models.Client.find({ fields: { id: true, feeType: true, feeValue: true, feeSchedule: true } })
+      ]);
+      orders.forEach(order => order.status = 'Shipped');
+      let priceMap = new Map(products.map(product => [product.id, product.unitPrice]));
+      let clientMap = new Map(clients.map(client => [client.id, client]));
+      try {
+        let updatedOrders = new Set();
+        await app.dataSources.OrderManager.transaction(async models => {
+          const { Order, OrderItem } = models;
+          await Promise.each(orders, async (order) => {
+            let orderItems = order.toJSON().orderItem;
+            let updatedOrderItems = updateOrderItemPrice(orderItems, priceMap);
+            if (!_.isEmpty(updatedOrderItems)) {
+              // update order amount and orderItems
+              updateOrderAmount(order, orderItems, clientMap.get(order.clientId));
+              await Promise.each(updatedOrderItems, async (orderItem) => await OrderItem.upsert(orderItem));
+              updatedOrders.add(order.id);
+            }
+            await order.save();
+          });
+        });
+        // run the following commands asynchronously
+        orders.forEach(function(order) {
+          if (updatedOrders.has(order.id)) {
+            order.generatePdf();
+          }
+          order.addToRedisSet();
+          Order.emitEvent(_.get(app, ['sockets', 'order']), 'save', order);
+        });
+      } catch (error) {
+        console.error(error);
+        throw new HttpErrors(500, `cannot ship orders - ${error.message}`);
+      }
+    } else {
+      // just update order status without updating.
+      await Order.updateAll({ id: { inq: orderIds } }, { status: 'Shipped' });
+    }
+    return {
+      status: 200,
+      message: `Shipped ${orderIds.length} orders.`,
+      orderIds: orderIds
     };
   };
 
