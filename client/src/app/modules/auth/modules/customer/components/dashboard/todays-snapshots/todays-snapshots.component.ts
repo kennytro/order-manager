@@ -81,20 +81,36 @@ export class TodaysSnapshotsComponent implements OnInit {
     let tableHeader = [['Status', 'Count']];
     let newData = statuses.map(status => [status, grouped[status].length]);
     let newDataTable = tableHeader.concat(newData);    
+
+    // assign color to slices
+    const statusColors = {
+      'Submitted': 'orange',
+      'Processed': 'brown',
+      'Shipped': 'red',
+      'Completed': 'green',
+      'Cancelled': 'gray'
+    };
+    let slicesColor = {};
+    newData.forEach((row, index) => slicesColor[index] = { color: statusColors[row[0]] });
+
     // update chart
     if (this.pieChart) {
       this.pieChart.dataTable = newDataTable;
+      this.pieChart.options['slices'] = slicesColor;
       this.pieChart.component.draw();
     } else {
-      this._initializePieChart(newDataTable);
+      this._initializePieChart(newDataTable, slicesColor);
     }
   }
 
-  private _initializePieChart(dataTable) {
+  private _initializePieChart(dataTable, slicesColor) {
     this.pieChart = {
       chartType: 'PieChart',
       dataTable: dataTable,
-      options: {'title': 'Today\'s Orders'},
+      options: {
+        title: 'Today\'s Orders',
+        slices: slicesColor
+      },
     };
   }   
 }
