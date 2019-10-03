@@ -3,6 +3,7 @@ const appRoot = require('app-root-path');
 const Transport = require('winston-transport');
 const winston = require('winston');
 const _ = require('lodash');
+const moment = require('moment-timezone');
 const db = require(appRoot + '/common/util/database');
 
 /*
@@ -75,11 +76,19 @@ const { combine, timestamp, printf } = winston.format;
 const myFormat = printf(({ level, message, timestamp }) => {
   return `${timestamp} <${process.pid}>[${level}]: ${message}`;
 });
+// switch to local timezone if TZ is set.
+const appendTimestamp = winston.format((info, opts) => {
+  if (opts.tz) {
+    info.timestamp = moment().tz(opts.tz).format();
+  }
+  return info;
+});
 
 // instantiate a new Winston Logger with the settings defined above
 const logger = winston.createLogger({
   format: combine(
     timestamp(),
+    appendTimestamp({ tz: process.env.TZ }),
     myFormat
   ),
   transports: [
