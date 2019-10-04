@@ -138,7 +138,8 @@ CREATE TABLE IF NOT EXISTS order_t
   created_by integer REFERENCES end_user,
   created_at timestamptz DEFAULT now(),
   updated_by integer REFERENCES end_user,
-  updated_at timestamptz DEFAULT now()
+  updated_at timestamptz DEFAULT now(),
+  has_invoice bool DEFAULT false
 );
 ALTER SEQUENCE order_id_seq OWNED BY order_t.id;
 

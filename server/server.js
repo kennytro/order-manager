@@ -63,7 +63,6 @@ if (!yn(process.env.DISABLE_CLUSTER)) {
     let worker = cluster.fork({
       IS_WORKER: true
     });
-    worker.on('message', _.partial(modelSockets.onMessage, app));
     cluster.on('exit', (worker, code, signal) => {
       logger.info(`worker ${worker.process.pid} died.`);
       if (!shutdownInProgress) {
@@ -71,7 +70,6 @@ if (!yn(process.env.DISABLE_CLUSTER)) {
           IS_WORKER: true
         });
         logger.info(`Starting replacement worker ${newWorker.process.pid}.`);
-        newWorker.on('message', _.partial(modelSockets.onMessage, app));
       }
     });
   } else {
@@ -149,6 +147,7 @@ boot(app, __dirname, function(err) {
   if (cluster.isMaster && require.main === module) {
     let server = app.start();
     modelSockets.init(app, server);
+    require('./web-app-redis-sub')(app);
   }
   if (cluster.isWorker && require.main === module) {
     worker.start(app);

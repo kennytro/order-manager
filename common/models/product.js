@@ -9,11 +9,10 @@ const logger = require(appRoot + '/config/winston');
 const app = require(appRoot + '/server/server');
 const fileStorage = require(appRoot + '/common/util/file-storage');
 const tenantSetting = require(appRoot + '/config/tenant');
-const metricSetting = require(appRoot + '/config/metric');
 
 module.exports = function(Product) {
   const AWS_S3_PUBLIC_URL = 'https://s3-us-west-2.amazonaws.com/om-public/';
-  const REDIS_PRODUCT_CHANGED_KEY = metricSetting.redisProductChangedSetKey;
+  const REDIS_PRODUCT_CHANGED_KEY = require(appRoot + '/config/redis-keys').productChangedSetKey;
 
   // Don't allow delete by ID. Instead set 'isAvailable' property.
   Product.disableRemoteMethodByName('deleteById');

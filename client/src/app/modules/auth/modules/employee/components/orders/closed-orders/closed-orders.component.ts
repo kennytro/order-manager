@@ -74,7 +74,8 @@ export class ClosedOrdersComponent implements OnInit {
         status: order.status,
         createdAt: order.createdAt,
         totalAmount: order.totalAmount,
-        note: order.note
+        note: order.note,
+        hasInvoice: order.hasInvoice
       };
     });
 

@@ -1,4 +1,5 @@
 'use strict';
+const _ = require('lodash');
 const scheduler = require('node-schedule');
 const yn = require('yn');
 const messageBatch = require('./message-batch');
@@ -16,8 +17,8 @@ module.exports = function(app) {
   // schedule jobs to run every midnight
   const everyMidnightRule = new scheduler.RecurrenceRule();
   everyMidnightRule.hour = 0;
-  scheduler.scheduleJob(everyMidnightRule, messageBatch.delExpiredMessage);
-  // scheduler.scheduleJob(everyMidnightRule, metricBatch.removeOldData);
+  everyMidnightRule.minute = 0;
+  scheduler.scheduleJob(everyMidnightRule, _.partial(messageBatch.delExpiredMessage, app));
 
   if (yn(process.env.CREATE_MOCK_DATA)) {
     // schedule job to create mock data. This job runs 4 times everyday.

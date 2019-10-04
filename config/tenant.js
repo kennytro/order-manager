@@ -17,7 +17,5 @@ module.exports = {
   // mapAPIKey: Google Map API used in 'Clients' in public module and 'Delivery Routes' in employee module
   mapAPIKey: process.env.GOOGLE_MAP_API_KEY,
   // hidePriceFromCustomer: hides unit price and amount of order until 'Shipped' status
-  hidePriceFromCustomer: yn(process.env.HIDE_PRICE_FROM_CUSTOMER),
-  // updateOrderAmountOnShipped: update order amount on 'Shipped' status
-  updateOrderAmountOnShipped: yn(process.env.UPDATE_ORDER_AMOUNT_ON_SHIPPED)
+  hidePriceFromCustomer: yn(process.env.HIDE_PRICE_FROM_CUSTOMER)
 };

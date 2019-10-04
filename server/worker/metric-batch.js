@@ -7,9 +7,9 @@ const uuidv5 = require('uuid/v5');
 const debugBatch = require('debug')('order-manager:Metric:batch');
 const app = require(appRoot + '/server/server');
 const logger = require(appRoot + '/config/winston');
-const metricSetting = require(appRoot + '/config/metric');
+const redisKeys = require(appRoot + '/config/redis-keys');
 
-const METRIC_NS_UUID = metricSetting.uuidNamespace;
+const METRIC_NS_UUID = redisKeys.metricNamespace;
 const TS_METRIC_ID = uuidv5('total_sale', METRIC_NS_UUID);
 const TO_METRIC_ID = uuidv5('total_orders', METRIC_NS_UUID);
 const CS_METRIC_ID = uuidv5('client_sale', METRIC_NS_UUID);
@@ -32,25 +32,30 @@ async function getChangedInstanceIds(modelName) {
 
   let redisSetName;
   if (modelName === 'Order') {
-    redisSetName = metricSetting.redisOrderChangedSetKey;
+    redisSetName = redisKeys.orderChangedSetKey;
   } else if (modelName === 'Product') {
-    redisSetName = metricSetting.redisProductChangedSetKey;
+    redisSetName = redisKeys.productChangedSetKey;
   } else {
     return [];
   }
 
-  const scardAsync = Promise.promisify(app.redis.scard).bind(app.redis);
-  const spopAsync = Promise.promisify(app.redis.spop).bind(app.redis);
-  let idCount = await scardAsync(redisSetName);
-  if (idCount === 0) {
-    return [];
-  }
-  debugBatch(`${idCount} ${modelName}(s) created.`);
-  idCount = Math.min(idCount, MAX_ORDER_ID_COUNT);
+  let instanceIds = [];
+  try {
+    const scardAsync = Promise.promisify(app.redis.scard).bind(app.redis);
+    const spopAsync = Promise.promisify(app.redis.spop).bind(app.redis);
+    let idCount = await scardAsync(redisSetName);
+    if (idCount === 0) {
+      return [];
+    }
+    debugBatch(`${idCount} ${modelName}(s) created.`);
+    idCount = Math.min(idCount, MAX_ORDER_ID_COUNT);
 
-  const instanceIds = await spopAsync(redisSetName, idCount);
-  if (debugBatch.enabled) {
-    debugBatch(`${modelName} IDs in ${redisSetName}(count: ${instanceIds.length}): ${JSON.stringify(instanceIds)}.`);
+    instanceIds = await spopAsync(redisSetName, idCount);
+    if (debugBatch.enabled) {
+      debugBatch(`${modelName} IDs in ${redisSetName}(count: ${instanceIds.length}): ${JSON.stringify(instanceIds)}.`);
+    }
+  } catch (error) {
+    logger.error(`Error while getting ${modelName} instance IDs from redis - ${error.message}`);
   }
   return instanceIds;
 }
@@ -446,13 +451,14 @@ module.exports.batchUpdate = async function(fireDate) {
     await batchUpdateOnProduct()
     // [Note] any batch update on other model should come here.
   );
-  if (!_.isEmpty(metricNames)) {
-    process.send({
-      eventType: 'METRIC_UPDATED',
+  if (!_.isEmpty(metricNames) && app.redis) {
+    debugBatch('Publishing to \'web-app\' channel (type: METRIC_UPDATED)');
+    app.redis.publish('web-app', JSON.stringify({
+      type: 'METRIC_UPDATED',
       data: {
         names: metricNames
       }
-    });
+    }));
   }
 };
 

@@ -27,7 +27,7 @@
       </div>
       <div fxFlex="auto">
       </div>
-      <div fxFlex="nogrow">
+      <div *ngIf="order.hasInvoice" fxFlex="nogrow">
         <button mat-raised-button matTooltip="Download invoice document" (click)="downloadPdf()"><fa-icon icon="file-pdf"></fa-icon> Download</button>
       </div>
     </div>

@@ -6,11 +6,10 @@ const Promise = require('bluebird');
 const yn = require('yn');
 const _ = require('lodash');
 const app = require(appRoot + '/server/server');
-const metricSetting = require(appRoot + '/config/metric');
 const logger = require(appRoot + '/config/winston');
 
 module.exports = function(Client) {
-  const REDIS_CLIENT_DELETED_KEY = metricSetting.redisClientDeletedSetKey;
+  const REDIS_CLIENT_DELETED_KEY = require(appRoot + '/config/redis-keys').clientDeletedSetKey;
 
   /* Replace built-in 'destroyById' with custom function that performs
    * cascade deletion. */

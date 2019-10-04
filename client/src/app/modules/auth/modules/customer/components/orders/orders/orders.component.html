@@ -46,7 +46,7 @@
       <ng-container matColumnDef="pdf">
         <th mat-header-cell *matHeaderCellDef> PDF </th>
         <td mat-cell *matCellDef="let row">
-          <button *ngIf="showPdf(row.status)" mat-icon-button matTooltip="Download invoice document" (click)="downloadPdf(row.id)"><fa-icon icon="file-pdf"></fa-icon></button>
+          <button *ngIf="row.hasInvoice" mat-icon-button matTooltip="Download invoice document" (click)="downloadPdf(row.id)"><fa-icon icon="file-pdf"></fa-icon></button>
         </td>
       </ng-container>
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
