@@ -16,6 +16,7 @@ module.exports = function(app) {
   // schedule jobs to run every midnight
   const everyMidnightRule = new scheduler.RecurrenceRule();
   everyMidnightRule.hour = 0;
+  everyMidnightRule.minute = 0;
   scheduler.scheduleJob(everyMidnightRule, messageBatch.delExpiredMessage);
   // scheduler.scheduleJob(everyMidnightRule, metricBatch.removeOldData);
 
