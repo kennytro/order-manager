@@ -451,13 +451,14 @@ module.exports.batchUpdate = async function(fireDate) {
     await batchUpdateOnProduct()
     // [Note] any batch update on other model should come here.
   );
-  if (!_.isEmpty(metricNames)) {
-    process.send({
-      eventType: 'METRIC_UPDATED',
+  if (!_.isEmpty(metricNames) && app.redis) {
+    debugBatch('Publishing to \'web-app\' channel (type: METRIC_UPDATED)');
+    app.redis.publish('web-app', JSON.stringify({
+      type: 'METRIC_UPDATED',
       data: {
         names: metricNames
       }
-    });
+    }));
   }
 };
 
