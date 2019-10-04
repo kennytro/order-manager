@@ -32,7 +32,7 @@ async function getInstanceIds(redisClient, setName) {
 module.exports = {
   makeInvoice: async function(app) {
     if (app.redis) {
-      const orderIds = await getInstanceIds(app.redis, redisKeys.redisOrderInvoiceSetKey);
+      const orderIds = await getInstanceIds(app.redis, redisKeys.orderInvoiceSetKey);
       if (_.isEmpty(orderIds)) {
         return;
       }

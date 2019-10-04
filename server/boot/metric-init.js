@@ -5,7 +5,6 @@ const cluster = require('cluster');
 const uuidv5 = require('uuid/v5');
 const yn = require('yn');
 const logger = require(appRoot + '/config/winston');
-const metricSetting = require(appRoot + '/config/metric');
 
 module.exports = async function(app) {
   /* skip if it's one-off process or not a worker. Since metric is not
@@ -16,7 +15,7 @@ module.exports = async function(app) {
   if (process.env.NODE_ENV !== 'unit_test' && (yn(process.env.ONE_OFF) || !cluster.isWorker)) {
     return;
   };
-  const UUID_NAMESPACE = metricSetting.uuidNamespace;
+  const UUID_NAMESPACE = require(appRoot + '/config/redis-keys').metricNamespace;
 
   const SEED_METRICS = [
     // ----- Company wide metric -----

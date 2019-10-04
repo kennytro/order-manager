@@ -7,8 +7,16 @@
  * This file contains the key of sets in Redis.
  */
 module.exports = {
+  // namespace UUID for metric id.
+  metricNamespace: 'd7f09c30-edbf-42b6-af73-c8931cfbdf7c',
+  // Set containing orders changed.
+  orderChangedSetKey: 'order-changed-set',
+  // Set containing clients deleted.
+  clientDeletedSetKey: 'client-deleted-set',
+  // Set containing product changed.
+  productChangedSetKey: 'product-changed-set',
   // Set containing orders needing PDF invoice.
-  redisOrderInvoiceSetKey: 'order-invoice-set',
+  orderInvoiceSetKey: 'order-invoice-set',
   // Set containing statements needing PDF statement.
-  redisStatementPdfSetKey: 'statement-pdf-set'
+  statementPdfSetKey: 'statement-pdf-set'
 };

@@ -7,7 +7,7 @@ const moment = require('moment');
 const uuidv5 = require('uuid/v5');
 const app = require(appRoot + '/server/server');
 const logger = require(appRoot + '/config/winston');
-const metricSetting = require(appRoot + '/config/metric');
+const metricNamespace = require(appRoot + '/config/redis-keys').metricNamespace;
 
 module.exports = function(Metric) {
   /**
@@ -20,7 +20,7 @@ module.exports = function(Metric) {
     const metricIds = _.map(names, name => {
       return {
         name: name,
-        id: uuidv5(name, metricSetting.uuidNamespace)
+        id: uuidv5(name, metricNamespace)
       };
     });
     let metricIdClause;

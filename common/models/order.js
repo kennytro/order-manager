@@ -9,7 +9,6 @@ const logger = require(appRoot + '/config/winston');
 const PdfMaker = require(appRoot + '/common/util/make-pdf');
 const fileStorage = require(appRoot + '/common/util/file-storage');
 const tenantSetting = require(appRoot + '/config/tenant');
-const metricSetting = require(appRoot + '/config/metric');
 const redisKeys = require(appRoot + '/config/redis-keys');
 /**
  * @param {Number} - subtotal
@@ -81,7 +80,7 @@ function updateOrderAmount(order, orderItems, client) {
 }
 
 module.exports = function(Order) {
-  const REDIS_ORDER_CHANGED_KEY = metricSetting.redisOrderChangedSetKey;
+  const REDIS_ORDER_CHANGED_KEY = require(appRoot + '/config/redis-keys').orderChangedSetKey;
 
   // Don't allow delete by ID. Instead cancel order.
   Order.disableRemoteMethodByName('deleteById');
@@ -282,7 +281,7 @@ module.exports = function(Order) {
 
     // finally publish order IDs for worker to generate invoice PDF.
     if (app.redis) {
-      app.redis.sadd(redisKeys.redisOrderInvoiceSetKey, orderIds);
+      app.redis.sadd(redisKeys.orderInvoiceSetKey, orderIds);
       app.redis.publish('worker', JSON.stringify({ type: 'GENERATE_ORDER_INVOICE' }));
     }
     return {

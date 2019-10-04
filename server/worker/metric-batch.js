@@ -7,9 +7,9 @@ const uuidv5 = require('uuid/v5');
 const debugBatch = require('debug')('order-manager:Metric:batch');
 const app = require(appRoot + '/server/server');
 const logger = require(appRoot + '/config/winston');
-const metricSetting = require(appRoot + '/config/metric');
+const redisKeys = require(appRoot + '/config/redis-keys');
 
-const METRIC_NS_UUID = metricSetting.uuidNamespace;
+const METRIC_NS_UUID = redisKeys.metricNamespace;
 const TS_METRIC_ID = uuidv5('total_sale', METRIC_NS_UUID);
 const TO_METRIC_ID = uuidv5('total_orders', METRIC_NS_UUID);
 const CS_METRIC_ID = uuidv5('client_sale', METRIC_NS_UUID);
@@ -32,9 +32,9 @@ async function getChangedInstanceIds(modelName) {
 
   let redisSetName;
   if (modelName === 'Order') {
-    redisSetName = metricSetting.redisOrderChangedSetKey;
+    redisSetName = redisKeys.orderChangedSetKey;
   } else if (modelName === 'Product') {
-    redisSetName = metricSetting.redisProductChangedSetKey;
+    redisSetName = redisKeys.productChangedSetKey;
   } else {
     return [];
   }
