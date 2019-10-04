@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
+import { of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 @Injectable()
@@ -17,5 +18,6 @@ export class FileService {
           return new Blob([res], { type: 'application/pdf' });
         }));
     }
+    return of(null);
   }
 }

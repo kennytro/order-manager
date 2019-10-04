@@ -14,3 +14,4 @@ ALTER TABLE client ADD COLUMN IF NOT EXISTS fee_schedule fee_schedule DEFAULT 'N
 ALTER TABLE statement_t ADD COLUMN IF NOT EXISTS fee_amount numeric DEFAULT 0;
 ALTER TABLE client ADD COLUMN IF NOT EXISTS settings jsonb;
 ALTER TABLE order_t ADD COLUMN IF NOT EXISTS fee_explanation text;
+ALTER TABLE order_t ADD COLUMN IF NOT EXISTS has_invoice bool DEFAULT false;

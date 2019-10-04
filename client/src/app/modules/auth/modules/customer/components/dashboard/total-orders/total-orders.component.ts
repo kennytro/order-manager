@@ -15,6 +15,7 @@ import { SocketService } from '../../../../../shared/services/socket.service';
 
 @Component({
   selector: 'app-total-orders',
+  providers: [ SocketService ],
   templateUrl: './total-orders.component.html',
   styleUrls: ['./total-orders.component.css']
 })

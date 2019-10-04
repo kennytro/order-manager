@@ -39,18 +39,23 @@ async function getChangedInstanceIds(modelName) {
     return [];
   }
 
-  const scardAsync = Promise.promisify(app.redis.scard).bind(app.redis);
-  const spopAsync = Promise.promisify(app.redis.spop).bind(app.redis);
-  let idCount = await scardAsync(redisSetName);
-  if (idCount === 0) {
-    return [];
-  }
-  debugBatch(`${idCount} ${modelName}(s) created.`);
-  idCount = Math.min(idCount, MAX_ORDER_ID_COUNT);
+  let instanceIds = [];
+  try {
+    const scardAsync = Promise.promisify(app.redis.scard).bind(app.redis);
+    const spopAsync = Promise.promisify(app.redis.spop).bind(app.redis);
+    let idCount = await scardAsync(redisSetName);
+    if (idCount === 0) {
+      return [];
+    }
+    debugBatch(`${idCount} ${modelName}(s) created.`);
+    idCount = Math.min(idCount, MAX_ORDER_ID_COUNT);
 
-  const instanceIds = await spopAsync(redisSetName, idCount);
-  if (debugBatch.enabled) {
-    debugBatch(`${modelName} IDs in ${redisSetName}(count: ${instanceIds.length}): ${JSON.stringify(instanceIds)}.`);
+    instanceIds = await spopAsync(redisSetName, idCount);
+    if (debugBatch.enabled) {
+      debugBatch(`${modelName} IDs in ${redisSetName}(count: ${instanceIds.length}): ${JSON.stringify(instanceIds)}.`);
+    }
+  } catch (error) {
+    logger.error(`Error while getting ${modelName} instance IDs from redis - ${error.message}`);
   }
   return instanceIds;
 }

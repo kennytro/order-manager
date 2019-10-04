@@ -83,6 +83,13 @@
         "dataType": "timestamptz",
         "columnName": "updated_at"
       }
+    },
+    "hasInvoice": {
+      "type": "boolean",
+      "default": false,
+      "postgresql": {
+        "columnName": "has_invoice"
+      }
     }
   },
   "validations": [],

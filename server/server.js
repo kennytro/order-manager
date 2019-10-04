@@ -149,6 +149,7 @@ boot(app, __dirname, function(err) {
   if (cluster.isMaster && require.main === module) {
     let server = app.start();
     modelSockets.init(app, server);
+    require('./web-app-redis-sub')(app);
   }
   if (cluster.isWorker && require.main === module) {
     worker.start(app);

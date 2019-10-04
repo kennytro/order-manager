@@ -22,7 +22,11 @@ const md5File = require('md5-file');
 require('dotenv').config();
 
 // IMPORTANT. order of SQL files matter.
-const SQL_FILES = ['database/create_tables.sql', 'database/update_tables.sql'];
+const SQL_FILES = [
+  'database/create_tables.sql',
+  'database/update_tables.sql',
+  'database/scripts/0001_add_has_invoice.sql'
+];
 
 /*
  * @param {string} DB connection URL

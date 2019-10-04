@@ -41,7 +41,7 @@ export class TodaysSnapshotsComponent implements OnInit {
          filter((data) => (!data.clientId || data.clientId === this._clientId)),
          debounceTime(1000))
       .subscribe((data) => {
-        console.log(`Received message (${JSON.stringify(data)})`);
+        console.log(`Received message on model \'order\' - (${JSON.stringify(data)})`);
         this._getOrders();
       });
   }
