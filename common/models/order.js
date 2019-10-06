@@ -89,24 +89,29 @@ module.exports = function(Order) {
     /**
      * Override 'destroyById()'.
      *
-     * Check no statement is assigned, and perform cascade delete on
-     * its OrderItem instances.
+     * Check no statement is assigned, and delete invoice afterward.
      */
     Order.destroyById = async function(id, callback) {
       callback = callback || function() { };
       try {
-        await app.dataSources.OrderManager.transaction(async models => {
-          const { Order, OrderItem } = models;
-          let target = await Order.findById(id);
-          if (target) {
-            if (target.statementId) {
-              throw new Error(`Order(id: ${id}) cannot be deleted because it belongs to a Statement(id: ${target.statementId}`);
-            }
-            await OrderItem.destroyAll({ orderId: id });
-            await target.deletePdf(false);
-            await target.destroy();
+        let invoiceFileName = null;
+        let target = await Order.findById(id);
+        if (target) {
+          if (target.statementId) {
+            let error = new Error(`Order(id: ${id}) cannot be deleted because it belongs to a Statement(id: ${target.statementId}`);
+            error.status = 409;  // Conflict
+            throw error;
           }
-        });
+          invoiceFileName = target.getPdfName();
+          await target.destroy();
+        }
+        if (invoiceFileName) {
+          await fileStorage.deleteFile({
+            path: 'om-private',
+            fileName: invoiceFileName
+          });
+          logger.info(`Deleted order invoice PDF(${invoiceFileName})`);
+        }
       } catch (error) {
         callback(error);
       }
@@ -574,18 +579,16 @@ module.exports = function(Order) {
   };
 
   /**
-   * @param {Boolean} - save this instance after deleting PDF.
    */
-  Order.prototype.deletePdf = async function(saveFlag) {
-    await fileStorage.deleteFile({
-      path: 'om-private',
-      fileName: this.getPdfName()
-    });
-    if (saveFlag) {
-      this.hasInvoice = false;
-      await this.save();
+  Order.prototype.deletePdf = async function() {
+    if (this.getPdfName()) {
+      await fileStorage.deleteFile({
+        path: 'om-private',
+        fileName: this.getPdfName()
+      });
+      logger.info(`Deleted order invoice PDF of ${this.id}`);
     }
-    logger.info(`Deleted order invoice PDF of ${this.id}`);
+    this.hasInvoice = false;
   };
 
   Order.prototype.getPdfUrl = async function() {

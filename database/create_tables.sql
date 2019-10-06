@@ -146,8 +146,8 @@ ALTER SEQUENCE order_id_seq OWNED BY order_t.id;
 CREATE TABLE IF NOT EXISTS order_item
 (
   id integer PRIMARY KEY DEFAULT nextval('generic_id_seq'),
-  order_id integer REFERENCES order_t,
-  product_id integer REFERENCES product,
+  order_id integer REFERENCES order_t ON DELETE CASCADE,
+  product_id integer REFERENCES product ON DELETE RESTRICT,
   quantity numeric DEFAULT 0,
   unit_price numeric DEFAULT 0,
   UNIQUE(order_id, product_id)

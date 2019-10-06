@@ -83,18 +83,25 @@ module.exports = function(Product) {
   });
 
   /**
-   * Before deleting a product, check the order is not in use.
-   * If not in use, remove its image file from S3.
+   * Before deleting a product, check for any order using it.
    */
   Product.observe('before delete', async function(ctx) {
     let productId = _.get(ctx, ['where', 'id']);
     if (productId) {
       let orderItem = await app.models.OrderItem.findOne({ where: { productId: productId } });
       if (orderItem) {
-        let error = new Error('Cannot delete product in use(Tip: set "isAvailable" to false instead)');
-        error.status = 409;
+        let error = new Error('Cannot delete a product in use(Tip: set "isAvailable" to false instead)');
+        error.status = 409;  // Conflict
         throw error;
       }
+    }
+  });
+  /**
+   * After a product is deleted, remove its image file from S3.
+   */
+  Product.observe('after delete', async function(ctx) {
+    let productId = _.get(ctx, ['where', 'id']);
+    if (productId) {
       await fileStorage.deleteFile({
         path: 'om-public',
         fileName: `${tenantSetting.id}/product/${productId}.png`
