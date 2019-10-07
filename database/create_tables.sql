@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS client
   fee_value numeric DEFAULT 0,
   fee_schedule fee_schedule DEFAULT 'None',
   show_public bool DEFAULT false,
-  delivery_route_id integer REFERENCES delivery_route,
+  delivery_route_id integer REFERENCES delivery_route ON DELETE RESTRICT,
   created_date timestamptz DEFAULT now(),
   settings jsonb
 );
@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS end_user
   email text NOT NULL,
   email_verified bool NULL,
   role text NOT NULL DEFAULT 'customer',
-  client_id integer REFERENCES client,
+  client_id integer REFERENCES client ON DELETE CASCADE,
   settings jsonb,
   created_date timestamptz DEFAULT now()
 );
@@ -106,7 +106,7 @@ CREATE SEQUENCE IF NOT EXISTS statement_id_seq MINVALUE 10000;
 CREATE TABLE IF NOT EXISTS statement_t
 (
   id integer PRIMARY KEY DEFAULT nextval('statement_id_seq'),
-  client_id integer REFERENCES client,
+  client_id integer REFERENCES client ON DELETE CASCADE,
   statement_date date NOT NULL DEFAULT CURRENT_DATE, 
   subtotal_amount numeric DEFAULT 0,
   fee_amount numeric DEFAULT 0,
@@ -116,9 +116,9 @@ CREATE TABLE IF NOT EXISTS statement_t
   adjust_reason text,
   note text,
   settings jsonb,
-  created_by integer REFERENCES end_user,
+  created_by integer REFERENCES end_user ON DELETE RESTRICT,
   created_at timestamptz DEFAULT now(),
-  updated_by integer REFERENCES end_user,
+  updated_by integer REFERENCES end_user ON DELETE RESTRICT,
   updated_at timestamptz DEFAULT now()
 );
 ALTER SEQUENCE statement_id_seq OWNED BY statement_t.id;
@@ -127,17 +127,17 @@ CREATE SEQUENCE IF NOT EXISTS order_id_seq MINVALUE 10000;
 CREATE TABLE IF NOT EXISTS order_t
 (
   id integer PRIMARY KEY DEFAULT nextval('order_id_seq'),
-  client_id integer REFERENCES client,
-  statement_id integer REFERENCES statement_t,
+  client_id integer REFERENCES client ON DELETE CASCADE,
+  statement_id integer REFERENCES statement_t ON DELETE RESTRICT,
   status order_status DEFAULT 'Submitted',
   subtotal numeric DEFAULT 0,
   fee numeric DEFAULT 0,
   fee_explanation text,
   total_amount numeric DEFAULT 0,
   note text,
-  created_by integer REFERENCES end_user,
+  created_by integer REFERENCES end_user ON DELETE RESTRICT,
   created_at timestamptz DEFAULT now(),
-  updated_by integer REFERENCES end_user,
+  updated_by integer REFERENCES end_user ON DELETE RESTRICT,
   updated_at timestamptz DEFAULT now(),
   has_invoice bool DEFAULT false
 );
@@ -176,7 +176,7 @@ CREATE TABLE IF NOT EXISTS metric
 CREATE TABLE IF NOT EXISTS metric_data
 (
   id integer PRIMARY KEY DEFAULT nextval('generic_id_seq'),
-  metric_id uuid NOT NULL REFERENCES metric,
+  metric_id uuid NOT NULL REFERENCES metric ON DELETE CASCADE,
   instance_id integer,
   value numeric,
   metric_date timestamptz DEFAULT now(),
@@ -188,7 +188,7 @@ CREATE TABLE IF NOT EXISTS message
   id integer PRIMARY KEY DEFAULT nextval('generic_id_seq'),
   message_type message_type DEFAULT 'Message',
   from_user text,
-  to_user_id integer REFERENCES end_user,
+  to_user_id integer REFERENCES end_user ON DELETE CASCADE,
   subject text,
   body text,
   created_at timestamptz DEFAULT now(),
