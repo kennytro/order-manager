@@ -24,7 +24,7 @@ export class CustomerLayoutComponent implements OnInit {
   private _userId: number;
   private _unreadMsgCountWaitTime: number;
 
-
+  private _userProfile: UserProfile;
   private _companyLogo: string;
   private _client: any;
   private _unsubscribe = new Subject<boolean>();  
@@ -39,6 +39,7 @@ export class CustomerLayoutComponent implements OnInit {
     private _socketService: SocketService) { }
 
   ngOnInit() {
+    this._userProfile = Object.assign({}, this._auth.getUserProfile());
     const tenant = this._dataShare.getData('tenant');
     this._companyLogo = AWS_S3_PUBLIC_URL + tenant.id + '/favicon.png';   
     this._route.data
@@ -50,7 +51,7 @@ export class CustomerLayoutComponent implements OnInit {
       });
     this._updateUnreadMessageCount();
 
-    this._dataApi.genericMethod('EndUser', 'getMyUser', [this._auth.getUserProfile().authId])
+    this._dataApi.genericMethod('EndUser', 'getMyUser', [this._userProfile.authId])
       .subscribe(user => {
         this._userId = user.id;
       });
@@ -108,7 +109,7 @@ export class CustomerLayoutComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe( async result => {
       if (result) {
-        await this._dataApi.genericMethod('EndUser', 'sendMeResetPasswordEmail', [this._auth.getUserProfile().authId]).toPromise();
+        await this._dataApi.genericMethod('EndUser', 'sendMeResetPasswordEmail', [this._userProfile.authId]).toPromise();
         const snackBarRef = this._snackBar.open(`Sent password reset email to ${this.getUserEmail()}`, 'Close', {
           duration: 3000
         });
@@ -145,11 +146,11 @@ export class CustomerLayoutComponent implements OnInit {
   }
 
   getUserEmail() {
-    return this._auth.getUserProfile().email;
+    return this._userProfile.email;
   }
   
   getUserPicture() {
-    return this._auth.getUserProfile().pictureUrl;
+    return this._userProfile.pictureUrl;
   }
 
   private _updateUnreadMessageCount() {
